@@ -21,6 +21,7 @@ const Button: React.FC<ButtonProps> = ({
     warning: 'bg-warning-600 text-white hover:bg-warning-700 focus:ring-warning-500',
     danger: 'bg-danger-600 text-white hover:bg-danger-700 focus:ring-danger-500',
     outline: 'border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-primary-500',
+    accent: 'bg-accent-500 text-white hover:bg-accent-600 focus:ring-accent-500',
   };
 
   const sizeClasses = {

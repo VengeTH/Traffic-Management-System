@@ -250,7 +250,7 @@ export interface LoadingSpinnerProps {
 }
 
 export interface ButtonProps {
-  variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'outline';
+  variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'outline' | 'accent';
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
   loading?: boolean;
