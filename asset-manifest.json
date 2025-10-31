@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Traffic-Management-System/static/css/main.5026a86c.css",
+    "main.js": "/Traffic-Management-System/static/js/main.2cfb81f9.js",
+    "index.html": "/Traffic-Management-System/index.html",
+    "main.5026a86c.css.map": "/Traffic-Management-System/static/css/main.5026a86c.css.map",
+    "main.2cfb81f9.js.map": "/Traffic-Management-System/static/js/main.2cfb81f9.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.5026a86c.css",
+    "static/js/main.2cfb81f9.js"
+  ]
+}
