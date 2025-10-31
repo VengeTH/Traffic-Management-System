@@ -91,9 +91,9 @@ const HomePage: React.FC = () => {
             <div className="text-center lg:text-left">
               <div className="max-w-4xl mx-auto lg:mx-0">
                 <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight">
-                  <span className="block">Las Piñas</span>
+                  <span className="block">E-VioPay</span>
                   <span className="block bg-gradient-to-r from-accent-300 to-accent-500 bg-clip-text text-transparent">
-                    Traffic System
+                    Online Traffic Payments
                   </span>
                 </h1>
                 <p className="text-xl md:text-2xl text-green-100 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
@@ -262,9 +262,9 @@ const HomePage: React.FC = () => {
           <div className="text-center">
             <div className="flex items-center justify-center mb-6">
               <div className="h-12 w-12 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-lg">LP</span>
+                <span className="text-white font-bold text-lg">EV</span>
               </div>
-              <span className="ml-3 text-2xl font-bold">Las Piñas Traffic System</span>
+              <span className="ml-3 text-2xl font-bold">E-VioPay</span>
             </div>
             <p className="text-gray-400 mb-6">
               Simplifying traffic violation payments for the City of Las Piñas

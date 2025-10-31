@@ -15,7 +15,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Navbar />
       <div className="flex">
         {user && <Sidebar />}
-        <main className={`flex-1 ${user ? 'md:ml-64' : ''}`}>
+        <main className={`flex-1 ${user ? 'mx-5' : ''}`}>
           <div className="py-8">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               {children}

@@ -5,7 +5,6 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PaymentProvider } from './contexts/PaymentContext';
 
 // Layout Components
-import Layout from './components/Layout/Layout';
 import Navbar from './components/Layout/Navbar';
 import Sidebar from './components/Layout/Sidebar';
 
@@ -64,6 +63,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean 
 // Main App Component
 const AppContent: React.FC = () => {
   const { user } = useAuth();
+  const isLandingPage = typeof window !== 'undefined' && window.location.pathname === "/";
 
   return (
     <Router>
@@ -73,7 +73,7 @@ const AppContent: React.FC = () => {
         <div className="flex">
           {user && <Sidebar />}
           
-          <main className={`flex-1 ${user ? 'ml-64' : ''}`}>
+          <main className={`flex-1 ${isLandingPage ? '' : 'mx-5'}`}>
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<HomePage />} />

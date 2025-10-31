@@ -1,8 +1,8 @@
-# Las Piñas Traffic System - UI Design Guide
+# E-VioPay - UI Design Guide
 
 ## 🎨 Design Philosophy
 
-The Las Piñas Traffic System UI is designed with a modern, clean, and user-friendly approach that reflects the vibrant and progressive nature of Las Piñas City. The design emphasizes accessibility, efficiency, and trust - essential for a government payment platform.
+The E-VioPay UI is designed with a modern, clean, and user-friendly approach that reflects the vibrant and progressive nature of Las Piñas City. The design emphasizes accessibility, efficiency, and trust - essential for a government payment platform.
 
 ## 🌈 Color Palette
 
@@ -409,4 +409,4 @@ Create new component variants by extending the base classes:
 
 ---
 
-*This design guide ensures consistency, accessibility, and a professional appearance across the Las Piñas Traffic System platform. For questions or updates, please contact the development team.*
+*This design guide ensures consistency, accessibility, and a professional appearance across the E-VioPay platform. For questions or updates, please contact the development team.*

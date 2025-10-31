@@ -35,13 +35,13 @@ const Navbar: React.FC = () => {
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center group">
               <div className="h-12 w-12 bg-gradient-to-br from-primary-600 to-primary-800 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
-                <span className="text-white font-bold text-lg">LP</span>
+                <span className="text-white font-bold text-lg">EV</span>
               </div>
               <div className="ml-4">
                 <span className="text-2xl font-bold gradient-text">
-                  Las Piñas Traffic
+                  E-VioPay
                 </span>
-                <p className="text-xs text-gray-600 -mt-1">Online Payment System</p>
+                <p className="text-xs text-gray-600 -mt-1">Online Traffic Payments</p>
               </div>
             </Link>
           </div>

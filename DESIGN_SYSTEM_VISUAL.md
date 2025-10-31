@@ -1,4 +1,4 @@
-# Las Piñas Traffic System - Visual Design System
+# E-VioPay - Visual Design System
 
 ## 🎨 Color Palette Visualization
 
@@ -232,4 +232,4 @@ Usage:
 
 ---
 
-*This visual guide provides a comprehensive overview of the Las Piñas Traffic System design system. Use this as a reference for maintaining consistency across all components and pages.*
+*This visual guide provides a comprehensive overview of the E-VioPay design system. Use this as a reference for maintaining consistency across all components and pages.*
