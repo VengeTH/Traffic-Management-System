@@ -118,18 +118,26 @@ const AdminUsersPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow p-6">
-        <h1 className="text-2xl font-bold text-gray-900">Manage Users</h1>
-        <p className="text-gray-600 mt-1">
-          View and manage all users in the system.
-        </p>
+    <div className="space-y-6 pt-8 px-4 pb-8">
+      <div className="bg-white rounded-xl shadow-lg border-2 border-green-200 p-8 relative overflow-hidden">
+        <div className="absolute inset-0 bg-green-50/30 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+        <div className="relative flex items-center gap-3 mb-2">
+          <div className="p-3 bg-green-600 rounded-xl shadow-md border border-green-700">
+            <Users className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-extrabold text-gray-900">Manage Users</h1>
+            <p className="text-gray-600 mt-1 text-sm font-medium">
+              View and manage all users in the system
+            </p>
+          </div>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
+      <Card className="shadow-lg border-2 border-gray-200 hover:border-green-200 transition-colors">
+        <CardHeader className="bg-white border-b-2 border-gray-200">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <CardTitle>User Management</CardTitle>
+            <CardTitle className="text-xl font-semibold text-gray-800">User Management</CardTitle>
             
             {/* Search and Filters */}
             <div className="flex flex-col md:flex-row gap-3">
@@ -219,7 +227,7 @@ const AdminUsersPage: React.FC = () => {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {users.map((user) => (
-                      <tr key={user.id} className="hover:bg-gray-50">
+                      <tr key={user.id} className="hover:bg-green-50 transition-colors duration-150 border-l-4 border-transparent hover:border-green-400">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div>
@@ -358,10 +366,13 @@ const AdminUsersPage: React.FC = () => {
 
       {/* Edit User Modal */}
       {showEditModal && editingUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Edit User</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full border border-gray-200 transform transition-all">
+            <div className="px-6 py-5 border-b-2 border-gray-200 bg-white">
+              <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <Edit className="h-5 w-5 text-primary-600" />
+                Edit User
+              </h3>
             </div>
             <div className="px-6 py-4 space-y-4">
               <Input
@@ -414,17 +425,22 @@ const AdminUsersPage: React.FC = () => {
                 </label>
               </div>
             </div>
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+            <div className="px-6 py-5 border-t border-gray-200 flex justify-end gap-3 bg-gray-50">
               <Button
                 variant="outline"
                 onClick={() => {
                   setShowEditModal(false);
                   setEditingUser(null);
                 }}
+                className="shadow-sm"
               >
                 Cancel
               </Button>
-              <Button variant="primary" onClick={handleUpdate}>
+              <Button 
+                variant="primary" 
+                onClick={handleUpdate}
+                className="shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+              >
                 Save Changes
               </Button>
             </div>

@@ -388,6 +388,28 @@ router.post('/violations/:id/process-dispute', adminAuth, validateDisputeProcess
     await violation.save();
   }
   
+  // * Create in-app notification for user
+  try {
+    const { createDisputeNotification } = require('../utils/notifications');
+    let user = null;
+    
+    // Try to find user by driver license number
+    if (violation.driverLicenseNumber) {
+      user = await User.findOne({ where: { driverLicenseNumber: violation.driverLicenseNumber } });
+    }
+    
+    // If not found, try by phone number
+    if (!user && violation.driverPhone) {
+      user = await User.findOne({ where: { phoneNumber: violation.driverPhone } });
+    }
+    
+    if (user) {
+      await createDisputeNotification(user.id, violation, approved ? 'approved' : 'rejected');
+    }
+  } catch (error) {
+    logger.error('Failed to create dispute notification:', error);
+  }
+  
   res.json({
     success: true,
     message: `Dispute ${approved ? 'approved' : 'rejected'} successfully`,

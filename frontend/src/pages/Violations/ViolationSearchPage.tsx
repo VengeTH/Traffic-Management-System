@@ -87,19 +87,35 @@ const ViolationSearchPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-8 px-4 pb-8">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h1 className="text-2xl font-bold text-gray-900">Search Violations</h1>
-        <p className="text-gray-600 mt-1">
-          Look up traffic violations using OVR number, plate number, or driver's license number.
-        </p>
+      <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-100 p-8 overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-100/30 rounded-full -mr-48 -mt-48 blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-primary-100/20 rounded-full -ml-36 -mb-36 blur-2xl"></div>
+        <div className="relative flex items-center gap-3">
+          <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl shadow-lg">
+            <Search className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-extrabold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">
+              Search Violations
+            </h1>
+            <p className="text-gray-600 mt-2 text-base font-medium">
+              Look up traffic violations using OVR number, plate number, or driver's license number.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Search Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Search Criteria</CardTitle>
+      <Card className="border border-slate-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <CardHeader className="bg-gradient-to-r from-slate-50 to-white border-b border-slate-200">
+          <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <FileText className="h-5 w-5 text-blue-700" />
+            </div>
+            Search Criteria
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -129,13 +145,13 @@ const ViolationSearchPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end pt-4 border-t border-gray-100">
               <Button
                 type="submit"
                 variant="primary"
                 size="lg"
                 loading={loading}
-                className="flex items-center"
+                className="flex items-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
               >
                 <Search className="h-5 w-5 mr-2" />
                 Search Violations
@@ -147,9 +163,12 @@ const ViolationSearchPage: React.FC = () => {
 
       {/* Search Results */}
       {searched && (
-        <Card>
-          <CardHeader>
-            <CardTitle>
+        <Card className="border border-slate-200 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-slate-50 to-white border-b border-slate-200">
+            <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <div className="p-2 bg-primary-100 rounded-lg">
+                <FileText className="h-5 w-5 text-primary-700" />
+              </div>
               Search Results
               {violations.length > 0 && (
                 <span className="ml-2 text-sm font-normal text-gray-500">
@@ -158,17 +177,20 @@ const ViolationSearchPage: React.FC = () => {
               )}
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
             {loading ? (
-              <div className="flex items-center justify-center py-12">
+              <div className="flex items-center justify-center py-16">
                 <LoadingSpinner size="lg" />
               </div>
             ) : violations.length === 0 ? (
-              <div className="text-center py-12">
-                <FileText className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No violations found</h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  No traffic violations match your search criteria.
+              <div className="text-center py-16">
+                <div className="relative inline-block mb-4">
+                  <div className="absolute inset-0 bg-gray-100 rounded-full blur-xl"></div>
+                  <FileText className="relative mx-auto h-16 w-16 text-gray-300" />
+                </div>
+                <h3 className="mt-4 text-lg font-bold text-gray-900">No violations found</h3>
+                <p className="mt-2 text-sm text-gray-600 max-w-sm mx-auto">
+                  No traffic violations match your search criteria. Try a different search value.
                 </p>
               </div>
             ) : (
@@ -176,8 +198,9 @@ const ViolationSearchPage: React.FC = () => {
                 {violations.map((violation) => (
                   <div
                     key={violation.id}
-                    className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+                    className="group relative overflow-hidden bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-primary-300 hover:shadow-xl transition-all duration-300"
                   >
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary-50/30 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-primary-100/40 transition-colors"></div>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-4">
@@ -233,11 +256,12 @@ const ViolationSearchPage: React.FC = () => {
                             )}
                           </div>
 
-                          <div className="flex space-x-2">
+                          <div className="flex space-x-2 relative z-10">
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => window.open(`/violations/${violation.id}`, '_blank')}
+                              className="border-2 hover:bg-gray-50 transition-colors"
                             >
                               View Details
                             </Button>
@@ -246,6 +270,7 @@ const ViolationSearchPage: React.FC = () => {
                                 variant="primary"
                                 size="sm"
                                 onClick={() => window.open(`/payment/${violation.id}`, '_blank')}
+                                className="shadow-md hover:shadow-lg transition-all"
                               >
                                 Pay Now
                               </Button>

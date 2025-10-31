@@ -5,7 +5,7 @@
 
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const { User, Violation, Payment } = require('../models');
+const { User, Violation, Payment, Notification } = require('../models');
 const { auth } = require('../middleware/auth');
 const { asyncHandler, ValidationError, NotFoundError } = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
@@ -447,6 +447,107 @@ router.delete('/account', auth, asyncHandler(async (req, res) => {
   res.json({
     success: true,
     message: 'Account deactivated successfully'
+  });
+}));
+
+/**
+ * @route   GET /api/users/notifications
+ * @desc    Get user notifications
+ * @access  Private
+ */
+router.get('/notifications', auth, asyncHandler(async (req, res) => {
+  const { page = 1, limit = 50, unreadOnly = false } = req.query;
+  const offset = (page - 1) * limit;
+  
+  let whereClause = { userId: req.user.id };
+  
+  if (unreadOnly === 'true') {
+    whereClause.isRead = false;
+  }
+  
+  const notifications = await Notification.findAll({
+    where: whereClause,
+    order: [['createdAt', 'DESC']],
+    limit: parseInt(limit),
+    offset: parseInt(offset)
+  });
+  
+  const unreadCount = await Notification.getUnreadCount(req.user.id);
+  const total = await Notification.count({ where: { userId: req.user.id } });
+  
+  res.json({
+    success: true,
+    data: {
+      notifications: notifications.map(n => n.toJSON()),
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit)
+      },
+      unreadCount
+    }
+  });
+}));
+
+/**
+ * @route   GET /api/users/notifications/unread-count
+ * @desc    Get unread notification count
+ * @access  Private
+ */
+router.get('/notifications/unread-count', auth, asyncHandler(async (req, res) => {
+  const count = await Notification.getUnreadCount(req.user.id);
+  
+  res.json({
+    success: true,
+    data: { count }
+  });
+}));
+
+/**
+ * @route   PUT /api/users/notifications/:id/read
+ * @desc    Mark notification as read
+ * @access  Private
+ */
+router.put('/notifications/:id/read', auth, asyncHandler(async (req, res) => {
+  const notification = await Notification.findOne({
+    where: {
+      id: req.params.id,
+      userId: req.user.id
+    }
+  });
+  
+  if (!notification) {
+    throw new NotFoundError('Notification not found');
+  }
+  
+  await notification.markAsRead();
+  
+  res.json({
+    success: true,
+    message: 'Notification marked as read'
+  });
+}));
+
+/**
+ * @route   PUT /api/users/notifications/read-all
+ * @desc    Mark all notifications as read
+ * @access  Private
+ */
+router.put('/notifications/read-all', auth, asyncHandler(async (req, res) => {
+  await Notification.update(
+    { isRead: true, readAt: new Date() },
+    {
+      where: {
+        userId: req.user.id,
+        isRead: false
+      }
+    }
+  );
+  
+  res.json({
+    success: true,
+    message: 'All notifications marked as read'
   });
 }));
 

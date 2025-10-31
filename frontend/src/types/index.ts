@@ -209,6 +209,8 @@ export interface Notification {
   message: string;
   timestamp: string;
   isRead: boolean;
+  linkUrl?: string;
+  linkText?: string;
 }
 
 // File Upload Types

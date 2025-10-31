@@ -154,18 +154,26 @@ const AdminViolationsPage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow p-6">
-        <h1 className="text-2xl font-bold text-gray-900">Manage Violations</h1>
-        <p className="text-gray-600 mt-1">
-          View and manage all traffic violations in the system.
-        </p>
+    <div className="space-y-6 pt-8 px-4 pb-8">
+      <div className="bg-white rounded-xl shadow-lg border-2 border-orange-200 p-8 relative overflow-hidden">
+        <div className="absolute inset-0 bg-orange-50/30 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+        <div className="relative flex items-center gap-3 mb-2">
+          <div className="p-3 bg-orange-600 rounded-xl shadow-md border border-orange-700">
+            <FileText className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-extrabold text-gray-900">Manage Violations</h1>
+            <p className="text-gray-600 mt-1 text-sm font-medium">
+              View and manage all traffic violations in the system
+            </p>
+          </div>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
+      <Card className="shadow-lg border-2 border-gray-200 hover:border-orange-200 transition-colors">
+        <CardHeader className="bg-white border-b-2 border-gray-200">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <CardTitle>Violations Management</CardTitle>
+            <CardTitle className="text-xl font-semibold text-gray-800">Violations Management</CardTitle>
             
             {/* Search and Filters */}
             <div className="flex flex-col md:flex-row gap-3">
@@ -267,7 +275,7 @@ const AdminViolationsPage: React.FC = () => {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {violations.map((violation) => (
-                      <tr key={violation.id} className="hover:bg-gray-50">
+                      <tr key={violation.id} className="hover:bg-orange-50 transition-colors duration-150 border-l-4 border-transparent hover:border-orange-400">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">{violation.ovrNumber}</div>
                           <div className="text-sm text-gray-500">{violation.citationNumber}</div>
@@ -398,13 +406,16 @@ const AdminViolationsPage: React.FC = () => {
 
       {/* Violation Details Modal */}
       {showDetailsModal && selectedViolation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-lg font-medium text-gray-900">Violation Details</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200">
+            <div className="px-6 py-5 border-b-2 border-gray-200 flex justify-between items-center bg-white sticky top-0 shadow-sm">
+              <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <FileText className="h-5 w-5 text-orange-600" />
+                Violation Details
+              </h3>
               <button
                 onClick={() => setShowDetailsModal(false)}
-                className="text-gray-400 hover:text-gray-500"
+                className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100"
               >
                 <XCircle className="h-6 w-6" />
               </button>
@@ -474,8 +485,12 @@ const AdminViolationsPage: React.FC = () => {
                 </div>
               )}
             </div>
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end">
-              <Button variant="outline" onClick={() => setShowDetailsModal(false)}>
+            <div className="px-6 py-5 border-t border-gray-200 flex justify-end bg-gray-50">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowDetailsModal(false)}
+                className="shadow-sm"
+              >
                 Close
               </Button>
             </div>
@@ -485,10 +500,13 @@ const AdminViolationsPage: React.FC = () => {
 
       {/* Process Dispute Modal */}
       {showDisputeModal && selectedViolation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Process Dispute</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full border border-gray-200">
+            <div className="px-6 py-5 border-b-2 border-gray-200 bg-white">
+              <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-blue-600" />
+                Process Dispute
+              </h3>
             </div>
             <div className="px-6 py-4 space-y-4">
               <div>
@@ -521,17 +539,22 @@ const AdminViolationsPage: React.FC = () => {
                 />
               </div>
             </div>
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+            <div className="px-6 py-5 border-t border-gray-200 flex justify-end gap-3 bg-gray-50">
               <Button
                 variant="outline"
                 onClick={() => {
                   setShowDisputeModal(false);
                   setSelectedViolation(null);
                 }}
+                className="shadow-sm"
               >
                 Cancel
               </Button>
-              <Button variant="primary" onClick={handleSubmitDispute}>
+              <Button 
+                variant="primary" 
+                onClick={handleSubmitDispute}
+                className="shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+              >
                 Submit Decision
               </Button>
             </div>

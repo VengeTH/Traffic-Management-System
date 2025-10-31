@@ -51,19 +51,33 @@ const PaymentHistoryPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-8 px-4 pb-8">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h1 className="text-2xl font-bold text-gray-900">Payment History</h1>
-        <p className="text-gray-600 mt-1">
-          View your payment records and download receipts.
-        </p>
+      <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-100 p-8 overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-green-100/30 rounded-full -mr-48 -mt-48 blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-emerald-100/20 rounded-full -ml-36 -mb-36 blur-2xl"></div>
+        <div className="relative flex items-center gap-3">
+          <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-700 rounded-xl shadow-lg">
+            <CreditCard className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-extrabold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">
+              Payment History
+            </h1>
+            <p className="text-gray-600 mt-2 text-base font-medium">
+              View your payment records and download receipts.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Payment History */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
+      <Card className="border border-slate-200 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-slate-50 to-white border-b border-slate-200">
+          <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <FileText className="h-5 w-5 text-green-700" />
+            </div>
             Payment Records
             {payments.length > 0 && (
               <span className="ml-2 text-sm font-normal text-gray-500">
@@ -72,13 +86,16 @@ const PaymentHistoryPage: React.FC = () => {
             )}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           {payments.length === 0 ? (
-            <div className="text-center py-12">
-              <CreditCard className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No payments found</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                You haven't made any payments yet.
+            <div className="text-center py-16">
+              <div className="relative inline-block mb-4">
+                <div className="absolute inset-0 bg-green-100 rounded-full blur-xl"></div>
+                <CreditCard className="relative mx-auto h-16 w-16 text-gray-300" />
+              </div>
+              <h3 className="mt-4 text-lg font-bold text-gray-900">No payments found</h3>
+              <p className="mt-2 text-sm text-gray-600 max-w-sm mx-auto">
+                You haven't made any payments yet. Payments will appear here once completed.
               </p>
             </div>
           ) : (
@@ -86,8 +103,9 @@ const PaymentHistoryPage: React.FC = () => {
               {payments.map((payment) => (
                 <div
                   key={payment.id}
-                  className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+                  className="group relative overflow-hidden bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-green-300 hover:shadow-xl transition-all duration-300"
                 >
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-green-50/30 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-green-100/40 transition-colors"></div>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-4">
@@ -137,11 +155,12 @@ const PaymentHistoryPage: React.FC = () => {
                         <div className="text-sm text-gray-500">
                           Payment ID: {payment.paymentId}
                         </div>
-                        <div className="flex space-x-2">
+                        <div className="flex space-x-2 relative z-10">
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleDownloadReceipt(payment)}
+                            className="border-2 hover:bg-green-50 transition-colors"
                           >
                             <Download className="h-4 w-4 mr-1" />
                             Download Receipt

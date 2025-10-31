@@ -293,6 +293,28 @@ class ApiService {
   }
 
   // Health check
+  // Notification endpoints
+  async getNotifications(params?: any) {
+    const response = await api.get('/users/notifications', { params });
+    return response.data;
+  }
+
+  async getUnreadNotificationCount() {
+    const response = await api.get('/users/notifications/unread-count');
+    return response.data;
+  }
+
+  async markNotificationAsRead(id: string) {
+    const response = await api.put(`/users/notifications/${id}/read`);
+    return response.data;
+  }
+
+  async markAllNotificationsAsRead() {
+    const response = await api.put('/users/notifications/read-all');
+    return response.data;
+  }
+
+  // Health check
   async healthCheck() {
     const response = await api.get('/health');
     return response.data;

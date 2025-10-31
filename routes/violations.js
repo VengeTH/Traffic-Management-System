@@ -309,6 +309,28 @@ router.post('/', enforcerAuth, validateViolationCreation, checkValidation, async
     logger.error('Failed to send violation notification email:', error);
   }
   
+  // * Create in-app notification if user exists (by driver license or phone)
+  try {
+    const { createViolationNotification } = require('../utils/notifications');
+    let user = null;
+    
+    // Try to find user by driver license number
+    if (driverLicenseNumber) {
+      user = await User.findOne({ where: { driverLicenseNumber } });
+    }
+    
+    // If not found, try by phone number
+    if (!user && driverPhone) {
+      user = await User.findOne({ where: { phoneNumber: driverPhone } });
+    }
+    
+    if (user) {
+      await createViolationNotification(user.id, violation);
+    }
+  } catch (error) {
+    logger.error('Failed to create violation notification:', error);
+  }
+  
   res.status(201).json({
     success: true,
     message: 'Violation created successfully',

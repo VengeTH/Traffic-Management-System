@@ -123,11 +123,13 @@ const Sidebar: React.FC = () => {
       <div className="flex flex-col w-64">
         <div className="flex flex-col h-0 flex-1 bg-white border-r border-gray-200">
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-            <div className="flex items-center flex-shrink-0 px-4">
-              <h2 className="text-lg font-semibold text-gray-900">Navigation</h2>
-            </div>
-            <nav className="mt-5 flex-1 px-2 space-y-1">
+            <nav className="flex-1 px-2 space-y-1">
               {/* Main Navigation */}
+              <div className="pb-2">
+                <h2 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                  Navigation
+                </h2>
+              </div>
               {navigationItems
                 .filter(item => item.roles.includes(user?.role || ''))
                 .map(renderNavigationItem)}

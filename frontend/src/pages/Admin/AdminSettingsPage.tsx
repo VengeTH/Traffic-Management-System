@@ -167,20 +167,30 @@ const AdminSettingsPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow p-6">
-        <h1 className="text-2xl font-bold text-gray-900">System Settings</h1>
-        <p className="text-gray-600 mt-1">
-          Configure system-wide settings and integrations.
-        </p>
+    <div className="space-y-6 pt-8 px-4 pb-8">
+      <div className="bg-white rounded-xl shadow-lg border-2 border-purple-200 p-8 relative overflow-hidden">
+        <div className="absolute inset-0 bg-purple-50/30 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+        <div className="relative flex items-center gap-3 mb-2">
+          <div className="p-3 bg-purple-600 rounded-xl shadow-md border border-purple-700">
+            <Settings className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-extrabold text-gray-900">System Settings</h1>
+            <p className="text-gray-600 mt-1 text-sm font-medium">
+              Configure system-wide settings and integrations
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Email Settings */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Mail className="h-5 w-5 text-primary-600" />
-            <CardTitle>Email Configuration</CardTitle>
+      <Card className="shadow-lg border-2 border-gray-200 hover:border-blue-200 hover:shadow-xl transition-all duration-200">
+        <CardHeader className="bg-white border-b-2 border-gray-200">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Mail className="h-5 w-5 text-blue-600" />
+            </div>
+            <CardTitle className="text-xl font-semibold text-gray-800">Email Configuration</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -219,11 +229,13 @@ const AdminSettingsPage: React.FC = () => {
       </Card>
 
       {/* SMS Settings */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Phone className="h-5 w-5 text-success-600" />
-            <CardTitle>SMS Configuration</CardTitle>
+      <Card className="shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-200">
+        <CardHeader className="bg-white border-b-2 border-gray-200">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <Phone className="h-5 w-5 text-green-600" />
+            </div>
+            <CardTitle className="text-xl font-semibold text-gray-800">SMS Configuration</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -255,11 +267,13 @@ const AdminSettingsPage: React.FC = () => {
       </Card>
 
       {/* Payment Gateway Settings */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5 text-secondary-600" />
-            <CardTitle>Payment Gateway Configuration</CardTitle>
+      <Card className="shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-200">
+        <CardHeader className="bg-white border-b-2 border-gray-200">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-yellow-100 rounded-lg">
+              <CreditCard className="h-5 w-5 text-yellow-600" />
+            </div>
+            <CardTitle className="text-xl font-semibold text-gray-800">Payment Gateway Configuration</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -301,11 +315,13 @@ const AdminSettingsPage: React.FC = () => {
       </Card>
 
       {/* Security Settings */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-danger-600" />
-            <CardTitle>Security Configuration</CardTitle>
+      <Card className="shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-200">
+        <CardHeader className="bg-white border-b-2 border-gray-200">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-red-100 rounded-lg">
+              <Shield className="h-5 w-5 text-red-600" />
+            </div>
+            <CardTitle className="text-xl font-semibold text-gray-800">Security Configuration</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -352,11 +368,13 @@ const AdminSettingsPage: React.FC = () => {
       </Card>
 
       {/* Application Settings */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Server className="h-5 w-5 text-warning-600" />
-            <CardTitle>Application Configuration</CardTitle>
+      <Card className="shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-200">
+        <CardHeader className="bg-white border-b-2 border-gray-200">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-indigo-100 rounded-lg">
+              <Server className="h-5 w-5 text-indigo-600" />
+            </div>
+            <CardTitle className="text-xl font-semibold text-gray-800">Application Configuration</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -386,12 +404,13 @@ const AdminSettingsPage: React.FC = () => {
       </Card>
 
       {/* Save Button */}
-      <div className="flex justify-end">
+      <div className="flex justify-end pt-4">
         <Button
           variant="primary"
           onClick={handleSave}
           loading={saving}
           size="lg"
+          className="shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
         >
           <Save className="h-5 w-5 mr-2" />
           Save All Settings

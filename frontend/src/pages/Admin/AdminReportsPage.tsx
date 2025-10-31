@@ -116,17 +116,25 @@ const AdminReportsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow p-6">
-        <h1 className="text-2xl font-bold text-gray-900">Reports & Analytics</h1>
-        <p className="text-gray-600 mt-1">
-          Generate reports and view system analytics.
-        </p>
+    <div className="space-y-6 pt-8 px-4 pb-8">
+      <div className="bg-white rounded-xl shadow-lg border-2 border-blue-200 p-8 relative overflow-hidden">
+        <div className="absolute inset-0 bg-blue-50/30 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+        <div className="relative flex items-center gap-3 mb-2">
+          <div className="p-3 bg-blue-600 rounded-xl shadow-md border border-blue-700">
+            <BarChart3 className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-extrabold text-gray-900">Reports & Analytics</h1>
+            <p className="text-gray-600 mt-1 text-sm font-medium">
+              Generate reports and view system analytics
+            </p>
+          </div>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Generate Report</CardTitle>
+      <Card className="shadow-lg border-2 border-gray-200 hover:border-blue-200 transition-colors">
+        <CardHeader className="bg-white border-b-2 border-gray-200">
+          <CardTitle className="text-xl font-semibold text-gray-800">Generate Report</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -136,27 +144,27 @@ const AdminReportsPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-4 mt-2">
                 <button
                   onClick={() => setReportType('violations')}
-                  className={`p-4 rounded-lg border-2 transition-colors ${
+                  className={`p-6 rounded-xl border-2 transition-all duration-200 transform hover:scale-105 hover:shadow-md ${
                     reportType === 'violations'
-                      ? 'border-primary-500 bg-primary-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-blue-500 bg-blue-50 shadow-md'
+                      : 'border-gray-200 hover:border-blue-300 bg-white hover:bg-gray-50'
                   }`}
                 >
-                  <FileText className="h-6 w-6 mx-auto mb-2 text-primary-600" />
-                  <div className="text-sm font-medium text-gray-900">Violations Report</div>
-                  <div className="text-xs text-gray-500">View all violations</div>
+                  <FileText className={`h-8 w-8 mx-auto mb-3 ${reportType === 'violations' ? 'text-blue-600' : 'text-gray-400'}`} />
+                  <div className={`text-sm font-semibold ${reportType === 'violations' ? 'text-gray-900' : 'text-gray-700'}`}>Violations Report</div>
+                  <div className="text-xs text-gray-500 mt-1">View all violations</div>
                 </button>
                 <button
                   onClick={() => setReportType('payments')}
-                  className={`p-4 rounded-lg border-2 transition-colors ${
+                  className={`p-6 rounded-xl border-2 transition-all duration-200 transform hover:scale-105 hover:shadow-md ${
                     reportType === 'payments'
-                      ? 'border-primary-500 bg-primary-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-green-500 bg-green-50 shadow-md'
+                      : 'border-gray-200 hover:border-green-300 bg-white hover:bg-gray-50'
                   }`}
                 >
-                  <DollarSign className="h-6 w-6 mx-auto mb-2 text-success-600" />
-                  <div className="text-sm font-medium text-gray-900">Payments Report</div>
-                  <div className="text-xs text-gray-500">View all payments</div>
+                  <DollarSign className={`h-8 w-8 mx-auto mb-3 ${reportType === 'payments' ? 'text-success-600' : 'text-gray-400'}`} />
+                  <div className={`text-sm font-semibold ${reportType === 'payments' ? 'text-gray-900' : 'text-gray-700'}`}>Payments Report</div>
+                  <div className="text-xs text-gray-500 mt-1">View all payments</div>
                 </button>
               </div>
             </div>
@@ -224,56 +232,56 @@ const AdminReportsPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {reportType === 'violations' && reportData.summary ? (
               <>
-                <Card>
+                <Card className="shadow-lg border-2 border-blue-200 hover:border-blue-300 hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 bg-white">
                   <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <FileText className="h-8 w-8 text-primary-600" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-600 uppercase tracking-wide mb-1">Total Violations</p>
+                        <p className="text-3xl font-bold text-gray-900">{reportData.summary.total}</p>
                       </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-500">Total Violations</p>
-                        <p className="text-2xl font-semibold text-gray-900">{reportData.summary.total}</p>
+                      <div className="p-3 bg-blue-100 rounded-xl">
+                        <FileText className="h-7 w-7 text-blue-600" />
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card>
+                <Card className="shadow-lg border-2 border-orange-200 hover:border-orange-300 hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 bg-white">
                   <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <Calendar className="h-8 w-8 text-warning-600" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-600 uppercase tracking-wide mb-1">Pending</p>
+                        <p className="text-3xl font-bold text-gray-900">{reportData.summary.pending}</p>
                       </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-500">Pending</p>
-                        <p className="text-2xl font-semibold text-gray-900">{reportData.summary.pending}</p>
+                      <div className="p-3 bg-orange-100 rounded-xl">
+                        <Calendar className="h-7 w-7 text-orange-600" />
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card>
+                <Card className="shadow-lg border-2 border-green-200 hover:border-green-300 hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 bg-white">
                   <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <DollarSign className="h-8 w-8 text-success-600" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-600 uppercase tracking-wide mb-1">Paid</p>
+                        <p className="text-3xl font-bold text-gray-900">{reportData.summary.paid}</p>
                       </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-500">Paid</p>
-                        <p className="text-2xl font-semibold text-gray-900">{reportData.summary.paid}</p>
+                      <div className="p-3 bg-green-100 rounded-xl">
+                        <DollarSign className="h-7 w-7 text-green-600" />
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card>
+                <Card className="shadow-lg border-2 border-purple-200 hover:border-purple-300 hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 bg-white">
                   <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <TrendingUp className="h-8 w-8 text-secondary-600" />
-                      </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-500">Total Fines</p>
-                        <p className="text-2xl font-semibold text-gray-900">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-600 uppercase tracking-wide mb-1">Total Fines</p>
+                        <p className="text-2xl font-bold text-gray-900">
                           {formatCurrency(reportData.summary.totalFines)}
                         </p>
+                      </div>
+                      <div className="p-3 bg-purple-100 rounded-xl">
+                        <TrendingUp className="h-7 w-7 text-purple-600" />
                       </div>
                     </div>
                   </CardContent>
@@ -281,56 +289,56 @@ const AdminReportsPage: React.FC = () => {
               </>
             ) : reportType === 'payments' && reportData.summary ? (
               <>
-                <Card>
+                <Card className="shadow-lg border-2 border-blue-200 hover:border-blue-300 hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 bg-white">
                   <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <FileText className="h-8 w-8 text-primary-600" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-600 uppercase tracking-wide mb-1">Total Payments</p>
+                        <p className="text-3xl font-bold text-gray-900">{reportData.summary.total}</p>
                       </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-500">Total Payments</p>
-                        <p className="text-2xl font-semibold text-gray-900">{reportData.summary.total}</p>
+                      <div className="p-3 bg-blue-100 rounded-xl">
+                        <FileText className="h-7 w-7 text-blue-600" />
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card>
+                <Card className="shadow-lg border-2 border-green-200 hover:border-green-300 hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 bg-white">
                   <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <DollarSign className="h-8 w-8 text-success-600" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-600 uppercase tracking-wide mb-1">Completed</p>
+                        <p className="text-3xl font-bold text-gray-900">{reportData.summary.completed}</p>
                       </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-500">Completed</p>
-                        <p className="text-2xl font-semibold text-gray-900">{reportData.summary.completed}</p>
+                      <div className="p-3 bg-green-100 rounded-xl">
+                        <DollarSign className="h-7 w-7 text-green-600" />
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card>
+                <Card className="shadow-lg border-2 border-red-200 hover:border-red-300 hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 bg-white">
                   <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <Calendar className="h-8 w-8 text-danger-600" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-600 uppercase tracking-wide mb-1">Failed</p>
+                        <p className="text-3xl font-bold text-gray-900">{reportData.summary.failed}</p>
                       </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-500">Failed</p>
-                        <p className="text-2xl font-semibold text-gray-900">{reportData.summary.failed}</p>
+                      <div className="p-3 bg-red-100 rounded-xl">
+                        <Calendar className="h-7 w-7 text-red-600" />
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card>
+                <Card className="shadow-lg border-2 border-emerald-200 hover:border-emerald-300 hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 bg-white">
                   <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <TrendingUp className="h-8 w-8 text-secondary-600" />
-                      </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-500">Total Revenue</p>
-                        <p className="text-2xl font-semibold text-gray-900">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-600 uppercase tracking-wide mb-1">Total Revenue</p>
+                        <p className="text-2xl font-bold text-gray-900">
                           {formatCurrency(reportData.summary.totalRevenue)}
                         </p>
+                      </div>
+                      <div className="p-3 bg-emerald-100 rounded-xl">
+                        <TrendingUp className="h-7 w-7 text-emerald-600" />
                       </div>
                     </div>
                   </CardContent>
@@ -340,9 +348,9 @@ const AdminReportsPage: React.FC = () => {
           </div>
 
           {/* Data Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle>
+          <Card className="shadow-lg border border-gray-200">
+            <CardHeader className="bg-white border-b-2 border-gray-200">
+              <CardTitle className="text-xl font-semibold text-gray-800">
                 {reportType === 'violations' ? 'Violations' : 'Payments'} Details
               </CardTitle>
             </CardHeader>

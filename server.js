@@ -78,24 +78,31 @@ app.use(compression());
 // * Request logging
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 
-// * Rate limiting
+// * Rate limiting - more lenient in development
+const isDevelopment = process.env.NODE_ENV === 'development';
 const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || (isDevelopment ? 1 * 60 * 1000 : 15 * 60 * 1000), // 1 minute in dev, 15 minutes in production
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || (isDevelopment ? 1000 : 100), // 1000 requests per minute in dev, 100 per 15 min in prod
   message: {
     error: 'Too many requests from this IP, please try again later.',
-    retryAfter: Math.ceil(parseInt(process.env.RATE_LIMIT_WINDOW_MS) / 1000 / 60)
+    retryAfter: isDevelopment ? 60 : Math.ceil((parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000) / 1000 / 60)
   },
   standardHeaders: true,
   legacyHeaders: false,
+  // Skip rate limiting for certain IPs in development (optional)
+  skip: (req) => {
+    if (isDevelopment && req.ip === '::1' || req.ip === '127.0.0.1' || req.ip?.includes('localhost')) {
+      return false; // Still rate limit, but with higher limits
+    }
+    return false;
+  }
 });
 
-// * Slow down requests (express-slow-down v2 compatible)
+// * Slow down requests - disabled in development
 const speedLimiter = slowDown({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  delayAfter: 50, // allow 50 requests per 15 minutes, then...
-  // v2 behavior: apply a constant delay per request after delayAfter
-  delayMs: () => 500,
+  windowMs: isDevelopment ? 1 * 60 * 1000 : 15 * 60 * 1000, // 1 minute in dev, 15 minutes in prod
+  delayAfter: isDevelopment ? 500 : 50, // allow more requests in development
+  delayMs: () => (isDevelopment ? 100 : 500), // shorter delay in development
 });
 
 app.use('/api/', limiter);

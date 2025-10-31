@@ -357,6 +357,16 @@ router.post('/confirm', validatePaymentConfirmation, checkValidation, asyncHandl
           payment.receiptSMSSent = true;
         }
         
+        // * Create in-app notification if user has account
+        if (payment.payerId) {
+          const { createPaymentNotification } = require('../utils/notifications');
+          try {
+            await createPaymentNotification(payment.payerId, payment);
+          } catch (error) {
+            logger.error('Failed to create payment notification:', error);
+          }
+        }
+        
         await payment.save();
         
       } catch (error) {

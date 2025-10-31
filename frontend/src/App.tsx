@@ -68,7 +68,7 @@ const AppLayout: React.FC = () => {
   const isLandingPage = location.pathname === "/";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50">
+    <div className="min-h-screen bg-green-50">
       <Navbar />
       
       <div className="flex">
@@ -168,8 +168,23 @@ const AppLayout: React.FC = () => {
 
 // Main App Component
 const AppContent: React.FC = () => {
+  // * Determine basename based on environment
+  // * Use basename only when deployed to GitHub Pages, not on localhost
+  const getBasename = () => {
+    // * Check if running on localhost
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return '';
+    }
+    // * Check if deployed to GitHub Pages (vengeth.github.io domain)
+    if (window.location.hostname.includes('github.io')) {
+      return '/Traffic-Management-System';
+    }
+    // * Default: no basename for other deployments
+    return '';
+  };
+
   return (
-    <Router basename="/Traffic-Management-System">
+    <Router basename={getBasename()}>
       <AppLayout />
     </Router>
   );

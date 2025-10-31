@@ -6,6 +6,7 @@
 const User = require('./User');
 const Violation = require('./Violation');
 const Payment = require('./Payment');
+const Notification = require('./Notification');
 
 // * User - Violation Associations
 User.hasMany(Violation, {
@@ -67,10 +68,26 @@ Payment.belongsTo(User, {
   onUpdate: 'CASCADE'
 });
 
+// * User - Notification Associations
+User.hasMany(Notification, {
+  foreignKey: 'userId',
+  as: 'notifications',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
+});
+
+Notification.belongsTo(User, {
+  foreignKey: 'userId',
+  as: 'user',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
+});
+
 module.exports = {
   User,
   Violation,
-  Payment
+  Payment,
+  Notification
 };
 
 
