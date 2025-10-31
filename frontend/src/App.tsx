@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PaymentProvider } from './contexts/PaymentContext';
@@ -60,21 +60,21 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean 
   return <>{children}</>;
 };
 
-// Main App Component
-const AppContent: React.FC = () => {
+// Inner component that uses useLocation (must be inside Router)
+const AppLayout: React.FC = () => {
   const { user } = useAuth();
-  const isLandingPage = typeof window !== 'undefined' && window.location.pathname === "/";
+  const location = useLocation();
+  const isLandingPage = location.pathname === "/";
 
   return (
-    <Router basename="/Traffic-Management-System">
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50">
-        <Navbar />
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50">
+      <Navbar />
+      
+      <div className="flex">
+        {user && <Sidebar />}
         
-        <div className="flex">
-          {user && <Sidebar />}
-          
-          <main className={`flex-1 ${isLandingPage ? '' : 'mx-5'}`}>
-            <Routes>
+        <main className={`flex-1 ${isLandingPage ? '' : 'mx-5'}`}>
+          <Routes>
               {/* Public Routes */}
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
@@ -152,10 +152,18 @@ const AppContent: React.FC = () => {
               
               {/* Catch all route */}
               <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </main>
-        </div>
+          </Routes>
+        </main>
       </div>
+    </div>
+  );
+};
+
+// Main App Component
+const AppContent: React.FC = () => {
+  return (
+    <Router basename="/Traffic-Management-System">
+      <AppLayout />
     </Router>
   );
 };

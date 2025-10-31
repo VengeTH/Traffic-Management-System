@@ -11,6 +11,7 @@
   }
   
   body {
+    margin: 0;
     @apply bg-gradient-to-br from-green-50 via-white to-green-50 text-gray-900;
     background-attachment: fixed;
   }

@@ -86,22 +86,22 @@ const HomePage: React.FC = () => {
         <div className="absolute top-40 right-20 w-16 h-16 bg-accent-400/20 rounded-full animate-bounce-gentle"></div>
         <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-white/10 rounded-full animate-float" style={{animationDelay: '1s'}}></div>
         
-        <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-20 md:py-32">
-            <div className="text-center lg:text-left">
-              <div className="max-w-4xl mx-auto lg:mx-0">
+            <div className="text-left">
+              <div className="max-w-4xl">
                 <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight">
                   <span className="block">E-VioPay</span>
                   <span className="block bg-gradient-to-r from-accent-300 to-accent-500 bg-clip-text text-transparent">
                     Las Piñas Online Traffic Payments
                   </span>
                 </h1>
-                <p className="text-xl md:text-2xl text-green-100 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                <p className="text-xl md:text-2xl text-green-100 mb-8 max-w-2xl leading-relaxed">
                   Pay your traffic violations online with ease. Search, verify, and settle fines securely from anywhere, anytime.
                 </p>
                 
                 {/* Feature Highlights */}
-                <div className="flex flex-wrap justify-center lg:justify-start gap-4 mb-10">
+                <div className="flex flex-wrap justify-start gap-4 mb-10">
                   <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
                     <CheckCircle className="h-5 w-5 text-accent-300 mr-2" />
                     <span className="text-white font-medium">Secure Payments</span>
@@ -116,7 +116,7 @@ const HomePage: React.FC = () => {
                   </div>
                 </div>
                 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <div className="flex flex-col sm:flex-row gap-4 justify-start">
                   {!isAuthenticated ? (
                     <>
                       <Link to="/register">
