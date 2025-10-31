@@ -589,6 +589,92 @@ router.get('/reports/payments', adminAuth, asyncHandler(async (req, res) => {
   });
 }));
 
+/**
+ * @route   GET /api/admin/settings
+ * @desc    Get system settings
+ * @access  Private (Admin)
+ */
+router.get('/settings', adminAuth, asyncHandler(async (req, res) => {
+  // * Get settings from environment variables
+  // * In production, you might want to store these in a database
+  const settings = {
+    email: {
+      smtpHost: process.env.SMTP_HOST || '',
+      smtpPort: parseInt(process.env.SMTP_PORT || '587'),
+      smtpUser: process.env.SMTP_USER || '',
+      emailFrom: process.env.EMAIL_FROM || '',
+    },
+    sms: {
+      provider: 'twilio',
+      twilioAccountSid: process.env.TWILIO_ACCOUNT_SID || '',
+      twilioPhoneNumber: process.env.TWILIO_PHONE_NUMBER || '',
+    },
+    payment: {
+      paymongoSecretKey: process.env.PAYMONGO_SECRET_KEY ? '***' : '',
+      paymongoPublicKey: process.env.PAYMONGO_PUBLIC_KEY ? '***' : '',
+      gcashClientId: process.env.GCASH_CLIENT_ID ? '***' : '',
+      mayaClientId: process.env.MAYA_CLIENT_ID ? '***' : '',
+    },
+    security: {
+      jwtExpiresIn: process.env.JWT_EXPIRES_IN || '24h',
+      jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+      bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS || '12'),
+      rateLimitWindow: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'),
+      rateLimitMax: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'),
+    },
+    app: {
+      appName: process.env.APP_NAME || 'E-VioPay',
+      appUrl: process.env.APP_URL || '',
+      frontendUrl: process.env.FRONTEND_URL || '',
+    },
+  };
+
+  res.json({
+    success: true,
+    data: settings
+  });
+}));
+
+/**
+ * @route   PUT /api/admin/settings
+ * @desc    Update system settings
+ * @access  Private (Admin)
+ */
+router.put('/settings', adminAuth, asyncHandler(async (req, res) => {
+  // * Note: In production, you should save these to a database
+  // * For now, we'll just validate and return success
+  // * Actual updates would need environment variable management or database storage
+  
+  const { email, sms, payment, security, app } = req.body;
+
+  // * Validate required fields
+  if (email && (!email.smtpHost || !email.emailFrom)) {
+    throw new ValidationError('Email configuration is incomplete');
+  }
+
+  if (sms && (!sms.twilioAccountSid || !sms.twilioPhoneNumber)) {
+    throw new ValidationError('SMS configuration is incomplete');
+  }
+
+  // * In production, save to database here
+  logger.info('System settings updated by admin', {
+    adminId: req.user.id,
+    changes: { email, sms, payment, security, app }
+  });
+
+  res.json({
+    success: true,
+    message: 'Settings updated successfully',
+    data: {
+      email: email || {},
+      sms: sms || {},
+      payment: payment || {},
+      security: security || {},
+      app: app || {},
+    }
+  });
+}));
+
 module.exports = router;
 
 

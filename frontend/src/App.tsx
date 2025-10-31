@@ -29,6 +29,7 @@ import AdminDashboardPage from './pages/Admin/AdminDashboardPage';
 import AdminViolationsPage from './pages/Admin/AdminViolationsPage';
 import AdminUsersPage from './pages/Admin/AdminUsersPage';
 import AdminReportsPage from './pages/Admin/AdminReportsPage';
+import AdminSettingsPage from './pages/Admin/AdminSettingsPage';
 
 // Loading and Error Components
 import LoadingSpinner from './components/UI/LoadingSpinner';
@@ -147,6 +148,12 @@ const AppLayout: React.FC = () => {
               <Route path="/admin/reports" element={
                 <ProtectedRoute adminOnly>
                   <AdminReportsPage />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/admin/settings" element={
+                <ProtectedRoute adminOnly>
+                  <AdminSettingsPage />
                 </ProtectedRoute>
               } />
               

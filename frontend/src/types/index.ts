@@ -45,6 +45,7 @@ export interface Violation {
   enforcerName: string;
   isDisputed: boolean;
   disputeReason?: string;
+  disputeStatus?: 'pending' | 'approved' | 'rejected';
   paymentMethod?: string;
   paymentReference?: string;
   paymentDate?: string;

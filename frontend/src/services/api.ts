@@ -282,6 +282,16 @@ class ApiService {
     return response.data;
   }
 
+  async getSystemSettings() {
+    const response = await api.get('/admin/settings');
+    return response.data;
+  }
+
+  async updateSystemSettings(settings: any) {
+    const response = await api.put('/admin/settings', settings);
+    return response.data;
+  }
+
   // Health check
   async healthCheck() {
     const response = await api.get('/health');
