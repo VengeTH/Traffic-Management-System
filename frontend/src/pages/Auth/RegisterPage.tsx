@@ -19,7 +19,21 @@ const schema = yup.object({
   confirmPassword: yup.string()
     .oneOf([yup.ref('password')], 'Passwords must match')
     .required('Please confirm your password'),
-  driverLicenseNumber: yup.string().optional(),
+  // Optional: only validate length if user provided a non-empty value
+  driverLicenseNumber: yup
+    .string()
+    .nullable()
+    .transform((val, origVal) => origVal === '' ? null : val)
+    .test(
+      'len-when-present',
+      'Driver license number must be between 5 and 20 characters',
+      function(val) {
+        if (!val || val === '' || val === null) {
+          return true; // Skip validation if empty
+        }
+        return val.length >= 5 && val.length <= 20;
+      }
+    ),
 }).required();
 
 type RegisterFormData = yup.InferType<typeof schema>;

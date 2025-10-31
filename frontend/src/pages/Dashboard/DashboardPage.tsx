@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { apiService } from '../../services/api';
 import { DashboardStats, Violation } from '../../types';
 import {
   Search, CreditCard, FileText, AlertTriangle, CheckCircle, Clock, DollarSign,
-  TrendingUp, TrendingDown, Calendar, Car, User
+  TrendingUp, TrendingDown, Calendar, Car, User, AlertCircle
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
@@ -13,6 +13,7 @@ import LoadingSpinner from '../../components/UI/LoadingSpinner';
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentViolations, setRecentViolations] = useState<Violation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,6 +75,34 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Driver License Warning */}
+      {!user?.driverLicenseNumber && (
+        <div className="bg-warning-50 border-l-4 border-warning-400 p-4 rounded-lg">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <AlertCircle className="h-5 w-5 text-warning-600" />
+            </div>
+            <div className="ml-3 flex-1">
+              <h3 className="text-sm font-medium text-warning-800">
+                Driver's License Required
+              </h3>
+              <div className="mt-2 text-sm text-warning-700">
+                <p>
+                  To view and manage your violations, please add your driver's license number to your profile.
+                </p>
+              </div>
+              <div className="mt-4">
+                <Link to="/profile">
+                  <Button variant="primary" size="sm">
+                    Add Driver's License
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Welcome Section */}
       <div className="bg-white rounded-lg shadow p-6">
         <h1 className="text-2xl font-bold text-gray-900">
