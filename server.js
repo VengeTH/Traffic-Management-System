@@ -170,6 +170,16 @@ const startServer = async () => {
     //   logger.info('Database models synchronized.');
     // }
     
+    // * Catch hidden process-level errors early during development
+    process.on('uncaughtException', (err) => {
+      // eslint-disable-next-line no-console
+      console.error('Uncaught Exception:', err);
+    });
+    process.on('unhandledRejection', (err) => {
+      // eslint-disable-next-line no-console
+      console.error('Unhandled Rejection:', err);
+    });
+
     // * Start server
     app.listen(PORT, () => {
       logger.info(`🚀 E-VioPay server running on port ${PORT}`);

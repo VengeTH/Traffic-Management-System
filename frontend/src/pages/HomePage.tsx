@@ -93,7 +93,7 @@ const HomePage: React.FC = () => {
                 <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight">
                   <span className="block">E-VioPay</span>
                   <span className="block bg-gradient-to-r from-accent-300 to-accent-500 bg-clip-text text-transparent">
-                    Online Traffic Payments
+                    Las Piñas Online Traffic Payments
                   </span>
                 </h1>
                 <p className="text-xl md:text-2xl text-green-100 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed">

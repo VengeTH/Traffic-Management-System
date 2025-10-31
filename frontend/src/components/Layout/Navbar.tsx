@@ -41,7 +41,7 @@ const Navbar: React.FC = () => {
                 <span className="text-2xl font-bold gradient-text">
                   E-VioPay
                 </span>
-                <p className="text-xs text-gray-600 -mt-1">Online Traffic Payments</p>
+                <p className="text-xs text-gray-600 -mt-1">Las Piñas Online Traffic Payments</p>
               </div>
             </Link>
           </div>
