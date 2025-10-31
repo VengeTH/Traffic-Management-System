@@ -2,6 +2,8 @@
  * Las Piñas Traffic Online Payment System
  * Main Server File
  * 
+ * Developed by The Heedful (https://vengeth.github.io/The-Heedful)
+ * 
  * Table of Contents:
  * - Imports and Dependencies
  * - Environment Configuration
@@ -137,7 +139,7 @@ app.get('/api', (req, res) => {
   });
 });
 
-// * API Routes
+// * API Routes (must come before static files)
 app.use('/api/auth', authRoutes);
 app.use('/api/violations', violationRoutes);
 app.use('/api/payments', paymentRoutes);
@@ -149,14 +151,14 @@ app.use(express.static(path.join(__dirname, 'frontend/build')));
 
 // * Catch-all handler: send back React's index.html file for any non-API routes
 app.get('*', (req, res, next) => {
-  // Skip API routes and let them be handled by the notFound middleware
+  // Skip API routes and health check - let them fall through to notFound
   if (req.path.startsWith('/api/') || req.path.startsWith('/health')) {
     return next();
   }
   res.sendFile(path.join(__dirname, 'frontend/build', 'index.html'));
 });
 
-// * Error handling middleware
+// * Error handling middleware (must come last)
 app.use(notFound);
 app.use(errorHandler);
 

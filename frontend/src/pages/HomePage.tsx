@@ -269,10 +269,23 @@ const HomePage: React.FC = () => {
             <p className="text-gray-400 mb-6">
               Simplifying traffic violation payments for the City of Las Piñas
             </p>
-            <div className="flex justify-center space-x-6 text-sm text-gray-400">
-              <span>© 2024 Las Piñas City Government</span>
-              <span>•</span>
-              <span>All rights reserved</span>
+            <div className="flex flex-col items-center space-y-3 text-sm text-gray-400">
+              <div className="flex justify-center space-x-6">
+                <span>© 2025 Las Piñas City Government</span>
+                <span>•</span>
+                <span>All rights reserved</span>
+              </div>
+              <div className="text-sm text-gray-400 border-t border-gray-700 pt-3 w-full max-w-md">
+                <span className="text-gray-500">Developed by{' '}</span>
+                <a 
+                  href="https://vengeth.github.io/The-Heedful" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-white font-medium transition-colors underline decoration-gray-600 hover:decoration-gray-400"
+                >
+                  The Heedful
+                </a>
+              </div>
             </div>
           </div>
         </div>

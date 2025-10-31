@@ -27,9 +27,16 @@ const validateViolationSearch = [
     .withMessage('Plate number must be between 5 and 15 characters'),
   
   query('driverLicenseNumber')
-    .optional()
-    .isLength({ min: 5, max: 20 })
-    .withMessage('Driver license number must be between 5 and 20 characters'),
+    .optional({ checkFalsy: true })
+    .custom((value) => {
+      // * If value is provided (not empty), validate length
+      if (value && value.trim().length > 0) {
+        if (value.trim().length < 5 || value.trim().length > 20) {
+          throw new Error('Driver license number must be between 5 and 20 characters');
+        }
+      }
+      return true;
+    }),
   
   // * Custom validation to ensure at least one search parameter is provided
   (req, res, next) => {
@@ -59,9 +66,16 @@ const validateViolationCreation = [
     .withMessage('Driver name must be between 2 and 100 characters'),
   
   body('driverLicenseNumber')
-    .optional()
-    .isLength({ min: 5, max: 20 })
-    .withMessage('Driver license number must be between 5 and 20 characters'),
+    .optional({ checkFalsy: true })
+    .custom((value) => {
+      // * If value is provided (not empty), validate length
+      if (value && value.trim().length > 0) {
+        if (value.trim().length < 5 || value.trim().length > 20) {
+          throw new Error('Driver license number must be between 5 and 20 characters');
+        }
+      }
+      return true;
+    }),
   
   body('driverPhone')
     .optional()

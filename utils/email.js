@@ -61,7 +61,10 @@ const emailTemplates = {
             <p>If you didn't create an account, you can safely ignore this email.</p>
           </div>
           <div class="footer">
-            <p>&copy; 2024 Las Piñas City Government. All rights reserved.</p>
+            <p>&copy; 2025 Las Piñas City Government. All rights reserved.</p>
+            <p style="font-size: 13px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+              Developed by <a href="https://vengeth.github.io/The-Heedful" style="color: #4b5563; font-weight: 500; text-decoration: underline;">The Heedful</a>
+            </p>
           </div>
         </div>
       </body>
@@ -104,7 +107,10 @@ const emailTemplates = {
             <p>If you didn't request a password reset, you can safely ignore this email.</p>
           </div>
           <div class="footer">
-            <p>&copy; 2024 Las Piñas City Government. All rights reserved.</p>
+            <p>&copy; 2025 Las Piñas City Government. All rights reserved.</p>
+            <p style="font-size: 13px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+              Developed by <a href="https://vengeth.github.io/The-Heedful" style="color: #4b5563; font-weight: 500; text-decoration: underline;">The Heedful</a>
+            </p>
           </div>
         </div>
       </body>
@@ -185,7 +191,10 @@ const emailTemplates = {
             <p>If you have any questions, please contact our support team.</p>
           </div>
           <div class="footer">
-            <p>&copy; 2024 Las Piñas City Government. All rights reserved.</p>
+            <p>&copy; 2025 Las Piñas City Government. All rights reserved.</p>
+            <p style="font-size: 13px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+              Developed by <a href="https://vengeth.github.io/The-Heedful" style="color: #4b5563; font-weight: 500; text-decoration: underline;">The Heedful</a>
+            </p>
           </div>
         </div>
       </body>
@@ -267,7 +276,10 @@ const emailTemplates = {
             <p>If you believe this violation was issued in error, you may submit a dispute through our online portal.</p>
           </div>
           <div class="footer">
-            <p>&copy; 2024 Las Piñas City Government. All rights reserved.</p>
+            <p>&copy; 2025 Las Piñas City Government. All rights reserved.</p>
+            <p style="font-size: 13px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+              Developed by <a href="https://vengeth.github.io/The-Heedful" style="color: #4b5563; font-weight: 500; text-decoration: underline;">The Heedful</a>
+            </p>
           </div>
         </div>
       </body>
@@ -349,7 +361,10 @@ const emailTemplates = {
             <p>If you have any questions or need assistance, please contact our support team.</p>
           </div>
           <div class="footer">
-            <p>&copy; 2024 Las Piñas City Government. All rights reserved.</p>
+            <p>&copy; 2025 Las Piñas City Government. All rights reserved.</p>
+            <p style="font-size: 13px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+              Developed by <a href="https://vengeth.github.io/The-Heedful" style="color: #4b5563; font-weight: 500; text-decoration: underline;">The Heedful</a>
+            </p>
           </div>
         </div>
       </body>

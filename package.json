@@ -26,6 +26,12 @@
     "online-payment"
   ],
   "author": "Las Piñas LGU",
+  "contributors": [
+    {
+      "name": "The Heedful",
+      "url": "https://vengeth.github.io/The-Heedful"
+    }
+  ],
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",

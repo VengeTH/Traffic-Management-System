@@ -54,9 +54,16 @@ const validateProfileUpdate = [
     .withMessage('Postal code must be between 3 and 10 characters'),
   
   body('driverLicenseNumber')
-    .optional()
-    .isLength({ min: 5, max: 20 })
-    .withMessage('Driver license number must be between 5 and 20 characters'),
+    .optional({ checkFalsy: true })
+    .custom((value) => {
+      // * If value is provided (not empty), validate length
+      if (value && value.trim().length > 0) {
+        if (value.trim().length < 5 || value.trim().length > 20) {
+          throw new Error('Driver license number must be between 5 and 20 characters');
+        }
+      }
+      return true;
+    }),
   
   body('licenseExpiryDate')
     .optional()

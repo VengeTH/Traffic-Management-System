@@ -57,7 +57,12 @@ const RegisterPage: React.FC = () => {
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     try {
-      await registerUser(data);
+      // * Transform empty driverLicenseNumber to undefined before sending
+      const submitData = {
+        ...data,
+        driverLicenseNumber: data.driverLicenseNumber?.trim() || undefined,
+      };
+      await registerUser(submitData);
       navigate('/dashboard');
     } catch (error: any) {
       if (error.response?.data?.message) {
