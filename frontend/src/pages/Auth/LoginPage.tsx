@@ -211,10 +211,10 @@ const LoginPage: React.FC = () => {
           <h3 className="text-sm font-medium text-gray-900 mb-2">Demo Credentials</h3>
           <div className="space-y-1 text-xs text-gray-600">
             <p><strong>Admin:</strong> admin@laspinas.gov.ph / admin123456</p>
-            <p><strong>Enforcer 1:</strong> enforcer1@laspinas.gov.ph / enforcer123456</p>
-            <p><strong>Enforcer 2:</strong> enforcer2@laspinas.gov.ph / enforcer123456</p>
-            <p><strong>Citizen 1:</strong> pedro.garcia@email.com / citizen123456</p>
-            <p><strong>Citizen 2:</strong> ana.martinez@email.com / citizen123456</p>
+            <p><strong>Enforcer 1:</strong> enforcer1@laspinas.gov.ph / enforcer123</p>
+            <p><strong>Enforcer 2:</strong> enforcer2@laspinas.gov.ph / enforcer123</p>
+            <p><strong>Citizen 1:</strong> pedro.garcia@email.com / citizen123</p>
+            <p><strong>Citizen 2:</strong> ana.martinez@email.com / citizen123</p>
           </div>
         </div>
       </div>
