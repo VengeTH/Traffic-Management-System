@@ -1,22 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta charset="utf-8">
-    <title>Redirecting...</title>
-    <script>
-      // * SPA redirect for GitHub Pages when using BrowserRouter under a subpath
-      (function(l){
-        var repo = "/Traffic-Management-System";
-        var path = l.pathname + l.search + l.hash;
-        if (l.pathname.indexOf(repo) !== 0) {
-          l.replace(repo + path);
-        } else {
-          // Already under repo path, redirect to root to let SPA handle routing
-          l.replace(repo + "/");
-        }
-      })(window.location);
-    </script>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1e40af" />
+    <meta
+      name="description"
+      content="E-VioPay - Pay traffic violations online with ease"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <title>E-VioPay</title>
   </head>
-  <body></body>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+  </body>
 </html>
-
