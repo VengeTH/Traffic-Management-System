@@ -66,7 +66,7 @@ const AppContent: React.FC = () => {
   const isLandingPage = typeof window !== 'undefined' && window.location.pathname === "/";
 
   return (
-    <Router>
+    <Router basename="/Traffic-Management-System">
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50">
         <Navbar />
         
