@@ -88,8 +88,8 @@ const ProfilePage: React.FC = () => {
           <Card className="border border-slate-200 shadow-lg">
             <CardHeader className="bg-white border-b-2 border-slate-200">
               <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <User className="h-5 w-5 text-purple-700" />
+                <div className="p-2 bg-secondary-100 rounded-lg">
+                  <User className="h-5 w-5 text-secondary-700" />
                 </div>
                 Personal Information
               </CardTitle>

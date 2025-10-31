@@ -77,18 +77,18 @@ const DashboardPage: React.FC = () => {
     <div className="space-y-6 pt-8 px-4 pb-8">
       {/* Driver License Warning */}
       {!user?.driverLicenseNumber && (
-        <div className="relative overflow-hidden bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 border-l-4 border-amber-500 rounded-xl p-5 shadow-md">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/20 rounded-full -mr-16 -mt-16 blur-2xl"></div>
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-orange-200/20 rounded-full -ml-12 -mb-12 blur-xl"></div>
+        <div className="relative overflow-hidden bg-gradient-to-r from-warning-50 via-accent-50 to-warning-50 border-l-4 border-warning-500 rounded-2xl p-6 shadow-md">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-warning-200/20 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-accent-200/20 rounded-full -ml-12 -mb-12 blur-xl"></div>
           <div className="relative flex items-start">
-            <div className="flex-shrink-0 p-2 bg-amber-100 rounded-lg">
-              <AlertCircle className="h-6 w-6 text-amber-700" />
+            <div className="flex-shrink-0 p-2 bg-warning-100 rounded-lg">
+              <AlertCircle className="h-6 w-6 text-warning-700" />
             </div>
             <div className="ml-4 flex-1">
-              <h3 className="text-base font-bold text-amber-900">
+              <h3 className="text-base font-bold text-warning-900">
                 Driver's License Required
               </h3>
-              <div className="mt-2 text-sm text-amber-800 leading-relaxed">
+              <div className="mt-2 text-sm text-warning-800 leading-relaxed">
                 <p>
                   To view and manage your violations, please add your driver's license number to your profile.
                 </p>
@@ -108,7 +108,7 @@ const DashboardPage: React.FC = () => {
       {/* Welcome Section */}
       <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-100 p-8 overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary-100/30 rounded-full -mr-48 -mt-48 blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-100/20 rounded-full -ml-36 -mb-36 blur-2xl"></div>
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-secondary-100/20 rounded-full -ml-36 -mb-36 blur-2xl"></div>
         <div className="relative">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2.5 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl shadow-lg">
@@ -127,13 +127,13 @@ const DashboardPage: React.FC = () => {
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="group relative overflow-hidden border-2 border-transparent hover:border-primary-300 transition-all duration-300 shadow-lg hover:shadow-2xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-cyan-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-secondary-50 via-white to-secondary-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <CardContent className="p-6 relative">
             <div className="flex items-start justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <div className="p-3 bg-gradient-to-br from-secondary-600 to-secondary-700 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
                 <Search className="h-6 w-6 text-white" />
               </div>
-              <div className="w-12 h-12 bg-blue-200/30 rounded-full blur-2xl absolute top-0 right-0 -mr-6 -mt-6"></div>
+              <div className="w-12 h-12 bg-secondary-200/30 rounded-full blur-2xl absolute top-0 right-0 -mr-6 -mt-6"></div>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-1">Search Violations</h3>
             <p className="text-sm text-gray-600 mb-5 leading-relaxed">Look up your traffic violations by OVR, plate number, or license</p>
@@ -145,38 +145,38 @@ const DashboardPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="group relative overflow-hidden border-2 border-transparent hover:border-green-300 transition-all duration-300 shadow-lg hover:shadow-2xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-white to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <Card className="group relative overflow-hidden border-2 border-transparent hover:border-primary-300 transition-all duration-300 shadow-lg hover:shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-primary-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <CardContent className="p-6 relative">
             <div className="flex items-start justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <div className="p-3 bg-gradient-to-br from-primary-600 to-primary-700 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
                 <CreditCard className="h-6 w-6 text-white" />
               </div>
-              <div className="w-12 h-12 bg-green-200/30 rounded-full blur-2xl absolute top-0 right-0 -mr-6 -mt-6"></div>
+              <div className="w-12 h-12 bg-primary-200/30 rounded-full blur-2xl absolute top-0 right-0 -mr-6 -mt-6"></div>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-1">Payment History</h3>
             <p className="text-sm text-gray-600 mb-5 leading-relaxed">View all your payment records and download receipts</p>
             <Link to="/payments">
-              <Button variant="outline" size="sm" className="w-full border-2 hover:bg-green-50 transition-colors">
+              <Button variant="outline" size="sm" className="w-full border-2 hover:bg-primary-50 transition-colors">
                 View History
               </Button>
             </Link>
           </CardContent>
         </Card>
 
-        <Card className="group relative overflow-hidden border-2 border-transparent hover:border-purple-300 transition-all duration-300 shadow-lg hover:shadow-2xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-white to-pink-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <Card className="group relative overflow-hidden border-2 border-transparent hover:border-secondary-300 transition-all duration-300 shadow-lg hover:shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-secondary-50 via-white to-secondary-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <CardContent className="p-6 relative">
             <div className="flex items-start justify-between mb-4">
-              <div className="p-3 bg-purple-600 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300 border-2 border-purple-700">
+              <div className="p-3 bg-gradient-to-br from-secondary-600 to-secondary-700 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
                 <User className="h-6 w-6 text-white" />
               </div>
-              <div className="w-12 h-12 bg-purple-200/30 rounded-full blur-2xl absolute top-0 right-0 -mr-6 -mt-6"></div>
+              <div className="w-12 h-12 bg-secondary-200/30 rounded-full blur-2xl absolute top-0 right-0 -mr-6 -mt-6"></div>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-1">Profile</h3>
             <p className="text-sm text-gray-600 mb-5 leading-relaxed">Manage your account information and preferences</p>
             <Link to="/profile">
-              <Button variant="outline" size="sm" className="w-full border-2 hover:bg-purple-50 transition-colors">
+              <Button variant="outline" size="sm" className="w-full border-2 hover:bg-secondary-50 transition-colors">
                 Edit Profile
               </Button>
             </Link>

@@ -34,8 +34,7 @@ const Input: React.FC<ExtendedInputProps> = ({
   ...rest
 }) => {
   const inputClasses = `
-    block w-full rounded-md border-gray-300 shadow-sm 
-    focus:border-primary-500 focus:ring-primary-500 sm:text-sm
+    input
     ${error ? 'border-danger-300 focus:border-danger-500 focus:ring-danger-500' : ''}
     ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}
     ${className}

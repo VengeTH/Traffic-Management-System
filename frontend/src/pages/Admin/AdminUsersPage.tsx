@@ -161,7 +161,7 @@ const AdminUsersPage: React.FC = () => {
                   setRoleFilter(e.target.value);
                   setPage(1);
                 }}
-                className="rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                className="rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
               >
                 <option value="">All Roles</option>
                 <option value="citizen">Citizen</option>
@@ -175,7 +175,7 @@ const AdminUsersPage: React.FC = () => {
                   setStatusFilter(e.target.value);
                   setPage(1);
                 }}
-                className="rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                className="rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
               >
                 <option value="">All Status</option>
                 <option value="active">Active</option>

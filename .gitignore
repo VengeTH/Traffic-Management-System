@@ -305,7 +305,7 @@ reports/
 # Docker & Containerization
 # ===========================================
 # Docker
-.dockerignore
+# Note: .dockerignore should be tracked in git
 Dockerfile.dev
 docker-compose.override.yml
 

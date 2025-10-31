@@ -23,47 +23,47 @@ const HomePage: React.FC = () => {
       icon: Search,
       title: 'Easy Violation Search',
       description: 'Search for traffic violations using OVR number, plate number, or driver\'s license.',
-      color: 'from-blue-500 to-blue-600',
+      color: 'from-secondary-600 to-secondary-700',
     },
     {
       icon: CreditCard,
       title: 'Secure Online Payment',
       description: 'Pay fines securely using multiple payment methods including GCash, Maya, and credit cards.',
-      color: 'from-green-500 to-green-600',
+      color: 'from-primary-600 to-primary-700',
     },
     {
       icon: Shield,
       title: 'Digital Receipts',
       description: 'Receive digital receipts with QR codes for easy verification and record keeping.',
-      color: 'from-purple-500 to-purple-600',
+      color: 'from-secondary-700 to-secondary-800',
     },
     {
       icon: Clock,
       title: '24/7 Availability',
       description: 'Access the system anytime, anywhere to check violations and make payments.',
-      color: 'from-orange-500 to-orange-600',
+      color: 'from-accent-500 to-accent-600',
     },
     {
       icon: CheckCircle,
       title: 'Real-time Updates',
       description: 'Get instant notifications and real-time updates on violation status and payments.',
-      color: 'from-teal-500 to-teal-600',
+      color: 'from-secondary-500 to-secondary-600',
     },
     {
       icon: Smartphone,
       title: 'Mobile Friendly',
       description: 'Fully responsive design that works perfectly on all devices and screen sizes.',
-      color: 'from-pink-500 to-pink-600',
+      color: 'from-accent-400 to-accent-500',
     },
   ];
 
   const paymentMethods = [
-    { name: 'GCash', logo: 'GCash', color: 'bg-blue-500' },
-    { name: 'Maya', logo: 'Maya', color: 'bg-purple-500' },
-    { name: 'PayMongo', logo: 'PayMongo', color: 'bg-green-500' },
-    { name: 'DragonPay', logo: 'DragonPay', color: 'bg-red-500' },
-    { name: 'Credit Cards', logo: 'Visa/Mastercard', color: 'bg-indigo-500' },
-    { name: 'Debit Cards', logo: 'Local Banks', color: 'bg-gray-500' },
+    { name: 'GCash', logo: 'GCash', color: 'bg-secondary-600' },
+    { name: 'Maya', logo: 'Maya', color: 'bg-secondary-700' },
+    { name: 'PayMongo', logo: 'PayMongo', color: 'bg-primary-600' },
+    { name: 'DragonPay', logo: 'DragonPay', color: 'bg-danger-600' },
+    { name: 'Credit Cards', logo: 'Visa/Mastercard', color: 'bg-secondary-800' },
+    { name: 'Debit Cards', logo: 'Local Banks', color: 'bg-gray-600' },
   ];
 
   const stats = [

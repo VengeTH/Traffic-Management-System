@@ -90,10 +90,10 @@ const ViolationSearchPage: React.FC = () => {
     <div className="space-y-6 pt-8 px-4 pb-8">
       {/* Header */}
       <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-100 p-8 overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-100/30 rounded-full -mr-48 -mt-48 blur-3xl"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-secondary-100/30 rounded-full -mr-48 -mt-48 blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-primary-100/20 rounded-full -ml-36 -mb-36 blur-2xl"></div>
         <div className="relative flex items-center gap-3">
-          <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl shadow-lg">
+          <div className="p-3 bg-gradient-to-br from-secondary-600 to-secondary-700 rounded-xl shadow-lg">
             <Search className="h-6 w-6 text-white" />
           </div>
           <div>
