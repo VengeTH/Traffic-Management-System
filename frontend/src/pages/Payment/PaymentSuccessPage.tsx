@@ -1,25 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { apiService } from '../../services/api';
 import { Payment } from '../../types';
-import { CheckCircle, Download, Mail, FileText, DollarSign, Calendar } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/UI/Card';
+import {
+  Calendar,
+  CheckCircle,
+  Download,
+  FileText,
+  Mail,
+  Share2,
+  ShieldCheck
+} from 'lucide-react';
+import { Card, CardContent } from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
+import PageHeader from '../../components/Layout/PageHeader';
+import PageSection from '../../components/Layout/PageSection';
+
+const formatLabel = (value: string) => value.replace(/_/g, ' ');
 
 const PaymentSuccessPage: React.FC = () => {
   const { paymentId } = useParams<{ paymentId: string }>();
   const [payment, setPayment] = useState<Payment | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchPayment = async () => {
-      if (!paymentId) return;
-      
+      if (!paymentId) {
+        return;
+      }
+
       try {
         setLoading(true);
         const response = await apiService.getPayment(paymentId);
-        setPayment(response.data);
+        setPayment(response.data as Payment);
       } catch (error) {
         console.error('Failed to load payment:', error);
       } finally {
@@ -31,11 +45,13 @@ const PaymentSuccessPage: React.FC = () => {
   }, [paymentId]);
 
   const handleDownloadReceipt = async () => {
-    if (!payment) return;
-    
+    if (!payment) {
+      return;
+    }
+
     try {
       const receiptBlob = await apiService.getPaymentReceipt(payment.id);
-      const url = window.URL.createObjectURL(receiptBlob);
+      const url = window.URL.createObjectURL(receiptBlob as Blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = `receipt-${payment.receiptNumber}.pdf`;
@@ -50,7 +66,7 @@ const PaymentSuccessPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
     );
@@ -58,163 +74,167 @@ const PaymentSuccessPage: React.FC = () => {
 
   if (!payment) {
     return (
-      <div className="text-center py-12">
-        <FileText className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-lg font-medium text-gray-900">Payment Not Found</h3>
-        <p className="mt-1 text-sm text-gray-500">
-          The payment you're looking for doesn't exist.
-        </p>
+      <div className="flex flex-col items-center justify-center space-y-4 rounded-3xl border border-gray-200 bg-gray-50 px-6 py-12 text-center">
+        <FileText className="h-12 w-12 text-gray-400" />
+        <h2 className="text-lg font-semibold text-gray-900">Payment not found</h2>
+        <p className="text-sm text-gray-600">We could not locate a payment with the supplied reference.</p>
+        <Link to="/dashboard">
+          <Button variant="primary">Go to dashboard</Button>
+        </Link>
       </div>
     );
   }
 
+  const displayDate = new Date(payment.completedAt ?? payment.initiatedAt).toLocaleString();
+
   return (
-    <div className="space-y-6">
-      {/* Success Header */}
-      <div className="text-center bg-white rounded-lg shadow p-8">
-        <div className="mx-auto h-16 w-16 text-success-600 mb-4">
-          <CheckCircle className="h-16 w-16" />
-        </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Payment Successful!
-        </h1>
-        <p className="text-lg text-gray-600">
-          Your payment has been processed successfully. A receipt has been sent to your email.
-        </p>
+    <div className="space-y-8 px-4 pb-12 pt-8">
+      <PageHeader
+        title="Payment confirmed"
+        subtitle="Your traffic violation has been settled successfully. Save the digital receipt for your records."
+        icon={CheckCircle}
+        actions={(
+          <div className="rounded-full bg-success-100 px-4 py-2 text-sm font-semibold text-success-700">
+            Receipt #{payment.receiptNumber}
+          </div>
+        )}
+      />
+
+      <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
+        <PageSection title="Transaction overview">
+          <div className="rounded-4xl border border-success-200 bg-gradient-to-br from-success-50 to-white p-8 shadow-2xl text-center">
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-success-500 text-white shadow-lg">
+              <CheckCircle className="h-10 w-10" />
+            </div>
+            <h2 className="mt-6 text-3xl font-black text-gray-900">Payment successful</h2>
+            <p className="mt-3 text-sm text-gray-600">
+              Confirmation sent to {payment.payerEmail}. Please keep the receipt number for any future reference with the Las Piñas Traffic Management Office.
+            </p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-xs font-semibold uppercase tracking-widest text-success-600">
+              <div className="rounded-full bg-white/70 px-3 py-1">PAYMENT ID {payment.paymentId}</div>
+              <div className="rounded-full bg-white/70 px-3 py-1">OVR {payment.ovrNumber}</div>
+              <div className="rounded-full bg-white/70 px-3 py-1">₱{payment.amount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <InfoTile label="Transaction amount" value={`₱${payment.amount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}`} accent="text-success-700" />
+            <InfoTile label="Payment channel" value={formatLabel(payment.paymentMethod).toUpperCase()} />
+            <InfoTile label="Provider" value={payment.paymentProvider} />
+            <InfoTile label="Processed on" value={displayDate} icon={<Calendar className="h-4 w-4 text-primary-500" />} />
+          </div>
+        </PageSection>
+
+        <PageSection title="Violation details" description="Linked traffic citation information">
+          <div className="space-y-4">
+            <DetailRow label="Citation" value={payment.citationNumber} />
+            <DetailRow label="OVR" value={payment.ovrNumber} />
+            <DetailRow label="Payer" value={payment.payerName} />
+            <DetailRow label="Email" value={payment.payerEmail} />
+            <DetailRow label="Gateway reference" value={payment.gatewayTransactionId ?? 'N/A'} />
+          </div>
+        </PageSection>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Payment Details */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Payment Details</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-500">Receipt Number:</span>
-                <span className="text-sm text-gray-900 font-mono">{payment.receiptNumber}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-500">Payment ID:</span>
-                <span className="text-sm text-gray-900 font-mono">{payment.paymentId}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-500">Amount Paid:</span>
-                <span className="text-lg font-bold text-success-600">₱{payment.amount.toFixed(2)}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-500">Payment Method:</span>
-                <span className="text-sm text-gray-900 capitalize">{payment.paymentMethod}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-500">Payment Provider:</span>
-                <span className="text-sm text-gray-900">{payment.paymentProvider}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-500">Status:</span>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-success-600 bg-success-50">
-                  <CheckCircle className="h-4 w-4 mr-1" />
-                  Completed
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-500">Date:</span>
-                <span className="text-sm text-gray-900">
-                  {new Date(payment.completedAt || payment.initiatedAt).toLocaleDateString()}
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Violation Details */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Violation Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-500">OVR Number:</span>
-                <span className="text-sm text-gray-900">{payment.ovrNumber}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-500">Citation Number:</span>
-                <span className="text-sm text-gray-900">{payment.citationNumber}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-500">Payer Name:</span>
-                <span className="text-sm text-gray-900">{payment.payerName}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-500">Payer Email:</span>
-                <span className="text-sm text-gray-900">{payment.payerEmail}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Next Steps</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button
-              variant="primary"
-              onClick={handleDownloadReceipt}
-              className="flex items-center justify-center"
-            >
-              <Download className="h-5 w-5 mr-2" />
-              Download Receipt
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {/* TODO: Implement email receipt */}}
-              className="flex items-center justify-center"
-            >
-              <Mail className="h-5 w-5 mr-2" />
-              Email Receipt
-            </Button>
-            <Link to="/dashboard">
-              <Button
-                variant="outline"
-                className="w-full flex items-center justify-center"
-              >
-                <FileText className="h-5 w-5 mr-2" />
-                Back to Dashboard
+      <PageSection title="Next steps" description="Keep your receipt safe or share it with the concerned parties.">
+        <div className="grid gap-4 md:grid-cols-3">
+          <ActionCard
+            title="Download receipt"
+            description="PDF copy saved to your device for archiving."
+            icon={<Download className="h-5 w-5" />}
+            action={(
+              <Button variant="primary" onClick={handleDownloadReceipt} className="mt-4 w-full">
+                Download
               </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+            )}
+          />
+          <ActionCard
+            title="Email copy"
+            description="Send a duplicate receipt to another address."
+            icon={<Mail className="h-5 w-5" />}
+            action={(
+              <Button variant="outline" className="mt-4 w-full" onClick={() => {/* TODO: trigger email resend */}}>
+                Send email
+              </Button>
+            )}
+          />
+          <ActionCard
+            title="Return to dashboard"
+            description="Review other violations or monitor history."
+            icon={<Share2 className="h-5 w-5" />}
+            action={(
+              <Link to="/dashboard" className="mt-4 block w-full">
+                <Button variant="outline" className="w-full">
+                  Go to dashboard
+                </Button>
+              </Link>
+            )}
+          />
+        </div>
+      </PageSection>
 
-      {/* Important Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Important Information</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex">
-              <CheckCircle className="h-5 w-5 text-blue-400 mt-0.5" />
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-blue-800">Payment Confirmed</h3>
-                <p className="text-sm text-blue-700 mt-1">
-                  Your payment has been successfully processed and recorded in our system. 
-                  Please keep your receipt number ({payment.receiptNumber}) for your records. 
-                  You may be required to present this receipt if there are any questions about your payment.
-                </p>
-              </div>
-            </div>
+      <PageSection title="Security assurance" className="bg-gradient-to-br from-secondary-600 via-primary-600 to-primary-700 text-white">
+        <div className="flex items-start gap-4">
+          <div className="rounded-2xl bg-white/15 p-3">
+            <ShieldCheck className="h-6 w-6" />
           </div>
-        </CardContent>
-      </Card>
+          <div className="space-y-2 text-sm">
+            <p className="font-semibold">Verified transaction</p>
+            <p className="text-white/80">
+              This payment is protected under the Las Piñas City e-governance program. Should you require validation, present the receipt number {payment.receiptNumber} along with a valid government ID at the Traffic Management Office.
+            </p>
+          </div>
+        </div>
+      </PageSection>
     </div>
   );
 };
+
+interface InfoTileProps {
+  label: string;
+  value: string;
+  accent?: string;
+  icon?: React.ReactNode;
+}
+
+const InfoTile: React.FC<InfoTileProps> = ({ label, value, accent = 'text-gray-700', icon }) => (
+  <div className="rounded-3xl border border-gray-100 bg-white/95 p-5 shadow-md">
+    <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">{label}</p>
+    <div className="mt-2 flex items-center gap-2 text-base font-bold">
+      {icon}
+      <span className={accent}>{value}</span>
+    </div>
+  </div>
+);
+
+interface DetailRowProps {
+  label: string;
+  value: string;
+}
+
+const DetailRow: React.FC<DetailRowProps> = ({ label, value }) => (
+  <div className="rounded-2xl border border-gray-100 bg-white/90 p-4 shadow-sm">
+    <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">{label}</p>
+    <p className="mt-2 text-sm text-gray-700">{value}</p>
+  </div>
+);
+
+interface ActionCardProps {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  action: React.ReactNode;
+}
+
+const ActionCard: React.FC<ActionCardProps> = ({ title, description, icon, action }) => (
+  <div className="rounded-3xl border border-gray-100 bg-white/95 p-6 shadow-xl">
+    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-50 text-primary-600">
+      {icon}
+    </div>
+    <h3 className="mt-4 text-base font-semibold text-gray-900">{title}</h3>
+    <p className="mt-2 text-sm text-gray-600">{description}</p>
+    {action}
+  </div>
+);
 
 export default PaymentSuccessPage;

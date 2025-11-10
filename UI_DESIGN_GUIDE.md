@@ -355,6 +355,16 @@ All components are designed mobile-first with progressive enhancement for larger
 - Modern typography representing technological advancement
 - Clean, efficient layouts reflecting good governance
 
+## 🤝 Brand & Attribution
+
+### The Heedful — Design & Engineering Partner
+- E‑VioPay is designed and engineered in partnership with **The Heedful**.
+- Portfolio link: https://vengeth.github.io/The-Heedful
+- Brand usage:
+  - Keep E‑VioPay as the primary product brand.
+  - Add “Designed & engineered by The Heedful” footer attribution with an external link.
+  - Maintain neutral, modern styling; do not introduce conflicting brand colors.
+
 ## 📋 Implementation Checklist
 
 ### Before Development

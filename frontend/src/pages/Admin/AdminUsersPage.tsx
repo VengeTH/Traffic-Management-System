@@ -141,19 +141,17 @@ const AdminUsersPage: React.FC = () => {
             
             {/* Search and Filters */}
             <div className="flex flex-col md:flex-row gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <Input
-                  type="text"
-                  placeholder="Search users..."
-                  value={searchTerm}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setSearchTerm(e.target.value);
-                    setPage(1);
-                  }}
-                  className="pl-10"
-                />
-              </div>
+              <Input
+                name="userSearch"
+                type="text"
+                placeholder="Search users..."
+                value={searchTerm}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setSearchTerm(e.target.value);
+                  setPage(1);
+                }}
+                startIcon={<Search className="h-5 w-5" />}
+              />
               
               <select
                 value={roleFilter}
@@ -376,18 +374,21 @@ const AdminUsersPage: React.FC = () => {
             </div>
             <div className="px-6 py-4 space-y-4">
               <Input
+                name="editFirstName"
                 label="First Name"
                 value={editFormData.firstName}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditFormData({ ...editFormData, firstName: e.target.value })}
                 required
               />
               <Input
+                name="editLastName"
                 label="Last Name"
                 value={editFormData.lastName}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditFormData({ ...editFormData, lastName: e.target.value })}
                 required
               />
               <Input
+                name="editEmail"
                 label="Email"
                 type="email"
                 value={editFormData.email}
@@ -395,6 +396,7 @@ const AdminUsersPage: React.FC = () => {
                 required
               />
               <Input
+                name="editPhoneNumber"
                 label="Phone Number"
                 value={editFormData.phoneNumber}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditFormData({ ...editFormData, phoneNumber: e.target.value })}

@@ -1,55 +1,84 @@
-import React from 'react';
-import { InputProps } from '../../types';
+import React, { forwardRef, ChangeEvent } from 'react';
+import { InputProps as BaseInputProps } from '../../types';
 
-interface ExtendedInputProps extends Omit<InputProps, 'onChange'> {
+type Props = BaseInputProps & {
   name?: string;
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
-  ref?: React.RefCallback<HTMLInputElement>;
   min?: string | number;
   max?: string | number;
   step?: string | number;
   pattern?: string;
   autoComplete?: string;
-  onChange?: ((value: string) => void) | ((event: React.ChangeEvent<HTMLInputElement>) => void);
-}
+};
 
-const Input: React.FC<ExtendedInputProps> = ({
-  label,
-  placeholder,
-  type = 'text',
-  value,
-  onChange,
-  onBlur,
-  ref,
-  error,
-  required = false,
-  disabled = false,
-  className = '',
-  name,
-  min,
-  max,
-  step,
-  pattern,
-  autoComplete,
-  ...rest
-}) => {
-  const inputClasses = `
-    input
-    ${error ? 'border-danger-300 focus:border-danger-500 focus:ring-danger-500' : ''}
-    ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}
-    ${className}
-  `.trim();
+const Input = forwardRef<HTMLInputElement, Props>(function Input(
+  {
+    label,
+    placeholder,
+    type = 'text',
+    value,
+    onChange,
+    onBlur,
+    error,
+    required = false,
+    disabled = false,
+    className = '',
+    name,
+    min,
+    max,
+    step,
+    pattern,
+    autoComplete,
+    startIcon,
+    endAdornment,
+    ...rest
+  },
+  ref
+) {
+  const classes = [
+    'input',
+    'px-4',
+    'py-3',
+    startIcon ? 'pl-12' : '',
+    endAdornment ? 'pr-12' : '',
+    error ? 'border-danger-300 focus:border-danger-500 focus:ring-danger-500' : '',
+    disabled ? 'bg-gray-100 cursor-not-allowed' : '',
+    className
+  ]
+    .filter(Boolean)
+    .join(' ');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (onChange) {
-      // Check if onChange expects a string (controlled input) or event (react-hook-form)
-      if (onChange.length === 1) {
-        (onChange as (value: string) => void)(e.target.value);
-      } else {
-        (onChange as (event: React.ChangeEvent<HTMLInputElement>) => void)(e);
-      }
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!onChange) return;
+
+    const hasName = typeof name === 'string' && name.length > 0;
+    if (hasName) {
+      (onChange as (event: ChangeEvent<HTMLInputElement>) => void)(e);
+    } else {
+      (onChange as (value: string) => void)(e.target.value);
     }
   };
+
+  const inputProps: React.InputHTMLAttributes<HTMLInputElement> = {
+    type,
+    className: classes,
+    placeholder,
+    onChange: handleChange,
+    onBlur,
+    required,
+    disabled,
+    name,
+    min,
+    max,
+    step,
+    pattern,
+    autoComplete,
+    ...rest
+  };
+
+  if (value !== undefined) {
+    inputProps.value = value;
+  }
 
   return (
     <div className="form-group">
@@ -59,30 +88,23 @@ const Input: React.FC<ExtendedInputProps> = ({
           {required && <span className="text-danger-600 ml-1">*</span>}
         </label>
       )}
-      <input
-        type={type}
-        className={inputClasses}
-        placeholder={placeholder}
-        value={value}
-        onChange={handleChange}
-        onBlur={onBlur}
-        ref={ref}
-        required={required}
-        disabled={disabled}
-        name={name}
-        min={min}
-        max={max}
-        step={step}
-        pattern={pattern}
-        autoComplete={autoComplete}
-        {...rest}
-      />
-      {error && (
-        <p className="form-error">{error}</p>
-      )}
+      <div className="relative">
+        {startIcon && (
+          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-primary-500">
+            {startIcon}
+          </span>
+        )}
+        <input ref={ref} {...inputProps} />
+        {endAdornment && (
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+            {endAdornment}
+          </div>
+        )}
+      </div>
+      {error && <p className="form-error">{error}</p>}
     </div>
   );
-};
+});
 
 export default Input;
 

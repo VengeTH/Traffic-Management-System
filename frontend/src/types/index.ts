@@ -1,3 +1,5 @@
+import type { ChangeEvent, ReactNode } from 'react';
+
 // User Types
 export interface User {
   id: string;
@@ -267,12 +269,15 @@ export interface InputProps {
   label?: string;
   placeholder?: string;
   type?: string;
+  name?: string;
   value?: string;
-  onChange?: (value: string) => void;
+  onChange?: ((value: string) => void) | ((event: ChangeEvent<HTMLInputElement>) => void);
   error?: string;
   required?: boolean;
   disabled?: boolean;
   className?: string;
+  startIcon?: ReactNode;
+  endAdornment?: ReactNode;
 }
 
 export interface ModalProps {

@@ -4,13 +4,13 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useAuth } from '../../contexts/AuthContext';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, ShieldCheck, Smartphone, CreditCard } from 'lucide-react';
 import Button from '../../components/UI/Button';
 import Input from '../../components/UI/Input';
 
 const schema = yup.object({
   email: yup.string().email('Please enter a valid email').required('Email is required'),
-  password: yup.string().required('Password is required'),
+  password: yup.string().required('Password is required')
 }).required();
 
 type LoginFormData = yup.InferType<typeof schema>;
@@ -28,9 +28,9 @@ const LoginPage: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
-    setError,
+    setError
   } = useForm<LoginFormData>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema)
   });
 
   const onSubmit = async (data: LoginFormData) => {
@@ -38,183 +38,155 @@ const LoginPage: React.FC = () => {
     try {
       await login(data.email, data.password);
       navigate(from, { replace: true });
-    } catch (error: any) {
-      if (error.response?.data?.message) {
-        setError('root', {
-          type: 'manual',
-          message: error.response.data.message,
-        });
-      } else {
-        setError('root', {
-          type: 'manual',
-          message: 'Login failed. Please try again.',
-        });
+    } catch (error: unknown) {
+      let message = 'Login failed. Please try again.';
+      if (typeof error === 'object' && error !== null && 'response' in error) {
+        const serverError = error as { response?: { data?: { message?: string } } };
+        message = serverError.response?.data?.message ?? message;
       }
+      setError('root', {
+        type: 'manual',
+        message
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <div className="mx-auto h-12 w-12 bg-primary-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">LP</span>
+    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 via-white to-secondary-50 px-4 py-12">
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(34,197,94,0.08)_0%,_rgba(14,165,233,0)_60%)]" />
+      <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.1fr_1fr]">
+        <div className="relative overflow-hidden rounded-[32px] border border-primary-100 bg-white/90 p-10 shadow-2xl">
+          <div className="absolute inset-y-0 -left-16 hidden w-48 rotate-12 bg-primary-100/60 blur-3xl lg:block" />
+          <div className="relative space-y-8">
+            <div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-600 text-white shadow-xl">
+                <span className="text-lg font-extrabold">EV</span>
+              </div>
+              <h1 className="mt-6 text-4xl font-black text-gray-900">
+                Welcome back to E-VioPay
+              </h1>
+              <p className="mt-3 max-w-md text-sm text-gray-600">
+                Securely monitor traffic violations, settle payments, and receive instant confirmations in one modern portal.
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="rounded-2xl border border-primary-100 bg-primary-50/80 p-4 shadow-sm">
+                <ShieldCheck className="h-6 w-6 text-primary-700" />
+                <p className="mt-3 text-sm font-semibold text-gray-900">Government grade security</p>
+                <p className="mt-1 text-xs text-gray-600">Two-factor ready with audit trails.</p>
+              </div>
+              <div className="rounded-2xl border border-secondary-100 bg-secondary-50/70 p-4 shadow-sm">
+                <CreditCard className="h-6 w-6 text-secondary-700" />
+                <p className="mt-3 text-sm font-semibold text-gray-900">Cashless payments</p>
+                <p className="mt-1 text-xs text-gray-600">PayMongo, GCash, Maya, cards.</p>
+              </div>
+              <div className="rounded-2xl border border-accent-100 bg-accent-50/80 p-4 shadow-sm">
+                <Smartphone className="h-6 w-6 text-accent-700" />
+                <p className="mt-3 text-sm font-semibold text-gray-900">Mobile optimized</p>
+                <p className="mt-1 text-xs text-gray-600">Responsive on any device.</p>
+              </div>
+            </div>
+            <div className="rounded-3xl border border-gray-100 bg-white p-5 shadow-xl">
+              <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-500">Demo access</h3>
+              <div className="mt-4 grid gap-2 text-xs text-gray-600 sm:grid-cols-2">
+                <p><span className="font-semibold text-gray-900">Admin:</span> admin@laspinas.gov.ph / admin123456</p>
+                <p><span className="font-semibold text-gray-900">Citizen 1:</span> pedro.garcia@email.com / citizen123</p>
+                <p><span className="font-semibold text-gray-900">Enforcer 1:</span> enforcer1@laspinas.gov.ph / enforcer123</p>
+                <p><span className="font-semibold text-gray-900">Enforcer 2:</span> enforcer2@laspinas.gov.ph / enforcer123</p>
+              </div>
+            </div>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link
-              to="/register"
-              className="font-medium text-primary-600 hover:text-primary-500"
-            >
-              create a new account
-            </Link>
-          </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
+        <div className="flex items-center lg:pl-6">
+          <div className="w-full rounded-[28px] border border-gray-100 bg-white/95 p-10 shadow-2xl">
+            <div className="text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-100 text-primary-700">
+                <Mail className="h-6 w-6" />
+              </div>
+              <h2 className="mt-4 text-3xl font-extrabold text-gray-900">Sign in to continue</h2>
+              <p className="mt-2 text-sm text-gray-600">
+                New to E-VioPay?{' '}
+                <Link to="/register" className="font-semibold text-primary-600 hover:text-primary-700">
+                  Create an account
+                </Link>
+              </p>
+            </div>
+
+            <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+              <div className="space-y-5">
+                <Input
                   {...register('email')}
-                  id="email"
+                  label="Email address"
+                  placeholder="your@email.com"
                   type="email"
                   autoComplete="email"
-                  className={`
-                    appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 
-                    placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
-                    focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm
-                    ${errors.email ? 'border-danger-300 focus:border-danger-500 focus:ring-danger-500' : ''}
-                  `}
-                  placeholder="Enter your email"
+                  startIcon={<Mail className="h-5 w-5" />} 
+                  error={errors.email?.message}
+                  required
                 />
-              </div>
-              {errors.email && (
-                <p className="mt-1 text-sm text-danger-600">{errors.email.message}</p>
-              )}
-            </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
+                <Input
                   {...register('password')}
-                  id="password"
+                  label="Password"
+                  placeholder="Enter your password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
-                  className={`
-                    appearance-none relative block w-full pl-10 pr-10 py-2 border border-gray-300 
-                    placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
-                    focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm
-                    ${errors.password ? 'border-danger-300 focus:border-danger-500 focus:ring-danger-500' : ''}
-                  `}
-                  placeholder="Enter your password"
+                  startIcon={<Lock className="h-5 w-5" />}
+                  endAdornment={(
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  )}
+                  error={errors.password?.message}
+                  required
                 />
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
               </div>
-              {errors.password && (
-                <p className="mt-1 text-sm text-danger-600">{errors.password.message}</p>
+
+              {errors.root && (
+                <div className="rounded-2xl border border-danger-200 bg-danger-50 p-4 text-sm text-danger-700">
+                  {errors.root.message}
+                </div>
               )}
-            </div>
-          </div>
 
-          {errors.root && (
-            <div className="rounded-md bg-danger-50 p-4">
-              <div className="flex">
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-danger-800">
-                    {errors.root.message}
-                  </h3>
-                </div>
+              <div className="flex items-center justify-between text-sm">
+                <label className="flex items-center gap-2 text-gray-600">
+                  <input
+                    id="remember-me"
+                    name="remember-me"
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  />
+                  Remember me
+                </label>
+                <Link to="/forgot-password" className="font-semibold text-primary-600 hover:text-primary-700">
+                  Forgot password?
+                </Link>
               </div>
-            </div>
-          )}
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Remember me
-              </label>
-            </div>
-
-            <div className="text-sm">
-              <Link
-                to="/forgot-password"
-                className="font-medium text-primary-600 hover:text-primary-500"
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                loading={isLoading}
+                className="w-full"
               >
-                Forgot your password?
-              </Link>
-            </div>
-          </div>
+                Sign in
+              </Button>
 
-          <div>
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              loading={isLoading}
-              className="w-full"
-            >
-              Sign in
-            </Button>
-          </div>
-
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <Link
-                to="/register"
-                className="font-medium text-primary-600 hover:text-primary-500"
-              >
-                Sign up here
-              </Link>
-            </p>
-          </div>
-        </form>
-
-        {/* Demo credentials */}
-        <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-900 mb-2">Demo Credentials</h3>
-          <div className="space-y-1 text-xs text-gray-600">
-            <p><strong>Admin:</strong> admin@laspinas.gov.ph / admin123456</p>
-            <p><strong>Enforcer 1:</strong> enforcer1@laspinas.gov.ph / enforcer123</p>
-            <p><strong>Enforcer 2:</strong> enforcer2@laspinas.gov.ph / enforcer123</p>
-            <p><strong>Citizen 1:</strong> pedro.garcia@email.com / citizen123</p>
-            <p><strong>Citizen 2:</strong> ana.martinez@email.com / citizen123</p>
+              <p className="text-center text-sm text-gray-600">
+                Need an account?{' '}
+                <Link to="/register" className="font-semibold text-primary-600 hover:text-primary-700">
+                  Sign up here
+                </Link>
+              </p>
+            </form>
           </div>
         </div>
       </div>

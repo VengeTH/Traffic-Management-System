@@ -173,6 +173,7 @@ const AdminReportsPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Input
+                  name="reportStartDate"
                   label="Start Date"
                   type="date"
                   value={startDate}
@@ -182,6 +183,7 @@ const AdminReportsPage: React.FC = () => {
               </div>
               <div>
                 <Input
+                  name="reportEndDate"
                   label="End Date"
                   type="date"
                   value={endDate}
