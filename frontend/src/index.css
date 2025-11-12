@@ -8,17 +8,29 @@
   html {
     font-family: 'Poppins', 'Inter', system-ui, sans-serif;
     scroll-behavior: smooth;
+    overflow-x: hidden;
+    width: 100%;
   }
   
   body {
     margin: 0;
     @apply bg-gradient-to-br from-green-50 via-white to-green-50 text-gray-900;
     background-attachment: fixed;
+    overflow-x: hidden;
+    width: 100%;
   }
   
   * {
     scrollbar-width: thin;
     scrollbar-color: #86efac #dcfce7;
+    box-sizing: border-box;
+  }
+  
+  /* Ensure text wrapping on all elements */
+  h1, h2, h3, h4, h5, h6, p, span, div, a, button {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
   }
   
   *::-webkit-scrollbar {
@@ -201,12 +213,17 @@
 
   /* Pill badges */
   .badge-pill {
-    @apply inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold;
+    @apply inline-flex items-center gap-2 rounded-full px-2 py-1 sm:px-3 md:px-4 text-xs font-semibold;
     background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.8));
     border: 1px solid rgba(22, 163, 74, 0.25);
     color: #065f46;
     box-shadow: 0 4px 12px rgba(16,185,129,0.12);
     cursor: default;
+    max-width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    flex-shrink: 1;
   }
 
   /* Section divider */
@@ -316,6 +333,7 @@
   /* ===== Premium Accent Utilities ===== */
   .hero-orbit {
     position: relative;
+    overflow: hidden;
   }
   .hero-orbit::before,
   .hero-orbit::after {
@@ -326,19 +344,47 @@
     z-index: -1;
   }
   .hero-orbit::before {
-    width: 420px;
-    height: 420px;
-    top: -140px;
-    left: -120px;
+    width: 200px;
+    height: 200px;
+    top: -80px;
+    left: -60px;
     background: radial-gradient(circle, rgba(34,197,94,0.18), rgba(34,197,94,0));
     filter: blur(0.4px);
   }
   .hero-orbit::after {
-    width: 480px;
-    height: 480px;
-    bottom: -220px;
-    right: -140px;
+    width: 240px;
+    height: 240px;
+    bottom: -120px;
+    right: -80px;
     background: radial-gradient(circle, rgba(56,189,248,0.16), rgba(56,189,248,0));
+  }
+  @media (min-width: 640px) {
+    .hero-orbit::before {
+      width: 300px;
+      height: 300px;
+      top: -100px;
+      left: -80px;
+    }
+    .hero-orbit::after {
+      width: 360px;
+      height: 360px;
+      bottom: -160px;
+      right: -100px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .hero-orbit::before {
+      width: 420px;
+      height: 420px;
+      top: -140px;
+      left: -120px;
+    }
+    .hero-orbit::after {
+      width: 480px;
+      height: 480px;
+      bottom: -220px;
+      right: -140px;
+    }
   }
 
   .highlight-card {
