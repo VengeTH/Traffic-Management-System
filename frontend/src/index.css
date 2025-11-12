@@ -12,9 +12,58 @@
     width: 100%;
   }
   
-  /* Smooth scrolling for all scrollable elements */
+  /* Default cursor for all elements */
   * {
     scroll-behavior: smooth;
+    cursor: default;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Interactive elements get pointer cursor */
+  a,
+  button,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  input[type="file"],
+  select,
+  label[for],
+  [role="button"],
+  [onclick],
+  [tabindex]:not([tabindex="-1"]) {
+    cursor: pointer;
+  }
+  
+  /* Text inputs and textareas get text cursor */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="search"],
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"],
+  textarea {
+    cursor: text;
+  }
+  
+  /* Resize cursors for resizable elements */
+  textarea[resize],
+  [style*="resize"] {
+    cursor: text;
+  }
+  
+  /* Not-allowed cursor for disabled elements */
+  [disabled],
+  .disabled,
+  button:disabled,
+  input:disabled,
+  select:disabled,
+  textarea:disabled {
+    cursor: not-allowed !important;
   }
   
   /* Smooth scrolling for specific scroll containers */
@@ -36,11 +85,7 @@
     width: 100%;
   }
 
-  /* Performance optimizations */
-  * {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+  /* Performance optimizations - merged with default cursor rule above */
 
   /* Respect user's motion preferences */
   @media (prefers-reduced-motion: reduce) {

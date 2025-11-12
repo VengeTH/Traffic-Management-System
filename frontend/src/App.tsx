@@ -104,7 +104,7 @@ const AppLayout: React.FC = () => {
     <div className="min-h-screen bg-green-50">
       <Navbar />
       
-      <div className="flex overflow-visible" style={{ minHeight: 'calc(100vh - 80px)' }}>
+      <div className="flex overflow-visible" style={{ minHeight: '100vh', paddingTop: '80px' }}>
         {shouldShowSidebar && <Sidebar />}
         
         <main 
