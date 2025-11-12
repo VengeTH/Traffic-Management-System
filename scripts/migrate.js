@@ -16,9 +16,21 @@ const runMigrations = async () => {
     await sequelize.authenticate();
     logger.info('Database connection established successfully.');
     
-    // * Sync all models (create tables)
-    await sequelize.sync({ force: false, alter: true });
-    logger.info('Database tables synchronized successfully.');
+    // * Sync Notification model first (new table, less likely to have conflicts)
+    logger.info('Syncing Notification model...');
+    await Notification.sync({ force: false, alter: true });
+    logger.info('Notification table synchronized successfully.');
+    
+    // * Sync other models (User, Violation, Payment)
+    // * Use alter: false for SQLite to avoid unique constraint issues with NULLs
+    const isSQLite = sequelize.getDialect() === 'sqlite';
+    const syncOptions = isSQLite ? { force: false, alter: false } : { force: false, alter: true };
+    
+    logger.info(`Syncing other models (alter: ${!isSQLite})...`);
+    await User.sync(syncOptions);
+    await Violation.sync(syncOptions);
+    await Payment.sync(syncOptions);
+    logger.info('All database tables synchronized successfully.');
     
     // * Create indexes for better performance
     logger.info('Creating database indexes...');
@@ -54,6 +66,16 @@ const runMigrations = async () => {
       CREATE INDEX IF NOT EXISTS idx_payments_date ON payments(initiated_at);
       CREATE INDEX IF NOT EXISTS idx_payments_payer ON payments(payer_id);
     `);
+    
+    // * Notification indexes (if using PostgreSQL, indexes are created by model sync)
+    // * For SQLite, these are created by the model definition
+    if (sequelize.getDialect() === 'postgres') {
+      await sequelize.query(`
+        CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
+        CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON notifications(is_read);
+        CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at);
+      `);
+    }
     
     logger.info('Database indexes created successfully.');
     

@@ -75,13 +75,13 @@ const Notification = sequelize.define('Notification', {
   
   indexes: [
     {
-      fields: ['userId']
+      fields: [{ name: 'user_id' }]
     },
     {
-      fields: ['isRead']
+      fields: [{ name: 'is_read' }]
     },
     {
-      fields: ['createdAt']
+      fields: [{ name: 'created_at' }]
     }
   ]
 });
