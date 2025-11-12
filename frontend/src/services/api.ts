@@ -129,6 +129,11 @@ class ApiService {
     return response.data;
   }
 
+  async getEnforcerViolations(params?: any) {
+    const response = await api.get('/violations/enforcer', { params });
+    return response.data;
+  }
+
   async updateViolation(id: string, violationData: any) {
     const response = await api.put(`/violations/${id}`, violationData);
     return response.data;

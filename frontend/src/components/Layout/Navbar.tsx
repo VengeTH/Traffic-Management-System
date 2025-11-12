@@ -119,21 +119,39 @@ const Navbar: React.FC = () => {
     setIsUserMenuOpen(!isUserMenuOpen);
   };
 
+  // Close user menu when clicking outside
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    if (isUserMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isUserMenuOpen]);
+
   return (
-    <nav className="bg-white/90 backdrop-blur-md shadow-lg border-b border-green-200 sticky top-0 z-50">
+    <nav className="bg-white/95 backdrop-blur-md shadow-xl border-b-2 border-primary-100/50 sticky top-0 z-50 premium-glow">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20">
           {/* Logo and brand */}
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center group">
-              <div className="h-12 w-12 bg-primary-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105 border-2 border-primary-700">
-                <span className="text-white font-bold text-lg">EV</span>
+              <div className="h-12 w-12 bg-gradient-to-br from-primary-600 to-primary-700 rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-105 premium-glow-hover border-2 border-primary-500/30">
+                <span className="text-white font-black text-lg">EV</span>
               </div>
               <div className="ml-4">
-                <span className="text-2xl font-bold gradient-text">
+                <span className="text-2xl font-black text-gradient-premium">
                   E-VioPay
                 </span>
-                <p className="text-xs text-gray-600 -mt-1">Las Piñas Online Traffic Payments</p>
+                <p className="text-xs text-gray-700 font-medium -mt-1">Las Piñas Online Traffic Payments</p>
               </div>
             </Link>
           </div>
@@ -144,7 +162,7 @@ const Navbar: React.FC = () => {
               <>
                 <Link
                   to="/login"
-                  className="text-gray-700 hover:text-primary-600 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 hover:bg-primary-50"
+                  className="text-gray-700 hover:text-primary-700 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 hover:bg-primary-50/80 hover:shadow-md"
                 >
                   Login
                 </Link>
@@ -152,7 +170,7 @@ const Navbar: React.FC = () => {
                   variant="primary"
                   size="sm"
                   onClick={() => navigate('/register')}
-                  className="px-6 py-2"
+                  className="px-6 py-2.5 shadow-xl btn-glow"
                 >
                   Get Started
                 </Button>
@@ -273,12 +291,12 @@ const Navbar: React.FC = () => {
                 </div>
 
                 {/* User menu */}
-                <div className="relative">
+                <div className="relative" ref={userMenuRef}>
                   <button
                     onClick={toggleUserMenu}
                     className="flex items-center space-x-3 text-gray-700 hover:text-primary-600 transition-all duration-200 p-2 rounded-lg hover:bg-primary-50"
                   >
-                    <div className="h-10 w-10 bg-primary-600 rounded-full flex items-center justify-center shadow-md border-2 border-primary-700">
+                    <div className="h-10 w-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-full flex items-center justify-center shadow-lg premium-glow border-2 border-primary-500/30">
                       <User className="h-5 w-5 text-white" />
                     </div>
                     <div className="text-left">
@@ -293,7 +311,7 @@ const Navbar: React.FC = () => {
 
                   {/* User dropdown */}
                   {isUserMenuOpen && (
-                    <div className="absolute right-0 mt-3 w-56 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl py-2 z-50 border border-green-100 animate-slide-down">
+                    <div className="absolute right-0 mt-3 w-56 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl py-2 z-50 border-2 border-primary-100/50 premium-glow glassmorphism animate-slide-down">
                       <Link
                         to="/profile"
                         className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 transition-colors"

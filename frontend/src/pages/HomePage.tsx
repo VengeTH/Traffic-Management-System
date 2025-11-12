@@ -75,11 +75,11 @@ const HomePage: React.FC = () => {
                 Trusted by Las Piñas Traffic Management Office
               </span>
             </div>
-            <div className="space-y-3 sm:space-y-4 w-full min-w-0">
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-black text-gray-900 leading-tight break-words hyphens-auto" style={{wordBreak: 'break-word', overflowWrap: 'break-word'}}>
+            <div className="space-y-3 sm:space-y-4 w-full min-w-0 animate-fade-in-up">
+              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-black leading-tight break-words hyphens-auto text-gradient-premium" style={{wordBreak: 'break-word', overflowWrap: 'break-word'}}>
                 E-VioPay — settle traffic fines without lining up in city hall.
               </h1>
-              <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-600 break-words" style={{wordBreak: 'break-word', overflowWrap: 'break-word'}}>
+              <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-700 font-medium break-words leading-relaxed" style={{wordBreak: 'break-word', overflowWrap: 'break-word'}}>
                 Search, verify, and pay violations anytime. Our digital desk synchronizes with the Las Piñas Traffic Management Office so you always see accurate dues and receipts.
               </p>
             </div>
@@ -106,20 +106,24 @@ const HomePage: React.FC = () => {
               )}
             </div>
             <div className="grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {heroHighlights.map((item) => (
-                <div key={item.title} className="lux-card animated-gradient-border highlight-card tilt-on-hover p-4 sm:p-6">
-                  <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-primary-50 text-primary-600 shadow">
+              {heroHighlights.map((item, index) => (
+                <div 
+                  key={item.title} 
+                  className="lux-card animated-gradient-border highlight-card hover-lift premium-glow-hover p-4 sm:p-6 shine-effect animate-fade-in-up"
+                  style={{ animationDelay: `${index * 0.08}s` }}
+                >
+                  <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 shadow-lg premium-glow">
                     {item.icon}
                   </div>
-                  <h3 className="mt-3 text-sm sm:text-base font-semibold text-gray-900">{item.title}</h3>
-                  <p className="mt-2 text-xs sm:text-sm text-gray-600">{item.description}</p>
+                  <h3 className="mt-3 text-sm sm:text-base font-bold text-gray-900">{item.title}</h3>
+                  <p className="mt-2 text-xs sm:text-sm text-gray-700 leading-relaxed">{item.description}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="relative mt-8 lg:mt-0">
-            <div className="rounded-2xl sm:rounded-[32px] lux-card animated-gradient-border quick-action-card tilt-on-hover p-5 sm:p-6 lg:p-8">
+          <div className="relative mt-8 lg:mt-0 animate-scale-in" style={{ animationDelay: '0.2s' }}>
+            <div className="rounded-2xl sm:rounded-[32px] lux-card animated-gradient-border quick-action-card hover-lift premium-glow-hover p-5 sm:p-6 lg:p-8 glassmorphism">
               <div className="flex items-start sm:items-center gap-3">
                 <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-primary-100 text-primary-700 flex-shrink-0">
                   <FileText className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -152,55 +156,63 @@ const HomePage: React.FC = () => {
       <div className="section-divider mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" />
 
       {/* Road showcase */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 lg:px-8">
-        <div className="text-center mb-6 sm:mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">A smoother journey</h2>
-          <p className="mt-2 text-sm sm:text-base text-gray-600">Visualize payments on the road—safe, fast, and verified.</p>
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 lg:px-8">
+        <div className="text-center mb-8 sm:mb-12 animate-fade-in-up">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-gradient-premium">A smoother journey</h2>
+          <p className="mt-3 text-sm sm:text-base md:text-lg text-gray-700 font-medium">Visualize payments on the road—safe, fast, and verified.</p>
         </div>
-        <div className="road h-32 sm:h-40 md:h-48 tilt-on-hover">
+        <div className="road h-40 sm:h-48 md:h-56 tilt-on-hover premium-glow-hover rounded-3xl overflow-hidden">
           <div className="road-edge top"></div>
           <div className="road-edge bottom"></div>
           {/* Vehicles */}
           <div className="vehicle drive-right" style={{ top: '38%' }}>
-            <Car className="h-4 w-4 sm:h-5 sm:w-5" />
+            <Car className="h-5 w-5 sm:h-6 sm:w-6" />
           </div>
           <div className="vehicle drive-left" style={{ top: '62%' }}>
-            <Smartphone className="h-4 w-4 sm:h-5 sm:w-5" />
+            <Smartphone className="h-5 w-5 sm:h-6 sm:w-6" />
           </div>
         </div>
       </section>
 
       {/* Community stats */}
-      <section className="border-y border-white/60 bg-white/80 py-8 sm:py-12 backdrop-blur-sm">
+      <section className="border-y border-white/60 bg-gradient-to-br from-white via-primary-50/30 to-white py-12 sm:py-16 backdrop-blur-sm gradient-mesh">
         <div className="mx-auto grid max-w-6xl gap-4 sm:gap-6 px-4 sm:px-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
-          {communityStats.map((stat) => (
-            <div key={stat.label} className="lux-card animated-gradient-border tilt-on-hover p-4 sm:p-6 text-center">
-              <div className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">{stat.value}</div>
-              <p className="mt-2 text-xs sm:text-sm font-semibold text-gray-600">{stat.label}</p>
+          {communityStats.map((stat, index) => (
+            <div 
+              key={stat.label} 
+              className="lux-card animated-gradient-border hover-lift premium-glow-hover section-glow p-6 sm:p-8 text-center shine-effect animate-fade-in-up"
+              style={{ animationDelay: `${index * 0.06}s` }}
+            >
+              <div className="text-3xl sm:text-4xl font-black text-gradient-premium tracking-tight">{stat.value}</div>
+              <p className="mt-3 text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wider">{stat.label}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Features */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 lg:px-8">
-        <div className="flex flex-col gap-4 sm:gap-6 text-center">
-          <div className="mx-auto flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-primary-100 text-primary-700">
-            <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6" />
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 lg:px-8">
+        <div className="flex flex-col gap-4 sm:gap-6 text-center animate-fade-in-up">
+          <div className="mx-auto flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-xl premium-glow">
+            <BarChart3 className="h-6 w-6 sm:h-7 sm:w-7" />
           </div>
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 break-words px-2">Why drivers trust E-VioPay</h2>
-            <p className="mx-auto max-w-3xl text-xs sm:text-sm md:text-base lg:text-lg text-gray-600 px-4 break-words">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-gradient-premium break-words px-2">Why drivers trust E-VioPay</h2>
+            <p className="mx-auto max-w-3xl text-sm sm:text-base md:text-lg lg:text-xl text-gray-700 font-medium px-4 break-words leading-relaxed">
               Built with the Las Piñas Traffic Management Office, E-VioPay streamlines violation settlement while following the city's design system.
             </p>
         </div>
-        <div className="mt-8 sm:mt-12 grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
-          {featureGrid.map((feature) => (
-            <div key={feature.title} className="group lux-card animated-gradient-border tilt-on-hover p-5 sm:p-6 transition">
-              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-primary-50 text-primary-600">
+        <div className="mt-12 sm:mt-16 grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2">
+          {featureGrid.map((feature, index) => (
+            <div 
+              key={feature.title} 
+              className="group lux-card animated-gradient-border hover-lift premium-glow-hover section-glow p-6 sm:p-8 transition shine-effect animate-fade-in-up"
+              style={{ animationDelay: `${index * 0.08}s` }}
+            >
+              <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 shadow-lg premium-glow">
                 {feature.icon}
               </div>
-              <h3 className="mt-3 sm:mt-4 text-lg sm:text-xl font-semibold text-gray-900">{feature.title}</h3>
-              <p className="mt-2 text-xs sm:text-sm text-gray-600">{feature.description}</p>
+              <h3 className="mt-4 sm:mt-5 text-xl sm:text-2xl font-bold text-gray-900">{feature.title}</h3>
+              <p className="mt-3 text-sm sm:text-base text-gray-700 leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>
@@ -208,7 +220,7 @@ const HomePage: React.FC = () => {
 
       {/* Partners */}
       <section className="mx-auto max-w-6xl px-4 sm:px-6 pb-12 sm:pb-20 lg:px-8">
-        <div className="rounded-2xl sm:rounded-3xl border border-secondary-200 bg-secondary-50/60 p-5 sm:p-6 lg:p-8 shadow-xl">
+        <div className="rounded-3xl sm:rounded-[40px] border-2 border-secondary-200/50 bg-gradient-to-br from-secondary-50/80 via-white to-primary-50/40 p-6 sm:p-8 lg:p-10 shadow-2xl premium-glow glassmorphism">
           <div className="flex flex-col gap-3 sm:gap-4 text-center">
             <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.1em] sm:tracking-[0.2em] md:tracking-[0.3em] text-secondary-600 break-words">Payment partners</p>
             <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 break-words px-2">Trusted gateways with instant confirmation</h3>
@@ -216,9 +228,13 @@ const HomePage: React.FC = () => {
               Choose from leading Philippine payment providers and grab an official receipt automatically.
             </p>
           </div>
-          <div className="mt-6 sm:mt-8 grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
-            {partnerMethods.map((method) => (
-              <div key={method} className="lux-card animated-gradient-border tilt-on-hover py-3 sm:py-4 text-center text-xs sm:text-sm font-semibold text-gray-700">
+          <div className="mt-8 sm:mt-10 grid gap-4 sm:gap-5 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+            {partnerMethods.map((method, index) => (
+              <div 
+                key={method} 
+                className="lux-card animated-gradient-border hover-lift premium-glow-hover section-glow py-4 sm:py-5 text-center text-sm sm:text-base font-bold text-gray-800 shine-effect animate-scale-in"
+                style={{ animationDelay: `${index * 0.03}s` }}
+              >
                 {method}
               </div>
             ))}
@@ -235,52 +251,52 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* How it works timeline */}
-      <section className="mx-auto max-w-6xl px-4 sm:px-6 py-12 sm:py-16 lg:px-8">
-        <div className="text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">How E‑VioPay works</h2>
-          <p className="mt-2 text-sm sm:text-base text-gray-600">A clear path from citation to confirmation.</p>
+      <section className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-20 lg:px-8">
+        <div className="text-center animate-fade-in-up">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-gradient-premium">How E‑VioPay works</h2>
+          <p className="mt-3 text-sm sm:text-base md:text-lg text-gray-700 font-medium">A clear path from citation to confirmation.</p>
         </div>
-        <div className="mt-8 sm:mt-10 grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-3">
-          <div className="lux-card animated-gradient-border timeline-card p-5 sm:p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg sm:rounded-xl bg-primary-50 text-primary-600">
-                <Search className="h-4 w-4 sm:h-5 sm:w-5" />
+        <div className="mt-12 sm:mt-16 grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-3">
+          <div className="lux-card animated-gradient-border timeline-card hover-lift premium-glow-hover section-glow p-6 sm:p-8 shine-effect animate-fade-in-up" style={{ animationDelay: '0s' }}>
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 shadow-lg premium-glow">
+                <Search className="h-6 w-6 sm:h-7 sm:w-7" />
               </div>
-              <p className="text-sm sm:text-base font-semibold text-gray-900">Find your record</p>
+              <p className="text-base sm:text-lg font-bold text-gray-900">Find your record</p>
             </div>
-            <p className="mt-3 text-xs sm:text-sm text-gray-600">Search by OVR, plate number, or license to load citations instantly.</p>
+            <p className="mt-4 text-sm sm:text-base text-gray-700 leading-relaxed">Search by OVR, plate number, or license to load citations instantly.</p>
           </div>
-          <div className="lux-card animated-gradient-border timeline-card p-5 sm:p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg sm:rounded-xl bg-secondary-50 text-secondary-700">
-                <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
+          <div className="lux-card animated-gradient-border timeline-card hover-lift premium-glow-hover section-glow p-6 sm:p-8 shine-effect animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-secondary-100 to-secondary-200 text-secondary-700 shadow-lg premium-glow">
+                <FileText className="h-6 w-6 sm:h-7 sm:w-7" />
               </div>
-              <p className="text-sm sm:text-base font-semibold text-gray-900">Review and verify</p>
+              <p className="text-base sm:text-lg font-bold text-gray-900">Review and verify</p>
             </div>
-            <p className="mt-3 text-xs sm:text-sm text-gray-600">See details, penalties, location, and official due dates before paying.</p>
+            <p className="mt-4 text-sm sm:text-base text-gray-700 leading-relaxed">See details, penalties, location, and official due dates before paying.</p>
           </div>
-          <div className="lux-card animated-gradient-border timeline-card p-5 sm:p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg sm:rounded-xl bg-success-50 text-success-700">
-                <CreditCard className="h-4 w-4 sm:h-5 sm:w-5" />
+          <div className="lux-card animated-gradient-border timeline-card hover-lift premium-glow-hover section-glow p-6 sm:p-8 shine-effect animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-success-100 to-success-200 text-success-700 shadow-lg premium-glow">
+                <CreditCard className="h-6 w-6 sm:h-7 sm:w-7" />
               </div>
-              <p className="text-sm sm:text-base font-semibold text-gray-900">Pay and receive</p>
+              <p className="text-base sm:text-lg font-bold text-gray-900">Pay and receive</p>
             </div>
-            <p className="mt-3 text-xs sm:text-sm text-gray-600">Complete payment through partners and get a verified PDF receipt.</p>
+            <p className="mt-4 text-sm sm:text-base text-gray-700 leading-relaxed">Complete payment through partners and get a verified PDF receipt.</p>
           </div>
         </div>
       </section>
 
       {/* Testimonial banner */}
       <section className="mx-auto max-w-6xl px-4 sm:px-6 pb-12 sm:pb-16 lg:px-8">
-        <div className="lux-card animated-gradient-border testimonial-card p-5 sm:p-6 lg:p-8 tilt-on-hover">
-          <div className="flex items-start gap-3 sm:gap-4">
-            <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg sm:rounded-xl bg-primary-50 text-primary-700 flex-shrink-0">
-              <Quote className="h-4 w-4 sm:h-5 sm:w-5" />
+        <div className="lux-card animated-gradient-border testimonial-card hover-lift premium-glow-hover section-glow p-8 sm:p-10 lg:p-12 glassmorphism shine-effect">
+          <div className="flex items-start gap-4 sm:gap-6">
+            <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-xl premium-glow flex-shrink-0">
+              <Quote className="h-6 w-6 sm:h-7 sm:w-7" />
             </div>
-            <div>
-              <p className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 break-words">"E‑VioPay made handling my citation painless. Minutes to search, seconds to pay, and the receipt was instant."</p>
-              <p className="mt-2 text-xs sm:text-sm text-gray-600 break-words">— Resident, Las Piñas City</p>
+            <div className="flex-1">
+              <p className="text-base sm:text-lg md:text-xl font-bold text-gray-900 break-words leading-relaxed">"E‑VioPay made handling my citation painless. Minutes to search, seconds to pay, and the receipt was instant."</p>
+              <p className="mt-4 text-sm sm:text-base font-semibold text-primary-700 break-words">— Resident, Las Piñas City</p>
             </div>
           </div>
         </div>
@@ -288,7 +304,9 @@ const HomePage: React.FC = () => {
 
       {/* Final CTA band */}
       <section className="mx-auto max-w-6xl px-4 sm:px-6 pb-12 sm:pb-20 lg:px-8">
-        <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-r from-primary-600 via-primary-700 to-primary-800 p-5 sm:p-6 lg:p-8 text-white shadow-2xl tilt-on-hover">
+        <div className="rounded-3xl sm:rounded-[40px] bg-gradient-to-r from-primary-600 via-primary-700 to-primary-800 p-8 sm:p-10 lg:p-12 text-white shadow-2xl hover-lift premium-glow-hover relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary-400/20 via-transparent to-secondary-400/20 animate-pulse"></div>
+          <div className="relative z-10">
           <div className="flex flex-col items-start gap-4 sm:gap-6 md:flex-row md:items-center md:justify-between">
             <div>
               <h3 className="text-lg sm:text-xl md:text-2xl font-bold break-words">Ready to resolve a citation today?</h3>
@@ -312,27 +330,28 @@ const HomePage: React.FC = () => {
               </Link>
             </div>
           </div>
+          </div>
         </div>
       </section>
       {/* Footer - Bottom */}
-      <footer className="border-t border-white/60 bg-white/80 py-6 sm:py-10">
+      <footer className="border-t border-white/60 bg-gradient-to-br from-white via-primary-50/20 to-white py-8 sm:py-12 backdrop-blur-sm">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 sm:px-6 text-xs sm:text-sm text-gray-600 md:flex-row lg:px-8">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl sm:rounded-2xl bg-primary-600 text-white shadow text-xs sm:text-sm font-bold">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-xl premium-glow text-sm sm:text-base font-black">
               EV
             </div>
             <div>
-              <p className="font-semibold text-gray-900 text-sm sm:text-base">E-VioPay</p>
-              <p className="text-[10px] sm:text-xs">Las Piñas Online Traffic Payments</p>
+              <p className="font-black text-gray-900 text-base sm:text-lg">E-VioPay</p>
+              <p className="text-[10px] sm:text-xs font-medium text-gray-600">Las Piñas Online Traffic Payments</p>
             </div>
           </div>
           <div className="text-center md:text-right">
-            <span className="text-gray-500">Designed & engineered by </span>
+            <span className="text-gray-600 font-medium">Designed & engineered by </span>
             <a
               href="https://vengeth.github.io/The-Heedful"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold text-gray-800 underline decoration-gray-400 underline-offset-4 hover:text-gray-900"
+              className="font-bold text-primary-700 underline decoration-primary-300 underline-offset-4 hover:text-primary-800 transition-colors"
             >
               The Heedful
             </a>

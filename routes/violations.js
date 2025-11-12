@@ -195,6 +195,71 @@ router.get('/search', validateViolationSearch, checkValidation, asyncHandler(asy
 }));
 
 /**
+ * @route   GET /api/violations/enforcer
+ * @desc    Get violations issued by the current enforcer
+ * @access  Private (Enforcers)
+ */
+router.get('/enforcer', enforcerAuth, asyncHandler(async (req, res) => {
+  const { 
+    page = 1, 
+    limit = 10, 
+    search, 
+    status, 
+    violationType 
+  } = req.query;
+  
+  const offset = (page - 1) * limit;
+  
+  let whereClause = {
+    enforcerId: req.user.id
+  };
+  
+  if (search) {
+    whereClause[require('sequelize').Op.or] = [
+      { ovrNumber: { [require('sequelize').Op.iLike]: `%${search}%` } },
+      { citationNumber: { [require('sequelize').Op.iLike]: `%${search}%` } },
+      { plateNumber: { [require('sequelize').Op.iLike]: `%${search}%` } },
+      { driverName: { [require('sequelize').Op.iLike]: `%${search}%` } }
+    ];
+  }
+  
+  if (status) {
+    whereClause.status = status;
+  }
+  
+  if (violationType) {
+    whereClause.violationType = violationType;
+  }
+  
+  const { count, rows: violations } = await Violation.findAndCountAll({
+    where: whereClause,
+    include: [
+      {
+        model: User,
+        as: 'enforcer',
+        attributes: ['id', 'firstName', 'lastName', 'enforcerBadgeNumber']
+      }
+    ],
+    order: [['createdAt', 'DESC']],
+    limit: parseInt(limit),
+    offset: parseInt(offset)
+  });
+  
+  res.json({
+    success: true,
+    data: {
+      violations: violations.map(v => v.toJSON()),
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: count,
+        pages: Math.ceil(count / limit)
+      }
+    }
+  });
+}));
+
+/**
  * @route   GET /api/violations/:id
  * @desc    Get violation by ID
  * @access  Public

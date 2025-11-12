@@ -15,8 +15,21 @@ import {
 } from 'lucide-react';
 
 const Sidebar: React.FC = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
+
+  // Get user from localStorage as fallback during loading
+  const getStoredUser = () => {
+    try {
+      const storedUser = localStorage.getItem('user');
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  // Use stored user as fallback if user is not yet loaded
+  const currentUser = user || getStoredUser();
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -105,10 +118,10 @@ const Sidebar: React.FC = () => {
         key={item.name}
         to={item.href}
         className={`
-          flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors
+          flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200
           ${active
-            ? 'bg-primary-100 text-primary-700 border-r-2 border-primary-600'
-            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+            ? 'bg-gradient-to-r from-primary-100 to-primary-50 text-primary-800 border-r-4 border-primary-600 shadow-md premium-glow'
+            : 'text-gray-700 hover:bg-primary-50/50 hover:text-primary-700 hover:shadow-sm'
           }
         `}
       >
@@ -119,9 +132,9 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className="hidden md:flex md:flex-shrink-0">
+    <div className="hidden md:flex md:flex-shrink-0" style={{ width: '256px', minWidth: '256px', maxWidth: '256px' }}>
       <div className="flex flex-col w-64">
-        <div className="flex flex-col h-0 flex-1 bg-white border-r border-gray-200">
+        <div className="flex flex-col h-screen bg-white/95 backdrop-blur-sm border-r-2 border-primary-100/50 shadow-lg sticky top-0">
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
             <nav className="flex-1 px-2 space-y-1">
               {/* Main Navigation */}
@@ -131,11 +144,11 @@ const Sidebar: React.FC = () => {
                 </h2>
               </div>
               {navigationItems
-                .filter(item => item.roles.includes(user?.role || ''))
+                .filter(item => item.roles.includes(currentUser?.role || ''))
                 .map(renderNavigationItem)}
 
               {/* Admin Navigation */}
-              {user?.role === 'admin' && (
+              {currentUser?.role === 'admin' && (
                 <>
                   <div className="pt-6 pb-2">
                     <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -147,7 +160,7 @@ const Sidebar: React.FC = () => {
               )}
 
               {/* Enforcer Navigation */}
-              {user?.role === 'enforcer' && (
+              {currentUser?.role === 'enforcer' && (
                 <>
                   <div className="pt-6 pb-2">
                     <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">

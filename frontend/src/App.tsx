@@ -19,6 +19,7 @@ import ResetPasswordPage from './pages/Auth/ResetPasswordPage';
 import DashboardPage from './pages/Dashboard/DashboardPage';
 import ViolationSearchPage from './pages/Violations/ViolationSearchPage';
 import ViolationDetailsPage from './pages/Violations/ViolationDetailsPage';
+import MyViolationsPage from './pages/Violations/MyViolationsPage';
 import PaymentPage from './pages/Payment/PaymentPage';
 import PaymentSuccessPage from './pages/Payment/PaymentSuccessPage';
 import PaymentHistoryPage from './pages/Payment/PaymentHistoryPage';
@@ -30,6 +31,10 @@ import AdminViolationsPage from './pages/Admin/AdminViolationsPage';
 import AdminUsersPage from './pages/Admin/AdminUsersPage';
 import AdminReportsPage from './pages/Admin/AdminReportsPage';
 import AdminSettingsPage from './pages/Admin/AdminSettingsPage';
+
+// Enforcer Pages
+import IssueViolationsPage from './pages/Enforcer/IssueViolationsPage';
+import MyIssuedViolationsPage from './pages/Enforcer/MyIssuedViolationsPage';
 
 // Loading and Error Components
 import LoadingSpinner from './components/UI/LoadingSpinner';
@@ -63,16 +68,28 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean 
 
 // Inner component that uses useLocation (must be inside Router)
 const AppLayout: React.FC = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
   const isLandingPage = location.pathname === "/";
+
+  // Check if user exists in localStorage as fallback
+  const hasStoredUser = () => {
+    try {
+      return !!localStorage.getItem('user') && !!localStorage.getItem('token');
+    } catch {
+      return false;
+    }
+  };
+
+  // Show sidebar if user is loaded OR if we have stored user data (during loading)
+  const shouldShowSidebar = user || (!loading && hasStoredUser());
 
   return (
     <div className="min-h-screen bg-green-50">
       <Navbar />
       
       <div className="flex">
-        {user && <Sidebar />}
+        {shouldShowSidebar && <Sidebar />}
         
         <main className={`flex-1 ${isLandingPage ? '' : 'mx-5'}`}>
           <Routes>
@@ -87,6 +104,12 @@ const AppLayout: React.FC = () => {
               <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <DashboardPage />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/violations" element={
+                <ProtectedRoute>
+                  <MyViolationsPage />
                 </ProtectedRoute>
               } />
               
@@ -154,6 +177,19 @@ const AppLayout: React.FC = () => {
               <Route path="/admin/settings" element={
                 <ProtectedRoute adminOnly>
                   <AdminSettingsPage />
+                </ProtectedRoute>
+              } />
+              
+              {/* Enforcer Routes */}
+              <Route path="/enforcer/violations" element={
+                <ProtectedRoute>
+                  <IssueViolationsPage />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/enforcer/my-violations" element={
+                <ProtectedRoute>
+                  <MyIssuedViolationsPage />
                 </ProtectedRoute>
               } />
               

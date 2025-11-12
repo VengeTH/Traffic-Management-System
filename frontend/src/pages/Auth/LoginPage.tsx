@@ -54,11 +54,10 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 via-white to-secondary-50 px-4 py-12">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(34,197,94,0.08)_0%,_rgba(14,165,233,0)_60%)]" />
+    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 via-white to-secondary-50 px-4 py-12 overflow-hidden">
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-primary-50 via-white to-secondary-50" />
       <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.1fr_1fr]">
-        <div className="relative overflow-hidden rounded-[32px] border border-primary-100 bg-white/90 p-10 shadow-2xl">
-          <div className="absolute inset-y-0 -left-16 hidden w-48 rotate-12 bg-primary-100/60 blur-3xl lg:block" />
+        <div className="relative overflow-hidden rounded-[32px] border border-primary-100/30 bg-white p-10 shadow-lg">
           <div className="relative space-y-8">
             <div>
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-600 text-white shadow-xl">
@@ -72,23 +71,29 @@ const LoginPage: React.FC = () => {
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
-              <div className="rounded-2xl border border-primary-100 bg-primary-50/80 p-4 shadow-sm">
-                <ShieldCheck className="h-6 w-6 text-primary-700" />
-                <p className="mt-3 text-sm font-semibold text-gray-900">Government grade security</p>
-                <p className="mt-1 text-xs text-gray-600">Two-factor ready with audit trails.</p>
+              <div className="rounded-2xl border border-primary-100/30 bg-primary-50/50 p-5 shadow-sm">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-100 text-primary-700">
+                  <ShieldCheck className="h-5 w-5" />
+                </div>
+                <p className="mt-3 text-sm font-bold text-gray-900">Government grade security</p>
+                <p className="mt-1 text-xs text-gray-700 leading-relaxed">Two-factor ready with audit trails.</p>
               </div>
-              <div className="rounded-2xl border border-secondary-100 bg-secondary-50/70 p-4 shadow-sm">
-                <CreditCard className="h-6 w-6 text-secondary-700" />
-                <p className="mt-3 text-sm font-semibold text-gray-900">Cashless payments</p>
-                <p className="mt-1 text-xs text-gray-600">PayMongo, GCash, Maya, cards.</p>
+              <div className="rounded-2xl border border-secondary-100/30 bg-secondary-50/50 p-5 shadow-sm">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary-100 text-secondary-700">
+                  <CreditCard className="h-5 w-5" />
+                </div>
+                <p className="mt-3 text-sm font-bold text-gray-900">Cashless payments</p>
+                <p className="mt-1 text-xs text-gray-700 leading-relaxed">PayMongo, GCash, Maya, cards.</p>
               </div>
-              <div className="rounded-2xl border border-accent-100 bg-accent-50/80 p-4 shadow-sm">
-                <Smartphone className="h-6 w-6 text-accent-700" />
-                <p className="mt-3 text-sm font-semibold text-gray-900">Mobile optimized</p>
-                <p className="mt-1 text-xs text-gray-600">Responsive on any device.</p>
+              <div className="rounded-2xl border border-accent-100/30 bg-accent-50/50 p-5 shadow-sm">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-100 text-accent-700">
+                  <Smartphone className="h-5 w-5" />
+                </div>
+                <p className="mt-3 text-sm font-bold text-gray-900">Mobile optimized</p>
+                <p className="mt-1 text-xs text-gray-700 leading-relaxed">Responsive on any device.</p>
               </div>
             </div>
-            <div className="rounded-3xl border border-gray-100 bg-white p-5 shadow-xl">
+            <div className="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm">
               <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-500">Demo access</h3>
               <div className="mt-4 grid gap-2 text-xs text-gray-600 sm:grid-cols-2">
                 <p><span className="font-semibold text-gray-900">Admin:</span> admin@laspinas.gov.ph / admin123456</p>
@@ -101,12 +106,12 @@ const LoginPage: React.FC = () => {
         </div>
 
         <div className="flex items-center lg:pl-6">
-          <div className="w-full rounded-[28px] border border-gray-100 bg-white/95 p-10 shadow-2xl">
+          <div className="w-full rounded-[28px] border border-gray-100/30 bg-white p-10 shadow-lg">
             <div className="text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-100 text-primary-700">
-                <Mail className="h-6 w-6" />
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-xl">
+                <Mail className="h-7 w-7" />
               </div>
-              <h2 className="mt-4 text-3xl font-extrabold text-gray-900">Sign in to continue</h2>
+              <h2 className="mt-5 text-3xl font-black text-gray-900">Sign in to continue</h2>
               <p className="mt-2 text-sm text-gray-600">
                 New to E-VioPay?{' '}
                 <Link to="/register" className="font-semibold text-primary-600 hover:text-primary-700">

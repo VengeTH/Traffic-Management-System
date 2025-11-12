@@ -82,13 +82,13 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-secondary-50 py-12 px-4 sm:px-6 lg:px-8 gradient-mesh">
+      <div className="max-w-md w-full space-y-8 animate-fade-in-up">
         <div>
-          <div className="mx-auto h-12 w-12 bg-primary-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">LP</span>
+          <div className="mx-auto h-14 w-14 bg-gradient-to-br from-primary-600 to-primary-700 rounded-2xl flex items-center justify-center shadow-xl premium-glow">
+            <span className="text-white font-black text-xl">EV</span>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-black text-gradient-premium">
             Create your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
@@ -102,7 +102,8 @@ const RegisterPage: React.FC = () => {
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <div className="rounded-3xl border-2 border-gray-100/50 bg-white/95 backdrop-blur-sm p-8 shadow-2xl premium-glow glassmorphism">
+        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -343,6 +344,7 @@ const RegisterPage: React.FC = () => {
             </p>
           </div>
         </form>
+        </div>
       </div>
     </div>
   );
