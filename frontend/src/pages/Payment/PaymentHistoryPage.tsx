@@ -53,15 +53,15 @@ const PaymentHistoryPage: React.FC = () => {
   return (
     <div className="space-y-6 pt-8 px-4 pb-8">
       {/* Header */}
-      <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-100 p-8 overflow-hidden">
+      <div className="relative lux-card animated-gradient-border premium-glow p-8 overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-green-100/30 rounded-full -mr-48 -mt-48 blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-emerald-100/20 rounded-full -ml-36 -mb-36 blur-2xl"></div>
         <div className="relative flex items-center gap-3">
-          <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-700 rounded-xl shadow-lg">
+          <div className="p-3 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl shadow-xl premium-glow">
             <CreditCard className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-extrabold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-extrabold text-gradient-premium">
               Payment History
             </h1>
             <p className="text-gray-600 mt-2 text-base font-medium">
@@ -72,11 +72,11 @@ const PaymentHistoryPage: React.FC = () => {
       </div>
 
       {/* Payment History */}
-      <Card className="border border-slate-200 shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-slate-50 to-white border-b border-slate-200">
-          <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <FileText className="h-5 w-5 text-green-700" />
+      <Card className="lux-card animated-gradient-border premium-glow">
+        <CardHeader className="bg-gradient-to-r from-primary-50/50 to-white border-b border-gray-100">
+          <CardTitle className="text-xl font-bold text-gradient-premium flex items-center gap-2">
+            <div className="p-2 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg shadow-md premium-glow">
+              <FileText className="h-5 w-5 text-primary-700" />
             </div>
             Payment Records
             {payments.length > 0 && (
@@ -103,9 +103,9 @@ const PaymentHistoryPage: React.FC = () => {
               {payments.map((payment) => (
                 <div
                   key={payment.id}
-                  className="group relative overflow-hidden bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-green-300 hover:shadow-xl transition-all duration-300"
+                  className="group relative overflow-hidden lux-card animated-gradient-border hover-lift premium-glow-hover p-6 shine-effect"
                 >
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-green-50/30 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-green-100/40 transition-colors"></div>
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary-50/30 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-primary-100/40 transition-colors"></div>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-4">

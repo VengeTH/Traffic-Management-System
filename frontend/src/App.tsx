@@ -72,17 +72,9 @@ const AppLayout: React.FC = () => {
   const location = useLocation();
   const isLandingPage = location.pathname === "/";
 
-  // Check if user exists in localStorage as fallback
-  const hasStoredUser = () => {
-    try {
-      return !!localStorage.getItem('user') && !!localStorage.getItem('token');
-    } catch {
-      return false;
-    }
-  };
-
-  // Show sidebar if user is loaded OR if we have stored user data (during loading)
-  const shouldShowSidebar = user || (!loading && hasStoredUser());
+  // Show sidebar only if user is authenticated and not on landing page
+  // Don't use localStorage fallback here to prevent showing sidebar after logout
+  const shouldShowSidebar = !loading && !!user && !isLandingPage;
 
   return (
     <div className="min-h-screen bg-green-50">
@@ -207,23 +199,41 @@ const AppContent: React.FC = () => {
   // * Determine basename based on environment
   // * Use basename only when deployed to GitHub Pages, not on localhost
   const getBasename = () => {
-    // * Check if running on localhost
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    try {
+      if (typeof window === 'undefined') return '';
+      // * Check if running on localhost
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return '';
+      }
+      // * Check if deployed to GitHub Pages (vengeth.github.io domain)
+      if (window.location.hostname.includes('github.io')) {
+        return '/Traffic-Management-System';
+      }
+      // * Default: no basename for other deployments
+      return '';
+    } catch (error) {
+      console.error('Error determining basename:', error);
       return '';
     }
-    // * Check if deployed to GitHub Pages (vengeth.github.io domain)
-    if (window.location.hostname.includes('github.io')) {
-      return '/Traffic-Management-System';
-    }
-    // * Default: no basename for other deployments
-    return '';
   };
 
-  return (
-    <Router basename={getBasename()}>
-      <AppLayout />
-    </Router>
-  );
+  try {
+    return (
+      <Router basename={getBasename()}>
+        <AppLayout />
+      </Router>
+    );
+  } catch (error) {
+    console.error('Error rendering AppContent:', error);
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Application Error</h1>
+          <p className="text-gray-600">Please refresh the page or contact support.</p>
+        </div>
+      </div>
+    );
+  }
 };
 
 // Root App Component with Providers

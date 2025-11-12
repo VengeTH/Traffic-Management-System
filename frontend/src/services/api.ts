@@ -34,32 +34,47 @@ api.interceptors.response.use(
     
     // Handle 401 errors (unauthorized)
     if (error.response?.status === 401 && originalRequest) {
-      const refreshToken = localStorage.getItem('refreshToken');
-      
-      if (refreshToken) {
-        try {
-          const response = await axios.post('/api/auth/refresh', {
-            refreshToken,
-          });
-          
-          const { token } = response.data.data;
-          localStorage.setItem('token', token);
-          
-          // Retry original request
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return api(originalRequest);
-        } catch (refreshError) {
-          // Refresh token failed, redirect to login
-          localStorage.removeItem('token');
-          localStorage.removeItem('refreshToken');
-          localStorage.removeItem('user');
+      try {
+        const refreshToken = typeof window !== 'undefined' && window.localStorage 
+          ? localStorage.getItem('refreshToken') 
+          : null;
+        
+        if (refreshToken) {
+          try {
+            const response = await axios.post('/api/auth/refresh', {
+              refreshToken,
+            });
+            
+            const { token } = response.data.data;
+            if (typeof window !== 'undefined' && window.localStorage) {
+              localStorage.setItem('token', token);
+            }
+            
+            // Retry original request
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return api(originalRequest);
+          } catch (refreshError) {
+            // Refresh token failed, redirect to login
+            if (typeof window !== 'undefined' && window.localStorage) {
+              localStorage.removeItem('token');
+              localStorage.removeItem('refreshToken');
+              localStorage.removeItem('user');
+            }
+            window.location.href = '/login';
+          }
+        } else {
+          // No refresh token, redirect to login
+          if (typeof window !== 'undefined' && window.localStorage) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+          }
           window.location.href = '/login';
         }
-      } else {
-        // No refresh token, redirect to login
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+      } catch {
+        // If localStorage access fails, just redirect to login
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
       }
     }
     

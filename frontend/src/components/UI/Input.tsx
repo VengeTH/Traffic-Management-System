@@ -73,6 +73,15 @@ const Input = forwardRef<HTMLInputElement, Props>(function Input(
     step,
     pattern,
     autoComplete,
+    // Disable browser's default password reveal button when we have custom endAdornment
+    ...(type === 'password' && endAdornment ? { 
+      style: { 
+        paddingRight: '3rem',
+        ...((rest as any).style || {})
+      },
+      // Disable autocomplete suggestions that might show password reveal
+      autoComplete: autoComplete || 'off'
+    } : {}),
     ...rest
   };
 

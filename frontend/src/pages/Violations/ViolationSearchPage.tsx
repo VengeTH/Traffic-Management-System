@@ -89,15 +89,15 @@ const ViolationSearchPage: React.FC = () => {
   return (
     <div className="space-y-6 pt-8 px-4 pb-8">
       {/* Header */}
-      <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-100 p-8 overflow-hidden">
+      <div className="relative lux-card animated-gradient-border premium-glow p-8 overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-secondary-100/30 rounded-full -mr-48 -mt-48 blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-primary-100/20 rounded-full -ml-36 -mb-36 blur-2xl"></div>
         <div className="relative flex items-center gap-3">
-          <div className="p-3 bg-gradient-to-br from-secondary-600 to-secondary-700 rounded-xl shadow-lg">
+          <div className="p-3 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl shadow-xl premium-glow">
             <Search className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-extrabold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-extrabold text-gradient-premium">
               Search Violations
             </h1>
             <p className="text-gray-600 mt-2 text-base font-medium">
@@ -108,11 +108,11 @@ const ViolationSearchPage: React.FC = () => {
       </div>
 
       {/* Search Form */}
-      <Card className="border border-slate-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
-        <CardHeader className="bg-gradient-to-r from-slate-50 to-white border-b border-slate-200">
-          <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <FileText className="h-5 w-5 text-blue-700" />
+      <Card className="lux-card animated-gradient-border premium-glow hover-lift">
+        <CardHeader className="bg-gradient-to-r from-primary-50/50 to-white border-b border-gray-100">
+          <CardTitle className="text-xl font-bold text-gradient-premium flex items-center gap-2">
+            <div className="p-2 bg-gradient-to-br from-secondary-100 to-secondary-200 rounded-lg shadow-md premium-glow">
+              <FileText className="h-5 w-5 text-secondary-700" />
             </div>
             Search Criteria
           </CardTitle>
@@ -163,10 +163,10 @@ const ViolationSearchPage: React.FC = () => {
 
       {/* Search Results */}
       {searched && (
-        <Card className="border border-slate-200 shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-slate-50 to-white border-b border-slate-200">
-            <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <div className="p-2 bg-primary-100 rounded-lg">
+        <Card className="lux-card animated-gradient-border premium-glow">
+          <CardHeader className="bg-gradient-to-r from-primary-50/50 to-white border-b border-gray-100">
+            <CardTitle className="text-xl font-bold text-gradient-premium flex items-center gap-2">
+              <div className="p-2 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg shadow-md premium-glow">
                 <FileText className="h-5 w-5 text-primary-700" />
               </div>
               Search Results

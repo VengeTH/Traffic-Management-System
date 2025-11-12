@@ -118,6 +118,46 @@
     @apply block w-full rounded-lg border-2 border-gray-200 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm transition-all duration-200 hover:border-primary-300;
   }
   
+  /* Hide ALL browser's default password reveal buttons - AGGRESSIVE */
+  input[type="password"]::-webkit-credentials-auto-fill-button,
+  input[type="password"]::-webkit-strong-password-auto-fill-button,
+  input[type="password"]::-webkit-textfield-decoration-container,
+  input[type="password"]::-webkit-inner-spin-button,
+  input[type="password"]::-webkit-outer-spin-button {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    pointer-events: none !important;
+  }
+  
+  /* Hide Microsoft Edge/IE password reveal button */
+  input[type="password"]::-ms-reveal,
+  input[type="password"]::-ms-clear {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+  
+  /* Hide Firefox password reveal button */
+  input[type="password"] {
+    -moz-appearance: textfield;
+  }
+  
+  /* Ensure password inputs with custom toggles have proper spacing */
+  .input[type="password"] {
+    padding-right: 3rem !important;
+  }
+  
+  /* Additional aggressive hiding for Chrome's password reveal */
+  input[type="password"] {
+    text-security: disc;
+    -webkit-text-security: disc;
+  }
+  
   .card {
     @apply bg-white/80 backdrop-blur-sm overflow-hidden shadow-xl rounded-2xl border border-white/20 hover:shadow-2xl transition-all duration-300 cursor-default;
   }
@@ -313,15 +353,23 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    background: linear-gradient(180deg, #ffffff, #eef2f3);
-    color: #065f46;
-    box-shadow:
-      0 8px 16px rgba(0,0,0,0.2),
-      inset 0 1px 0 rgba(255,255,255,0.8);
+    width: 50px;
+    height: 32px;
+    background: transparent;
     contain: layout style paint;
+    z-index: 10;
+    padding: 0;
+  }
+  @media (min-width: 640px) {
+    .vehicle {
+      width: 60px;
+      height: 40px;
+    }
+  }
+  .vehicle svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
   }
   .vehicle.drive-right {
     animation: drive-right 18s linear infinite;
@@ -338,21 +386,91 @@
     100% { transform: translate3d(-50px, -50%, 0); }
   }
 
+  /* Payment Indicators on Road */
+  .payment-indicator {
+    position: absolute;
+    z-index: 5;
+    pointer-events: none;
+  }
+  .payment-badge {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px 5px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85));
+    border: 1.5px solid rgba(34, 197, 94, 0.4);
+    border-radius: 6px;
+    box-shadow: 
+      0 2px 8px rgba(0,0,0,0.15),
+      0 0 0 1px rgba(255,255,255,0.5),
+      inset 0 1px 0 rgba(255,255,255,0.8);
+    color: #059669;
+    font-weight: 700;
+    backdrop-filter: blur(4px);
+    white-space: nowrap;
+  }
+  @media (min-width: 640px) {
+    .payment-badge {
+      padding: 4px 6px;
+      border-radius: 8px;
+    }
+  }
+  .payment-badge svg {
+    color: #10B981;
+    flex-shrink: 0;
+  }
+  .payment-float-1 {
+    animation: payment-float-1 3s ease-in-out infinite;
+  }
+  .payment-float-2 {
+    animation: payment-float-2 3.5s ease-in-out infinite;
+    animation-delay: 0.5s;
+  }
+  .payment-float-3 {
+    animation: payment-float-3 4s ease-in-out infinite;
+    animation-delay: 1s;
+  }
+  .payment-float-4 {
+    animation: payment-float-4 3.2s ease-in-out infinite;
+    animation-delay: 1.5s;
+  }
+  @keyframes payment-float-1 {
+    0%, 100% { transform: translateY(0) scale(1); opacity: 0.9; }
+    50% { transform: translateY(-8px) scale(1.05); opacity: 1; }
+  }
+  @keyframes payment-float-2 {
+    0%, 100% { transform: translateY(0) scale(1); opacity: 0.85; }
+    50% { transform: translateY(-10px) scale(1.08); opacity: 1; }
+  }
+  @keyframes payment-float-3 {
+    0%, 100% { transform: translateY(0) scale(1); opacity: 0.9; }
+    50% { transform: translateY(-6px) scale(1.03); opacity: 1; }
+  }
+  @keyframes payment-float-4 {
+    0%, 100% { transform: translateY(0) scale(1); opacity: 0.88; }
+    50% { transform: translateY(-9px) scale(1.06); opacity: 1; }
+  }
+
   /* ===== Marquee and Shimmer ===== */
   .marquee {
     position: relative;
     display: flex;
     gap: 1.25rem;
     overflow: hidden;
+    width: 100%;
   }
   .marquee-track {
     display: flex;
     gap: 1.25rem;
-    animation: marquee-scroll 30s linear infinite;
+    animation: marquee-scroll 40s linear infinite;
+    will-change: transform;
   }
   @keyframes marquee-scroll {
     0% { transform: translate3d(0, 0, 0); }
-    100% { transform: translate3d(-50%, 0, 0); }
+    100% { transform: translate3d(-25%, 0, 0); }
+  }
+  .marquee-track:hover {
+    animation-play-state: paused;
   }
   .shimmer {
     background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.8), rgba(255,255,255,0));
@@ -591,6 +709,78 @@
     border: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.12);
     transform: translateZ(0);
+  }
+  /* Mobile optimization - disable heavy effects */
+  @media (max-width: 640px) {
+    .glassmorphism {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.08);
+    }
+    .premium-glow {
+      box-shadow: 0 2px 8px rgba(34, 197, 94, 0.1);
+    }
+    .premium-glow-hover:hover {
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+      transform: none;
+    }
+    .animated-gradient-border::before {
+      display: none;
+    }
+    .shine-effect::after {
+      display: none;
+    }
+    .section-glow::before {
+      display: none;
+    }
+    .mesh-bg.mobile-bg {
+      background: linear-gradient(to bottom right, rgba(220, 252, 231, 0.3), rgba(255, 255, 255, 0.8), rgba(219, 234, 254, 0.3)) !important;
+    }
+    .grid-overlay.mobile-hidden {
+      display: none;
+    }
+    .vignette {
+      display: none;
+    }
+    .gradient-mesh {
+      background: rgba(255, 255, 255, 0.5) !important;
+    }
+    .hover-lift {
+      transition: none;
+    }
+    .hover-lift:hover {
+      transform: none;
+      box-shadow: inherit;
+    }
+    .tilt-on-hover {
+      transition: none;
+    }
+    .tilt-on-hover:hover {
+      transform: none;
+    }
+    .mobile-optimized {
+      animation: none !important;
+    }
+    .animate-fade-in-up,
+    .animate-scale-in {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .payment-indicator {
+      display: none;
+    }
+    .marquee-track {
+      animation: none !important;
+    }
+    .vehicle {
+      animation: none !important;
+    }
+    .vehicle.drive-right,
+    .vehicle.drive-left {
+      animation: none !important;
+    }
   }
 
   .gradient-mesh {

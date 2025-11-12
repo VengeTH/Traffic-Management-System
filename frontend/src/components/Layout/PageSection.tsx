@@ -18,19 +18,19 @@ const PageSection: React.FC<PageSectionProps> = ({
   headerAlignment = 'between'
 }) => {
   return (
-    <section className={`rounded-3xl border border-gray-100 bg-white/95 p-6 shadow-xl ${className}`}>
+    <section className={`lux-card animated-gradient-border premium-glow p-6 sm:p-8 ${className}`}>
       {(title || description || action) && (
         <div
           className={`flex flex-col gap-4 border-b border-gray-100 pb-6 ${headerAlignment === 'between' ? 'sm:flex-row sm:items-center sm:justify-between' : ''}`}
         >
           <div>
             {title && (
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold text-gradient-premium">
                 {title}
               </h2>
             )}
             {description && (
-              <p className="mt-1 text-sm text-gray-600">
+              <p className="mt-1 text-sm text-gray-600 font-medium">
                 {description}
               </p>
             )}

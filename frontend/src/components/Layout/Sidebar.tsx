@@ -18,18 +18,40 @@ const Sidebar: React.FC = () => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  // Get user from localStorage as fallback during loading
-  const getStoredUser = () => {
-    try {
-      const storedUser = localStorage.getItem('user');
-      return storedUser ? JSON.parse(storedUser) : null;
-    } catch {
-      return null;
+  // Get user from localStorage as fallback during loading (safe access)
+  // This ensures navigation shows immediately on refresh
+  // Recalculate on every render to get the latest localStorage value
+  const currentUser = React.useMemo(() => {
+    // If user is already loaded, use it
+    if (user && user.role) {
+      return user;
     }
-  };
-
-  // Use stored user as fallback if user is not yet loaded
-  const currentUser = user || getStoredUser();
+    
+    // Otherwise, try to get from localStorage
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const token = localStorage.getItem('token');
+        const stored = localStorage.getItem('user');
+        if (token && stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (parsed && parsed.role) {
+              return parsed;
+            }
+          } catch {
+            // Invalid JSON, ignore
+          }
+        }
+      }
+    } catch {
+      // localStorage access failed, ignore
+    }
+    
+    return null;
+  }, [user, loading]); // Recalculate when user or loading changes
+  
+  // Ensure we have a valid user with role before rendering
+  const hasValidUser = currentUser && currentUser.role;
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -143,12 +165,12 @@ const Sidebar: React.FC = () => {
                   Navigation
                 </h2>
               </div>
-              {navigationItems
-                .filter(item => item.roles.includes(currentUser?.role || ''))
+              {hasValidUser && navigationItems
+                .filter(item => item.roles.includes(currentUser.role))
                 .map(renderNavigationItem)}
 
               {/* Admin Navigation */}
-              {currentUser?.role === 'admin' && (
+              {hasValidUser && currentUser.role === 'admin' && (
                 <>
                   <div className="pt-6 pb-2">
                     <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -160,7 +182,7 @@ const Sidebar: React.FC = () => {
               )}
 
               {/* Enforcer Navigation */}
-              {currentUser?.role === 'enforcer' && (
+              {hasValidUser && currentUser.role === 'enforcer' && (
                 <>
                   <div className="pt-6 pb-2">
                     <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -169,6 +191,13 @@ const Sidebar: React.FC = () => {
                   </div>
                   {enforcerItems.map(renderNavigationItem)}
                 </>
+              )}
+              
+              {/* Loading state or no user */}
+              {!hasValidUser && (
+                <div className="px-3 py-4 text-sm text-gray-500 text-center">
+                  Loading navigation...
+                </div>
               )}
             </nav>
           </div>

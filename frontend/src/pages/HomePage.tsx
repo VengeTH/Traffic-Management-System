@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Shield, CreditCard, Smartphone, MapPin, FileText, Car, Quote, ArrowRightCircle, Search, CheckCircle, Clock, BarChart3 } from 'lucide-react';
+import { Shield, CreditCard, Smartphone, MapPin, FileText, Quote, ArrowRightCircle, Search, CheckCircle, Clock, BarChart3, Wallet, QrCode } from 'lucide-react';
 import Button from '../components/UI/Button';
 
 const heroHighlights = [
@@ -66,20 +66,20 @@ const HomePage: React.FC = () => {
         <div className="relative mx-auto flex max-w-7xl flex-col gap-6 sm:gap-8 lg:gap-14 px-3 sm:px-4 md:px-6 lg:grid lg:grid-cols-[1.15fr_0.9fr] lg:px-8 w-full">
           <div className="space-y-5 sm:space-y-6 md:space-y-8 hero-orbit w-full min-w-0">
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full">
-              <span className="badge-pill text-[10px] sm:text-xs break-words max-w-full flex-shrink">
+              <span className="badge-pill text-xs sm:text-xs break-words max-w-full flex-shrink">
                 <span className="whitespace-nowrap">EV Insights</span>
                 <span className="h-1.5 w-1.5 rounded-full bg-success-500 inline-block mx-1"></span>
                 <span className="break-words">Las Piñas official traffic payments</span>
               </span>
-              <span className="badge-pill border-secondary-300 text-secondary-700 text-[10px] sm:text-xs break-words max-w-full flex-shrink" style={{borderColor: 'rgba(2,132,199,0.35)'}}>
+              <span className="badge-pill border-secondary-300 text-secondary-700 text-xs sm:text-xs break-words max-w-full flex-shrink" style={{borderColor: 'rgba(2,132,199,0.35)'}}>
                 Trusted by Las Piñas Traffic Management Office
               </span>
             </div>
             <div className="space-y-3 sm:space-y-4 w-full min-w-0 animate-fade-in-up">
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-black leading-tight break-words hyphens-auto text-gradient-premium" style={{wordBreak: 'break-word', overflowWrap: 'break-word'}}>
+              <h1 className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-black leading-tight break-words hyphens-auto text-gradient-premium" style={{wordBreak: 'break-word', overflowWrap: 'break-word'}}>
                 E-VioPay — settle traffic fines without lining up in city hall.
               </h1>
-              <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-700 font-medium break-words leading-relaxed" style={{wordBreak: 'break-word', overflowWrap: 'break-word'}}>
+              <p className="text-sm sm:text-sm md:text-base lg:text-lg text-gray-700 font-medium break-words leading-relaxed" style={{wordBreak: 'break-word', overflowWrap: 'break-word'}}>
                 Search, verify, and pay violations anytime. Our digital desk synchronizes with the Las Piñas Traffic Management Office so you always see accurate dues and receipts.
               </p>
             </div>
@@ -109,14 +109,14 @@ const HomePage: React.FC = () => {
               {heroHighlights.map((item, index) => (
                 <div 
                   key={item.title} 
-                  className="lux-card animated-gradient-border highlight-card hover-lift premium-glow-hover p-4 sm:p-6 shine-effect animate-fade-in-up"
+                  className="lux-card animated-gradient-border highlight-card hover-lift premium-glow-hover p-4 sm:p-6 shine-effect animate-fade-in-up mobile-optimized"
                   style={{ animationDelay: `${index * 0.08}s` }}
                 >
                   <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 shadow-lg premium-glow">
                     {item.icon}
                   </div>
-                  <h3 className="mt-3 text-sm sm:text-base font-bold text-gray-900">{item.title}</h3>
-                  <p className="mt-2 text-xs sm:text-sm text-gray-700 leading-relaxed">{item.description}</p>
+                  <h3 className="mt-3 text-base sm:text-base font-bold text-gray-900">{item.title}</h3>
+                  <p className="mt-2 text-sm sm:text-sm text-gray-700 leading-relaxed">{item.description}</p>
                 </div>
               ))}
             </div>
@@ -158,18 +158,123 @@ const HomePage: React.FC = () => {
       {/* Road showcase */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 lg:px-8">
         <div className="text-center mb-8 sm:mb-12 animate-fade-in-up">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-gradient-premium">A smoother journey</h2>
-          <p className="mt-3 text-sm sm:text-base md:text-lg text-gray-700 font-medium">Visualize payments on the road—safe, fast, and verified.</p>
+          <h2 className="text-3xl sm:text-3xl md:text-4xl font-black text-gradient-premium">A smoother journey</h2>
+          <p className="mt-3 text-base sm:text-base md:text-lg text-gray-700 font-medium">Visualize payments on the road—safe, fast, and verified.</p>
         </div>
-        <div className="road h-40 sm:h-48 md:h-56 tilt-on-hover premium-glow-hover rounded-3xl overflow-hidden">
+        <div className="road h-40 sm:h-48 md:h-56 tilt-on-hover premium-glow-hover rounded-3xl overflow-hidden relative">
           <div className="road-edge top"></div>
           <div className="road-edge bottom"></div>
-          {/* Vehicles */}
+          
+          {/* Payment Indicators - Floating on road */}
+          <div className="payment-indicator payment-float-1 hidden sm:block" style={{ top: '20%', left: '15%' }}>
+            <div className="payment-badge">
+              <CreditCard className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="text-[8px] sm:text-[10px] font-bold">Pay</span>
+            </div>
+          </div>
+          <div className="payment-indicator payment-float-2" style={{ top: '45%', left: '55%', right: 'auto' }}>
+            <div className="payment-badge">
+              <Wallet className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="text-[8px] sm:text-[10px] font-bold">GCash</span>
+            </div>
+          </div>
+          <div className="payment-indicator payment-float-3 hidden sm:block" style={{ top: '75%', left: '35%' }}>
+            <div className="payment-badge">
+              <QrCode className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="text-[8px] sm:text-[10px] font-bold">QR</span>
+            </div>
+          </div>
+          <div className="payment-indicator payment-float-4 hidden md:block" style={{ top: '25%', left: '80%' }}>
+            <div className="payment-badge">
+              <Smartphone className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="text-[8px] sm:text-[10px] font-bold">Maya</span>
+            </div>
+          </div>
+          
+          {/* Vehicles - Top-down/Satellite view */}
           <div className="vehicle drive-right" style={{ top: '38%' }}>
-            <Car className="h-5 w-5 sm:h-6 sm:w-6" />
+            <svg 
+              viewBox="0 0 64 40" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-full h-full"
+            >
+              {/* Car body from top view - facing right */}
+              <ellipse cx="32" cy="20" rx="26" ry="14" fill="#2563EB" stroke="#1E40AF" strokeWidth="2"/>
+              {/* Car body highlight */}
+              <ellipse cx="32" cy="18" rx="24" ry="12" fill="#3B82F6" opacity="0.3"/>
+              {/* Front windshield (right side - front of car) */}
+              <ellipse cx="48" cy="20" rx="8" ry="10" fill="#DBEAFE" opacity="0.9"/>
+              <line x1="48" y1="10" x2="48" y2="30" stroke="#1E40AF" strokeWidth="1.5" opacity="0.7"/>
+              {/* Rear window (left side - back of car) */}
+              <ellipse cx="16" cy="20" rx="6" ry="9" fill="#BFDBFE" opacity="0.7"/>
+              {/* Side windows */}
+              <ellipse cx="32" cy="12" rx="18" ry="5" fill="#DBEAFE" opacity="0.6"/>
+              <ellipse cx="32" cy="28" rx="18" ry="5" fill="#DBEAFE" opacity="0.6"/>
+              {/* Door lines */}
+              <line x1="24" y1="8" x2="24" y2="32" stroke="#1E40AF" strokeWidth="1" opacity="0.3"/>
+              <line x1="40" y1="8" x2="40" y2="32" stroke="#1E40AF" strokeWidth="1" opacity="0.3"/>
+              {/* Front headlight (right side - showing direction) */}
+              <circle cx="56" cy="20" r="3" fill="#FEF3C7"/>
+              <circle cx="56" cy="20" r="1.5" fill="#FCD34D"/>
+              {/* Wheels from top view (4 wheels) */}
+              <ellipse cx="18" cy="8" rx="4.5" ry="3" fill="#111827" stroke="#000000" strokeWidth="1"/>
+              <ellipse cx="18" cy="32" rx="4.5" ry="3" fill="#111827" stroke="#000000" strokeWidth="1"/>
+              <ellipse cx="46" cy="8" rx="4.5" ry="3" fill="#111827" stroke="#000000" strokeWidth="1"/>
+              <ellipse cx="46" cy="32" rx="4.5" ry="3" fill="#111827" stroke="#000000" strokeWidth="1"/>
+              {/* Wheel rims */}
+              <ellipse cx="18" cy="8" rx="2.5" ry="1.8" fill="#374151"/>
+              <ellipse cx="18" cy="32" rx="2.5" ry="1.8" fill="#374151"/>
+              <ellipse cx="46" cy="8" rx="2.5" ry="1.8" fill="#374151"/>
+              <ellipse cx="46" cy="32" rx="2.5" ry="1.8" fill="#374151"/>
+              {/* Wheel centers */}
+              <circle cx="18" cy="8" r="1" fill="#6B7280"/>
+              <circle cx="18" cy="32" r="1" fill="#6B7280"/>
+              <circle cx="46" cy="8" r="1" fill="#6B7280"/>
+              <circle cx="46" cy="32" r="1" fill="#6B7280"/>
+            </svg>
           </div>
           <div className="vehicle drive-left" style={{ top: '62%' }}>
-            <Smartphone className="h-5 w-5 sm:h-6 sm:w-6" />
+            <svg 
+              viewBox="0 0 64 40" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-full h-full"
+            >
+              {/* Car body from top view - facing left */}
+              <ellipse cx="32" cy="20" rx="26" ry="14" fill="#059669" stroke="#047857" strokeWidth="2"/>
+              {/* Car body highlight */}
+              <ellipse cx="32" cy="18" rx="24" ry="12" fill="#10B981" opacity="0.3"/>
+              {/* Front windshield (left side - front of car) */}
+              <ellipse cx="16" cy="20" rx="8" ry="10" fill="#D1FAE5" opacity="0.9"/>
+              <line x1="16" y1="10" x2="16" y2="30" stroke="#047857" strokeWidth="1.5" opacity="0.7"/>
+              {/* Rear window (right side - back of car) */}
+              <ellipse cx="48" cy="20" rx="6" ry="9" fill="#A7F3D0" opacity="0.7"/>
+              {/* Side windows */}
+              <ellipse cx="32" cy="12" rx="18" ry="5" fill="#D1FAE5" opacity="0.6"/>
+              <ellipse cx="32" cy="28" rx="18" ry="5" fill="#D1FAE5" opacity="0.6"/>
+              {/* Door lines */}
+              <line x1="24" y1="8" x2="24" y2="32" stroke="#047857" strokeWidth="1" opacity="0.3"/>
+              <line x1="40" y1="8" x2="40" y2="32" stroke="#047857" strokeWidth="1" opacity="0.3"/>
+              {/* Front headlight (left side - showing direction) */}
+              <circle cx="8" cy="20" r="3" fill="#FEF3C7"/>
+              <circle cx="8" cy="20" r="1.5" fill="#FCD34D"/>
+              {/* Wheels from top view (4 wheels) */}
+              <ellipse cx="18" cy="8" rx="4.5" ry="3" fill="#111827" stroke="#000000" strokeWidth="1"/>
+              <ellipse cx="18" cy="32" rx="4.5" ry="3" fill="#111827" stroke="#000000" strokeWidth="1"/>
+              <ellipse cx="46" cy="8" rx="4.5" ry="3" fill="#111827" stroke="#000000" strokeWidth="1"/>
+              <ellipse cx="46" cy="32" rx="4.5" ry="3" fill="#111827" stroke="#000000" strokeWidth="1"/>
+              {/* Wheel rims */}
+              <ellipse cx="18" cy="8" rx="2.5" ry="1.8" fill="#374151"/>
+              <ellipse cx="18" cy="32" rx="2.5" ry="1.8" fill="#374151"/>
+              <ellipse cx="46" cy="8" rx="2.5" ry="1.8" fill="#374151"/>
+              <ellipse cx="46" cy="32" rx="2.5" ry="1.8" fill="#374151"/>
+              {/* Wheel centers */}
+              <circle cx="18" cy="8" r="1" fill="#6B7280"/>
+              <circle cx="18" cy="32" r="1" fill="#6B7280"/>
+              <circle cx="46" cy="8" r="1" fill="#6B7280"/>
+              <circle cx="46" cy="32" r="1" fill="#6B7280"/>
+            </svg>
           </div>
         </div>
       </section>
@@ -183,8 +288,8 @@ const HomePage: React.FC = () => {
               className="lux-card animated-gradient-border hover-lift premium-glow-hover section-glow p-6 sm:p-8 text-center shine-effect animate-fade-in-up"
               style={{ animationDelay: `${index * 0.06}s` }}
             >
-              <div className="text-3xl sm:text-4xl font-black text-gradient-premium tracking-tight">{stat.value}</div>
-              <p className="mt-3 text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wider">{stat.label}</p>
+              <div className="text-4xl sm:text-4xl font-black text-gradient-premium tracking-tight">{stat.value}</div>
+              <p className="mt-3 text-sm sm:text-sm font-bold text-gray-700 uppercase tracking-wider">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -196,8 +301,8 @@ const HomePage: React.FC = () => {
           <div className="mx-auto flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-xl premium-glow">
             <BarChart3 className="h-6 w-6 sm:h-7 sm:w-7" />
           </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-gradient-premium break-words px-2">Why drivers trust E-VioPay</h2>
-            <p className="mx-auto max-w-3xl text-sm sm:text-base md:text-lg lg:text-xl text-gray-700 font-medium px-4 break-words leading-relaxed">
+            <h2 className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-gradient-premium break-words px-2">Why drivers trust E-VioPay</h2>
+            <p className="mx-auto max-w-3xl text-base sm:text-base md:text-lg lg:text-xl text-gray-700 font-medium px-4 break-words leading-relaxed">
               Built with the Las Piñas Traffic Management Office, E-VioPay streamlines violation settlement while following the city's design system.
             </p>
         </div>
@@ -212,7 +317,7 @@ const HomePage: React.FC = () => {
                 {feature.icon}
               </div>
               <h3 className="mt-4 sm:mt-5 text-xl sm:text-2xl font-bold text-gray-900">{feature.title}</h3>
-              <p className="mt-3 text-sm sm:text-base text-gray-700 leading-relaxed">{feature.description}</p>
+              <p className="mt-3 text-base sm:text-base text-gray-700 leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>
@@ -222,9 +327,9 @@ const HomePage: React.FC = () => {
       <section className="mx-auto max-w-6xl px-4 sm:px-6 pb-12 sm:pb-20 lg:px-8">
         <div className="rounded-3xl sm:rounded-[40px] border-2 border-secondary-200/50 bg-gradient-to-br from-secondary-50/80 via-white to-primary-50/40 p-6 sm:p-8 lg:p-10 shadow-2xl premium-glow glassmorphism">
           <div className="flex flex-col gap-3 sm:gap-4 text-center">
-            <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.1em] sm:tracking-[0.2em] md:tracking-[0.3em] text-secondary-600 break-words">Payment partners</p>
-            <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 break-words px-2">Trusted gateways with instant confirmation</h3>
-            <p className="text-xs sm:text-sm text-gray-600 px-2 break-words">
+            <p className="text-sm sm:text-sm font-semibold uppercase tracking-[0.1em] sm:tracking-[0.2em] md:tracking-[0.3em] text-secondary-600 break-words">Payment partners</p>
+            <h3 className="text-xl sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 break-words px-2">Trusted gateways with instant confirmation</h3>
+            <p className="text-sm sm:text-sm text-gray-600 px-2 break-words">
               Choose from leading Philippine payment providers and grab an official receipt automatically.
             </p>
           </div>
@@ -232,18 +337,19 @@ const HomePage: React.FC = () => {
             {partnerMethods.map((method, index) => (
               <div 
                 key={method} 
-                className="lux-card animated-gradient-border hover-lift premium-glow-hover section-glow py-4 sm:py-5 text-center text-sm sm:text-base font-bold text-gray-800 shine-effect animate-scale-in"
+                className="lux-card animated-gradient-border hover-lift premium-glow-hover section-glow py-4 sm:py-5 text-center text-base sm:text-base font-bold text-gray-800 shine-effect animate-scale-in"
                 style={{ animationDelay: `${index * 0.03}s` }}
               >
                 {method}
               </div>
             ))}
           </div>
-          {/* marquee row */}
+          {/* marquee row - infinite scroll */}
           <div className="mt-6 sm:mt-8 marquee">
             <div className="marquee-track">
-              {partnerMethods.concat(partnerMethods).map((method, i) => (
-                <div key={`mq-${i}`} className="lux-card py-2 px-3 sm:px-4 text-[10px] sm:text-xs font-semibold text-gray-700">{method}</div>
+              {/* Duplicate multiple times for seamless infinite loop */}
+              {[...partnerMethods, ...partnerMethods, ...partnerMethods, ...partnerMethods].map((method, i) => (
+                <div key={`mq-${i}`} className="lux-card py-2 px-3 sm:px-4 text-[10px] sm:text-xs font-semibold text-gray-700 flex-shrink-0">{method}</div>
               ))}
             </div>
           </div>
@@ -253,8 +359,8 @@ const HomePage: React.FC = () => {
       {/* How it works timeline */}
       <section className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-20 lg:px-8">
         <div className="text-center animate-fade-in-up">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-gradient-premium">How E‑VioPay works</h2>
-          <p className="mt-3 text-sm sm:text-base md:text-lg text-gray-700 font-medium">A clear path from citation to confirmation.</p>
+          <h2 className="text-3xl sm:text-3xl md:text-4xl font-black text-gradient-premium">How E‑VioPay works</h2>
+          <p className="mt-3 text-base sm:text-base md:text-lg text-gray-700 font-medium">A clear path from citation to confirmation.</p>
         </div>
         <div className="mt-12 sm:mt-16 grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-3">
           <div className="lux-card animated-gradient-border timeline-card hover-lift premium-glow-hover section-glow p-6 sm:p-8 shine-effect animate-fade-in-up" style={{ animationDelay: '0s' }}>
@@ -264,7 +370,7 @@ const HomePage: React.FC = () => {
               </div>
               <p className="text-base sm:text-lg font-bold text-gray-900">Find your record</p>
             </div>
-            <p className="mt-4 text-sm sm:text-base text-gray-700 leading-relaxed">Search by OVR, plate number, or license to load citations instantly.</p>
+            <p className="mt-4 text-base sm:text-base text-gray-700 leading-relaxed">Search by OVR, plate number, or license to load citations instantly.</p>
           </div>
           <div className="lux-card animated-gradient-border timeline-card hover-lift premium-glow-hover section-glow p-6 sm:p-8 shine-effect animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             <div className="flex items-center gap-4">
@@ -273,7 +379,7 @@ const HomePage: React.FC = () => {
               </div>
               <p className="text-base sm:text-lg font-bold text-gray-900">Review and verify</p>
             </div>
-            <p className="mt-4 text-sm sm:text-base text-gray-700 leading-relaxed">See details, penalties, location, and official due dates before paying.</p>
+            <p className="mt-4 text-base sm:text-base text-gray-700 leading-relaxed">See details, penalties, location, and official due dates before paying.</p>
           </div>
           <div className="lux-card animated-gradient-border timeline-card hover-lift premium-glow-hover section-glow p-6 sm:p-8 shine-effect animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <div className="flex items-center gap-4">
@@ -282,7 +388,7 @@ const HomePage: React.FC = () => {
               </div>
               <p className="text-base sm:text-lg font-bold text-gray-900">Pay and receive</p>
             </div>
-            <p className="mt-4 text-sm sm:text-base text-gray-700 leading-relaxed">Complete payment through partners and get a verified PDF receipt.</p>
+            <p className="mt-4 text-base sm:text-base text-gray-700 leading-relaxed">Complete payment through partners and get a verified PDF receipt.</p>
           </div>
         </div>
       </section>
@@ -296,7 +402,7 @@ const HomePage: React.FC = () => {
             </div>
             <div className="flex-1">
               <p className="text-base sm:text-lg md:text-xl font-bold text-gray-900 break-words leading-relaxed">"E‑VioPay made handling my citation painless. Minutes to search, seconds to pay, and the receipt was instant."</p>
-              <p className="mt-4 text-sm sm:text-base font-semibold text-primary-700 break-words">— Resident, Las Piñas City</p>
+              <p className="mt-4 text-base sm:text-base font-semibold text-primary-700 break-words">— Resident, Las Piñas City</p>
             </div>
           </div>
         </div>
@@ -309,8 +415,8 @@ const HomePage: React.FC = () => {
           <div className="relative z-10">
           <div className="flex flex-col items-start gap-4 sm:gap-6 md:flex-row md:items-center md:justify-between">
             <div>
-              <h3 className="text-lg sm:text-xl md:text-2xl font-bold break-words">Ready to resolve a citation today?</h3>
-              <p className="mt-1 text-xs sm:text-sm md:text-base text-white/85 break-words">Search, verify, and pay with official confirmation—anytime.</p>
+              <h3 className="text-xl sm:text-xl md:text-2xl font-bold break-words">Ready to resolve a citation today?</h3>
+              <p className="mt-1 text-sm sm:text-sm md:text-base text-white/85 break-words">Search, verify, and pay with official confirmation—anytime.</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <Link to="/violations/search" className="w-full sm:w-auto">
@@ -329,7 +435,7 @@ const HomePage: React.FC = () => {
                 </Button>
               </Link>
             </div>
-          </div>
+            </div>
           </div>
         </div>
       </section>

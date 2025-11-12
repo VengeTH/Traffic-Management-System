@@ -139,10 +139,10 @@ const ProfilePage: React.FC = () => {
             </form>
           ) : (
             <div className="space-y-5">
-              <ContactRow icon={<UserIcon className="h-4 w-4 text-primary-600" />} label="Full name" value={`${user.firstName} ${user.lastName}`} />
-              <ContactRow icon={<Mail className="h-4 w-4 text-primary-600" />} label="Email" value={user.email} />
-              <ContactRow icon={<Phone className="h-4 w-4 text-primary-600" />} label="Phone" value={user.phoneNumber} />
-              <ContactRow icon={<Car className="h-4 w-4 text-primary-600" />} label="Driver's license" value={user.driverLicenseNumber ?? 'Not provided'} />
+              <ContactRow icon={<UserIcon className="h-4 w-4 text-primary-600" />} label="Full name" value={`${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Not provided'} />
+              <ContactRow icon={<Mail className="h-4 w-4 text-primary-600" />} label="Email" value={user.email || 'Not provided'} />
+              <ContactRow icon={<Phone className="h-4 w-4 text-primary-600" />} label="Phone" value={user.phoneNumber || 'Not provided'} />
+              <ContactRow icon={<Car className="h-4 w-4 text-primary-600" />} label="Driver's license" value={user.driverLicenseNumber || 'Not provided'} />
 
               <Button variant="primary" onClick={() => setIsEditing(true)} className="shadow-lg">
                 Edit profile
@@ -155,8 +155,8 @@ const ProfilePage: React.FC = () => {
           <PageSection title="Account status" headerAlignment="left">
             <Card className="border border-gray-100 bg-white/95 shadow-xl">
               <CardContent className="space-y-4 p-6 text-sm text-gray-700">
-                <StatusRow label="Role" value={user.role.toUpperCase()} />
-                <StatusRow label="Account" value={user.isActive ? 'Active' : 'Inactive'} tone={user.isActive ? 'success' : 'danger'} />
+                <StatusRow label="Role" value={user.role ? user.role.toUpperCase() : 'Unknown'} />
+                <StatusRow label="Account" value={user.isActive !== false ? 'Active' : 'Inactive'} tone={user.isActive !== false ? 'success' : 'danger'} />
                 <StatusRow label="Email verification" value={user.isEmailVerified ? 'Verified' : 'Pending'} tone={user.isEmailVerified ? 'success' : 'warning'} />
                 <StatusRow label="Two-factor" value={user.twoFactorEnabled ? 'Enabled' : 'Disabled'} tone={user.twoFactorEnabled ? 'success' : 'neutral'} />
                 <StatusRow label="Last login" value={user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString() : 'No record'} />

@@ -108,6 +108,7 @@ const Navbar: React.FC = () => {
       navigate('/');
     } catch (error) {
       console.error('Logout failed:', error);
+      navigate('/');
     }
   };
 
@@ -136,6 +137,11 @@ const Navbar: React.FC = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isUserMenuOpen]);
+
+  // Ensure user menu is closed on mount and when user changes
+  useEffect(() => {
+    setIsUserMenuOpen(false);
+  }, [isAuthenticated]);
 
   return (
     <nav className="bg-white/95 backdrop-blur-md shadow-xl border-b-2 border-primary-100/50 sticky top-0 z-50 premium-glow">

@@ -21,13 +21,62 @@ type AuthAction =
   | { type: 'UPDATE_USER'; payload: User }
   | { type: 'SET_LOADING'; payload: boolean };
 
+// Safe localStorage access helpers
+const safeLocalStorageGet = (key: string): string | null => {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return localStorage.getItem(key);
+    }
+  } catch {
+    // localStorage not available or access denied
+  }
+  return null;
+};
+
+const safeLocalStorageSet = (key: string, value: string): boolean => {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(key, value);
+      return true;
+    }
+  } catch {
+    // localStorage not available or access denied
+  }
+  return false;
+};
+
+const safeLocalStorageRemove = (key: string): boolean => {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.removeItem(key);
+      return true;
+    }
+  } catch {
+    // localStorage not available or access denied
+  }
+  return false;
+};
+
+// Get initial user from localStorage if available
+const getInitialUser = (): User | null => {
+  try {
+    const storedUser = safeLocalStorageGet('user');
+    if (storedUser) {
+      return JSON.parse(storedUser);
+    }
+  } catch {
+    // Ignore parse errors
+  }
+  return null;
+};
+
 // Initial state
 const initialState: AuthState = {
-  user: null,
-  token: localStorage.getItem('token'),
-  refreshToken: localStorage.getItem('refreshToken'),
+  user: getInitialUser(),
+  token: safeLocalStorageGet('token'),
+  refreshToken: safeLocalStorageGet('refreshToken'),
   loading: true,
-  isAuthenticated: false,
+  isAuthenticated: !!safeLocalStorageGet('token'),
 };
 
 // Auth reducer
@@ -92,8 +141,24 @@ interface AuthContextType extends AuthState {
   verifyEmail: (token: string) => Promise<void>;
 }
 
-// Create context
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Create context with default safe values
+const defaultAuthValue: AuthContextType = {
+  user: null,
+  token: null,
+  refreshToken: null,
+  loading: false,
+  isAuthenticated: false,
+  login: async () => { throw new Error('Auth not initialized'); },
+  register: async () => { throw new Error('Auth not initialized'); },
+  logout: async () => {},
+  updateUser: () => {},
+  refreshAuth: async () => { throw new Error('Auth not initialized'); },
+  forgotPassword: async () => { throw new Error('Auth not initialized'); },
+  resetPassword: async () => { throw new Error('Auth not initialized'); },
+  verifyEmail: async () => { throw new Error('Auth not initialized'); },
+};
+
+const AuthContext = createContext<AuthContextType>(defaultAuthValue);
 
 // Auth provider props
 interface AuthProviderProps {
@@ -106,33 +171,54 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Initialize auth state on mount
   useEffect(() => {
+    let mounted = true;
+    
     const initializeAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          dispatch({ type: 'AUTH_START' });
-          const response = await apiService.getCurrentUser();
-          dispatch({
-            type: 'AUTH_SUCCESS',
-            payload: {
-              user: response.data,
-              token,
-              refreshToken: localStorage.getItem('refreshToken') || '',
-            },
-          });
-        } catch (error) {
-          console.error('Failed to initialize auth:', error);
-          dispatch({ type: 'AUTH_FAILURE', payload: 'Authentication failed' });
-          localStorage.removeItem('token');
-          localStorage.removeItem('refreshToken');
-          localStorage.removeItem('user');
+      try {
+        const token = safeLocalStorageGet('token');
+        if (token && mounted) {
+          try {
+            dispatch({ type: 'AUTH_START' });
+            const response = await apiService.getCurrentUser();
+            if (mounted) {
+              dispatch({
+                type: 'AUTH_SUCCESS',
+                payload: {
+                  user: response.data,
+                  token,
+                  refreshToken: safeLocalStorageGet('refreshToken') || '',
+                },
+              });
+            }
+          } catch (error) {
+            console.error('Failed to initialize auth:', error);
+            if (mounted) {
+              dispatch({ type: 'AUTH_FAILURE', payload: 'Authentication failed' });
+              safeLocalStorageRemove('token');
+              safeLocalStorageRemove('refreshToken');
+              safeLocalStorageRemove('user');
+            }
+          }
+        } else if (mounted) {
+          dispatch({ type: 'SET_LOADING', payload: false });
         }
-      } else {
-        dispatch({ type: 'SET_LOADING', payload: false });
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (mounted) {
+          dispatch({ type: 'SET_LOADING', payload: false });
+        }
       }
     };
 
-    initializeAuth();
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      initializeAuth();
+    }, 0);
+
+    return () => {
+      mounted = false;
+      clearTimeout(timer);
+    };
   }, []);
 
   // Login function
@@ -143,10 +229,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       const { user, token, refreshToken } = response.data;
       
-      // Store tokens in localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('user', JSON.stringify(user));
+      // Store tokens in localStorage (safe)
+      safeLocalStorageSet('token', token);
+      safeLocalStorageSet('refreshToken', refreshToken);
+      safeLocalStorageSet('user', JSON.stringify(user));
       
       dispatch({
         type: 'AUTH_SUCCESS',
@@ -170,10 +256,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       const { user, token, refreshToken } = response.data;
       
-      // Store tokens in localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('user', JSON.stringify(user));
+      // Store tokens in localStorage (safe)
+      safeLocalStorageSet('token', token);
+      safeLocalStorageSet('refreshToken', refreshToken);
+      safeLocalStorageSet('user', JSON.stringify(user));
       
       dispatch({
         type: 'AUTH_SUCCESS',
@@ -196,10 +282,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('Logout API call failed:', error);
     } finally {
-      // Clear localStorage
-      localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
+      // Clear localStorage (safe)
+      safeLocalStorageRemove('token');
+      safeLocalStorageRemove('refreshToken');
+      safeLocalStorageRemove('user');
       
       dispatch({ type: 'AUTH_LOGOUT' });
       toast.success('Logged out successfully');
@@ -209,12 +295,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Update user function
   const updateUser = (userData: User) => {
     dispatch({ type: 'UPDATE_USER', payload: userData });
-    localStorage.setItem('user', JSON.stringify(userData));
+    safeLocalStorageSet('user', JSON.stringify(userData));
   };
 
   // Refresh auth function
   const refreshAuth = async () => {
-    const refreshToken = localStorage.getItem('refreshToken');
+    const refreshToken = safeLocalStorageGet('refreshToken');
     if (!refreshToken) {
       throw new Error('No refresh token available');
     }
@@ -223,8 +309,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await apiService.logout(); // This should be a refresh endpoint
       const { token, refreshToken: newRefreshToken } = response.data;
       
-      localStorage.setItem('token', token);
-      localStorage.setItem('refreshToken', newRefreshToken);
+      safeLocalStorageSet('token', token);
+      safeLocalStorageSet('refreshToken', newRefreshToken);
       
       // Update state with new tokens
       dispatch({
@@ -295,11 +381,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 // Custom hook to use auth context
 export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+  try {
+    const context = useContext(AuthContext);
+    return context || defaultAuthValue;
+  } catch (error) {
+    console.error('Error accessing auth context:', error);
+    return defaultAuthValue;
   }
-  return context;
 };
 
 

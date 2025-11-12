@@ -43,6 +43,8 @@ const LoginPage: React.FC = () => {
       if (typeof error === 'object' && error !== null && 'response' in error) {
         const serverError = error as { response?: { data?: { message?: string } } };
         message = serverError.response?.data?.message ?? message;
+      } else if (error instanceof Error && error.message.includes('not initialized')) {
+        message = 'Authentication service is not available. Please refresh the page.';
       }
       setError('root', {
         type: 'manual',
@@ -133,25 +135,36 @@ const LoginPage: React.FC = () => {
                   required
                 />
 
-                <Input
-                  {...register('password')}
-                  label="Password"
-                  placeholder="Enter your password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  startIcon={<Lock className="h-5 w-5" />}
-                  endAdornment={(
+                <div className="form-group">
+                  <label className="form-label">
+                    Password
+                    <span className="text-danger-600 ml-1">*</span>
+                  </label>
+                  <div className="relative">
+                    <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-primary-500">
+                      <Lock className="h-5 w-5" />
+                    </span>
+                    <input
+                      {...register('password')}
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter your password"
+                      autoComplete="current-password"
+                      className="input px-4 py-3 pl-12 pr-12"
+                      required
+                    />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors z-10"
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
+                  </div>
+                  {errors.password?.message && (
+                    <p className="form-error">{errors.password.message}</p>
                   )}
-                  error={errors.password?.message}
-                  required
-                />
+                </div>
               </div>
 
               {errors.root && (

@@ -279,66 +279,66 @@ const DashboardPage: React.FC = () => {
 
       {/* Shortcut Grid */}
       <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="relative overflow-hidden border border-secondary-100 bg-white/90 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:border-secondary-200 hover:shadow-2xl">
+        <Card className="relative overflow-hidden lux-card animated-gradient-border hover-lift premium-glow-hover shine-effect">
           <CardContent className="relative p-6">
             <div className="flex items-center justify-between">
-              <div className="rounded-2xl bg-secondary-600 p-3 text-white shadow-lg">
+              <div className="rounded-2xl bg-gradient-to-br from-secondary-500 to-secondary-600 p-3 text-white shadow-xl premium-glow">
                 <Search className="h-6 w-6" />
               </div>
               <div className="text-right text-xs font-semibold uppercase tracking-widest text-secondary-600">
                 Lookup
               </div>
             </div>
-            <h3 className="mt-6 text-xl font-bold text-gray-900">Smart violation search</h3>
-            <p className="mt-2 text-sm text-gray-600">
+            <h3 className="mt-6 text-xl font-bold text-gradient-premium">Smart violation search</h3>
+            <p className="mt-2 text-sm text-gray-600 font-medium">
               Search by OVR, plate, or license number and get a consolidated view including penalties and deadlines.
             </p>
             <Link to="/violations/search" className="mt-6 block">
-              <Button variant="primary" size="sm" className="w-full">
+              <Button variant="primary" size="sm" className="w-full shadow-xl btn-glow">
                 Start a search
               </Button>
             </Link>
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden border border-primary-100 bg-white/90 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:border-primary-200 hover:shadow-2xl">
+        <Card className="relative overflow-hidden lux-card animated-gradient-border hover-lift premium-glow-hover shine-effect">
           <CardContent className="relative p-6">
             <div className="flex items-center justify-between">
-              <div className="rounded-2xl bg-primary-600 p-3 text-white shadow-lg">
+              <div className="rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 p-3 text-white shadow-xl premium-glow">
                 <CreditCard className="h-6 w-6" />
               </div>
               <div className="text-right text-xs font-semibold uppercase tracking-widest text-primary-600">
                 Wallet
               </div>
             </div>
-            <h3 className="mt-6 text-xl font-bold text-gray-900">Centralized payment records</h3>
-            <p className="mt-2 text-sm text-gray-600">
+            <h3 className="mt-6 text-xl font-bold text-gradient-premium">Centralized payment records</h3>
+            <p className="mt-2 text-sm text-gray-600 font-medium">
               Review recent payments, download digital receipts, and check processing status across gateways.
             </p>
             <Link to="/payments" className="mt-6 block">
-              <Button variant="outline" size="sm" className="w-full border-primary-200 text-primary-700">
+              <Button variant="outline" size="sm" className="w-full border-primary-200 text-primary-700 shadow-md hover:shadow-lg">
                 Review history
               </Button>
             </Link>
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden border border-accent-100 bg-white/90 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:border-accent-200 hover:shadow-2xl">
+        <Card className="relative overflow-hidden lux-card animated-gradient-border hover-lift premium-glow-hover shine-effect">
           <CardContent className="relative p-6">
             <div className="flex items-center justify-between">
-              <div className="rounded-2xl bg-accent-500 p-3 text-white shadow-lg">
+              <div className="rounded-2xl bg-gradient-to-br from-accent-500 to-accent-600 p-3 text-white shadow-xl premium-glow">
                 <User className="h-6 w-6" />
               </div>
               <div className="text-right text-xs font-semibold uppercase tracking-widest text-accent-600">
                 Account
               </div>
             </div>
-            <h3 className="mt-6 text-xl font-bold text-gray-900">Profile & notification rules</h3>
-            <p className="mt-2 text-sm text-gray-600">
+            <h3 className="mt-6 text-xl font-bold text-gradient-premium">Profile & notification rules</h3>
+            <p className="mt-2 text-sm text-gray-600 font-medium">
               Manage contact details, two-factor security, and notification channels to stay informed.
             </p>
             <Link to="/profile" className="mt-6 block">
-              <Button variant="outline" size="sm" className="w-full border-accent-200 text-accent-700">
+              <Button variant="outline" size="sm" className="w-full border-accent-200 text-accent-700 shadow-md hover:shadow-lg">
                 Manage profile
               </Button>
             </Link>
@@ -351,14 +351,14 @@ const DashboardPage: React.FC = () => {
         {insightCards.map((insight) => (
           <div
             key={insight.label}
-            className="relative overflow-hidden rounded-3xl border border-white/60 bg-white/95 p-5 shadow-xl before:absolute before:-left-6 before:-top-6 before:h-24 before:w-24 before:rounded-full before:bg-gradient-to-br before:from-primary-100 before:to-secondary-100 before:opacity-60"
+            className="relative overflow-hidden lux-card animated-gradient-border premium-glow hover-lift shine-effect p-5"
           >
             <div className="relative flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">
                   {insight.label}
                 </p>
-                <p className="mt-2 text-3xl font-black text-gray-900">{insight.value}</p>
+                <p className="mt-2 text-3xl font-black text-gradient-premium">{insight.value}</p>
               </div>
               <div className={`rounded-2xl p-3 ${insight.isPositive ? 'bg-success-100 text-success-700' : 'bg-danger-100 text-danger-700'}`}>
                 {insight.isPositive ? (
