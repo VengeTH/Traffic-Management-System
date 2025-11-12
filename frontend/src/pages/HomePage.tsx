@@ -441,26 +441,45 @@ const HomePage: React.FC = () => {
       </section>
       {/* Footer - Bottom */}
       <footer className="border-t border-white/60 bg-gradient-to-br from-white via-primary-50/20 to-white py-8 sm:py-12 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 sm:px-6 text-xs sm:text-sm text-gray-600 md:flex-row lg:px-8">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-xl premium-glow text-sm sm:text-base font-black">
-              EV
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-between gap-6 md:flex-row md:items-start">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-xl premium-glow text-sm sm:text-base font-black">
+                EV
+              </div>
+              <div>
+                <p className="font-black text-gray-900 text-base sm:text-lg">E-VioPay</p>
+                <p className="text-[10px] sm:text-xs font-medium text-gray-600">Las Piñas Online Traffic Payments</p>
+              </div>
             </div>
-            <div>
-              <p className="font-black text-gray-900 text-base sm:text-lg">E-VioPay</p>
-              <p className="text-[10px] sm:text-xs font-medium text-gray-600">Las Piñas Online Traffic Payments</p>
+            
+            <div className="flex flex-col gap-4 text-center md:text-right">
+              {/* The Heedful */}
+              <div>
+                <p className="text-xs sm:text-sm text-gray-600 font-medium mb-1">Designed & engineered by</p>
+                <a
+                  href="https://vengeth.github.io/The-Heedful"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-primary-700 underline decoration-primary-300 underline-offset-4 hover:text-primary-800 transition-colors text-sm sm:text-base"
+                >
+                  The Heedful
+                </a>
+              </div>
+              
+              {/* Technopreneurship Team */}
+              <div className="border-t border-gray-200 pt-4 mt-2">
+                <p className="text-xs sm:text-sm text-gray-600 font-medium mb-2">Technopreneurship Team</p>
+                <div className="text-[10px] sm:text-xs text-gray-600 space-y-1">
+                  <p><span className="font-semibold">OFO/Leader:</span> Julianne J. Cruz <span className="text-primary-600">(The Heedful)</span></p>
+                  <p><span className="font-semibold">CEO:</span> Jez Christian Cuevas</p>
+                  <p><span className="font-semibold">GDM:</span> Trina C. Marbella</p>
+                  <p><span className="font-semibold">IT SD:</span> Aljhon Cipriano <span className="text-primary-600">(The Heedful)</span></p>
+                  <p><span className="font-semibold">TSO:</span> Prinze Mikhail V. Sadsad <span className="text-primary-600">(The Heedful)</span></p>
+                  <p><span className="font-semibold">MCR:</span> Jerald Kyle S. Ordaz <span className="text-primary-600">(The Heedful)</span></p>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="text-center md:text-right">
-            <span className="text-gray-600 font-medium">Designed & engineered by </span>
-            <a
-              href="https://vengeth.github.io/The-Heedful"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-bold text-primary-700 underline decoration-primary-300 underline-offset-4 hover:text-primary-800 transition-colors"
-            >
-              The Heedful
-            </a>
           </div>
         </div>
       </footer>

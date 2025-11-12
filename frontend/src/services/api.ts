@@ -38,42 +38,42 @@ api.interceptors.response.use(
         const refreshToken = typeof window !== 'undefined' && window.localStorage 
           ? localStorage.getItem('refreshToken') 
           : null;
-        
-        if (refreshToken) {
-          try {
-            const response = await axios.post('/api/auth/refresh', {
-              refreshToken,
-            });
-            
-            const { token } = response.data.data;
+      
+      if (refreshToken) {
+        try {
+          const response = await axios.post('/api/auth/refresh', {
+            refreshToken,
+          });
+          
+          const { token } = response.data.data;
             if (typeof window !== 'undefined' && window.localStorage) {
-              localStorage.setItem('token', token);
+          localStorage.setItem('token', token);
             }
-            
-            // Retry original request
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            return api(originalRequest);
-          } catch (refreshError) {
-            // Refresh token failed, redirect to login
+          
+          // Retry original request
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          return api(originalRequest);
+        } catch (refreshError) {
+          // Refresh token failed, redirect to login
             if (typeof window !== 'undefined' && window.localStorage) {
-              localStorage.removeItem('token');
-              localStorage.removeItem('refreshToken');
-              localStorage.removeItem('user');
+          localStorage.removeItem('token');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('user');
             }
-            window.location.href = '/login';
-          }
-        } else {
-          // No refresh token, redirect to login
+          window.location.href = '/login';
+        }
+      } else {
+        // No refresh token, redirect to login
           if (typeof window !== 'undefined' && window.localStorage) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
           }
           window.location.href = '/login';
         }
       } catch {
         // If localStorage access fails, just redirect to login
         if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+        window.location.href = '/login';
         }
       }
     }

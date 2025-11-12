@@ -14,11 +14,11 @@ const root = ReactDOM.createRoot(rootElement);
 
 // Render with error boundary
 try {
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  );
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
 } catch (error) {
   console.error('Failed to render app:', error);
   rootElement.innerHTML = `

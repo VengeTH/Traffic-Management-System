@@ -40,7 +40,7 @@ import MyIssuedViolationsPage from './pages/Enforcer/MyIssuedViolationsPage';
 import LoadingSpinner from './components/UI/LoadingSpinner';
 import ErrorBoundary from './components/UI/ErrorBoundary';
 
-// Protected Route Component
+// Protected Route Component - redirects to login if not authenticated
 const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean }> = ({ 
   children, 
   adminOnly = false 
@@ -66,31 +66,83 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean 
   return <>{children}</>;
 };
 
+// Public Route Component - redirects to dashboard if already authenticated
+const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  // If user is logged in, redirect to dashboard
+  // This prevents logged-in users from accessing login/register/homepage
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
+};
+
 // Inner component that uses useLocation (must be inside Router)
 const AppLayout: React.FC = () => {
   const { user, loading } = useAuth();
   const location = useLocation();
-  const isLandingPage = location.pathname === "/";
+  
+  // Public routes that should not show sidebar
+  const publicRoutes = ["/", "/login", "/register", "/forgot-password", "/reset-password"];
+  const isPublicRoute = publicRoutes.includes(location.pathname);
 
-  // Show sidebar only if user is authenticated and not on landing page
+  // Show sidebar only if user is authenticated and not on public routes
   // Don't use localStorage fallback here to prevent showing sidebar after logout
-  const shouldShowSidebar = !loading && !!user && !isLandingPage;
+  const shouldShowSidebar = !loading && !!user && !isPublicRoute;
 
   return (
     <div className="min-h-screen bg-green-50">
       <Navbar />
       
-      <div className="flex">
+      <div className="flex overflow-visible" style={{ minHeight: 'calc(100vh - 80px)' }}>
         {shouldShowSidebar && <Sidebar />}
         
-        <main className={`flex-1 ${isLandingPage ? '' : 'mx-5'}`}>
+        <main 
+          className={`flex-1 ${isPublicRoute ? '' : 'mx-5'}`} 
+          style={{ 
+            minHeight: 'calc(100vh - 80px)', 
+            overflow: 'visible',
+            marginLeft: shouldShowSidebar ? '256px' : '0',
+            transition: 'margin-left 0.3s ease'
+          }}
+        >
           <Routes>
               {/* Public Routes */}
-              <Route path="/" element={<HomePage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/" element={
+                <PublicRoute>
+                  <HomePage />
+                </PublicRoute>
+              } />
+              <Route path="/login" element={
+                <PublicRoute>
+                  <LoginPage />
+                </PublicRoute>
+              } />
+              <Route path="/register" element={
+                <PublicRoute>
+                  <RegisterPage />
+                </PublicRoute>
+              } />
+              <Route path="/forgot-password" element={
+                <PublicRoute>
+                  <ForgotPasswordPage />
+                </PublicRoute>
+              } />
+              <Route path="/reset-password" element={
+                <PublicRoute>
+                  <ResetPasswordPage />
+                </PublicRoute>
+              } />
               
               {/* Protected Routes */}
               <Route path="/dashboard" element={
@@ -201,16 +253,16 @@ const AppContent: React.FC = () => {
   const getBasename = () => {
     try {
       if (typeof window === 'undefined') return '';
-      // * Check if running on localhost
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return '';
-      }
-      // * Check if deployed to GitHub Pages (vengeth.github.io domain)
-      if (window.location.hostname.includes('github.io')) {
-        return '/Traffic-Management-System';
-      }
-      // * Default: no basename for other deployments
+    // * Check if running on localhost
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       return '';
+    }
+    // * Check if deployed to GitHub Pages (vengeth.github.io domain)
+    if (window.location.hostname.includes('github.io')) {
+      return '/Traffic-Management-System';
+    }
+    // * Default: no basename for other deployments
+    return '';
     } catch (error) {
       console.error('Error determining basename:', error);
       return '';
@@ -218,11 +270,11 @@ const AppContent: React.FC = () => {
   };
 
   try {
-    return (
-      <Router basename={getBasename()}>
-        <AppLayout />
-      </Router>
-    );
+  return (
+    <Router basename={getBasename()}>
+      <AppLayout />
+    </Router>
+  );
   } catch (error) {
     console.error('Error rendering AppContent:', error);
     return (

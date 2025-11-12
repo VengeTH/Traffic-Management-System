@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useAuth } from '../../contexts/AuthContext';
-import { Eye, EyeOff, User, Mail, Phone, Lock } from 'lucide-react';
+import { Eye, EyeOff, User, Mail, Phone, Lock, Car } from 'lucide-react';
 import Button from '../../components/UI/Button';
 
 const schema = yup.object({
@@ -137,12 +137,15 @@ const RegisterPage: React.FC = () => {
                   Last name
                 </label>
                 <div className="mt-1 relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="h-5 w-5 text-gray-400" />
+                  </div>
                   <input
                     {...register('lastName')}
                     id="lastName"
                     type="text"
                     className={`
-                      appearance-none relative block w-full px-3 py-2 border border-gray-300 
+                      appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 
                       placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
                       focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm
                       ${errors.lastName ? 'border-danger-300 focus:border-danger-500 focus:ring-danger-500' : ''}
@@ -214,12 +217,15 @@ const RegisterPage: React.FC = () => {
               <label htmlFor="driverLicenseNumber" className="block text-sm font-medium text-gray-700">
                 Driver's License Number (Optional)
               </label>
-              <div className="mt-1">
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Car className="h-5 w-5 text-gray-400" />
+                </div>
                 <input
                   {...register('driverLicenseNumber')}
                   id="driverLicenseNumber"
                   type="text"
-                  className="appearance-none relative block w-full px-3 py-2 border border-gray-300 
+                  className="appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 
                     placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
                     focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
                   placeholder="Enter your driver's license number"

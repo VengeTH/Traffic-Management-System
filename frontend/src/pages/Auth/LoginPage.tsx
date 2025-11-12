@@ -145,10 +145,10 @@ const LoginPage: React.FC = () => {
                       <Lock className="h-5 w-5" />
                     </span>
                     <input
-                      {...register('password')}
+                  {...register('password')}
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter your password"
-                      autoComplete="current-password"
+                  placeholder="Enter your password"
+                  autoComplete="current-password"
                       className="input px-4 py-3 pl-12 pr-12"
                       required
                     />

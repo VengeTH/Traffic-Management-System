@@ -363,7 +363,7 @@
   @media (min-width: 640px) {
     .vehicle {
       width: 60px;
-      height: 40px;
+    height: 40px;
     }
   }
   .vehicle svg {
@@ -833,6 +833,19 @@
       opacity: 1;
       transform: scale(1) translateZ(0);
       will-change: auto;
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
     }
   }
 

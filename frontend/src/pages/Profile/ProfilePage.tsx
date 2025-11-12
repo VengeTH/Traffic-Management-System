@@ -4,18 +4,22 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useAuth } from '../../contexts/AuthContext';
 import { apiService } from '../../services/api';
+import toast from 'react-hot-toast';
 import {
   Car,
   Mail,
   Phone,
   Shield,
-  User as UserIcon
+  User as UserIcon,
+  Copy,
+  CheckCircle
 } from 'lucide-react';
 import { Card, CardContent } from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import Input from '../../components/UI/Input';
 import PageHeader from '../../components/Layout/PageHeader';
 import PageSection from '../../components/Layout/PageSection';
+import Modal from '../../components/UI/Modal';
 
 const schema = yup.object({
   firstName: yup.string().required('First name is required'),
@@ -27,10 +31,29 @@ const schema = yup.object({
 
 type ProfileFormData = yup.InferType<typeof schema>;
 
+const passwordChangeSchema = yup.object({
+  currentPassword: yup.string().required('Current password is required'),
+  newPassword: yup.string()
+    .min(8, 'Password must be at least 8 characters')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Password must contain at least one uppercase letter, one lowercase letter, and one number')
+    .required('New password is required'),
+  confirmPassword: yup.string()
+    .oneOf([yup.ref('newPassword')], 'Passwords must match')
+    .required('Please confirm your password'),
+}).required();
+
+type PasswordChangeFormData = yup.InferType<typeof passwordChangeSchema>;
+
 const ProfilePage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, updateUser, refreshAuth } = useAuth();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
+  const [show2FAModal, setShow2FAModal] = useState<boolean>(false);
+  const [twoFactorData, setTwoFactorData] = useState<{ secret: string; qrCodeUrl: string } | null>(null);
+  const [copiedSecret, setCopiedSecret] = useState<boolean>(false);
+  const [passwordLoading, setPasswordLoading] = useState<boolean>(false);
+  const [twoFactorLoading, setTwoFactorLoading] = useState<boolean>(false);
 
   const {
     register,
@@ -63,6 +86,90 @@ const ProfilePage: React.FC = () => {
   const handleCancel = () => {
     reset();
     setIsEditing(false);
+  };
+
+  // Password change form
+  const {
+    register: registerPassword,
+    handleSubmit: handlePasswordSubmit,
+    formState: { errors: passwordErrors },
+    reset: resetPasswordForm
+  } = useForm<PasswordChangeFormData>({
+    resolver: yupResolver(passwordChangeSchema),
+  });
+
+  const onPasswordChange = async (data: PasswordChangeFormData) => {
+    try {
+      setPasswordLoading(true);
+      await apiService.changePassword({
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
+      toast.success('Password changed successfully!');
+      setShowPasswordModal(false);
+      resetPasswordForm();
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to change password';
+      toast.error(message);
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  const handleEnable2FA = async () => {
+    try {
+      setTwoFactorLoading(true);
+      const response = await apiService.enable2FA();
+      setTwoFactorData({
+        secret: response.data.secret,
+        qrCodeUrl: response.data.qrCodeUrl,
+      });
+      setShow2FAModal(true);
+      toast.success('Two-factor authentication enabled! Please scan the QR code.');
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to enable 2FA';
+      toast.error(message);
+    } finally {
+      setTwoFactorLoading(false);
+    }
+  };
+
+  const handleDisable2FA = async () => {
+    if (!window.confirm('Are you sure you want to disable two-factor authentication? This will reduce your account security.')) {
+      return;
+    }
+
+    try {
+      setTwoFactorLoading(true);
+      await apiService.disable2FA();
+      await refreshAuth(); // Refresh user data to update UI
+      toast.success('Two-factor authentication disabled successfully');
+      setShow2FAModal(false);
+      setTwoFactorData(null);
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Failed to disable 2FA';
+      toast.error(message);
+    } finally {
+      setTwoFactorLoading(false);
+    }
+  };
+
+  const handleCopySecret = () => {
+    if (twoFactorData?.secret) {
+      navigator.clipboard.writeText(twoFactorData.secret);
+      setCopiedSecret(true);
+      toast.success('Secret code copied to clipboard!');
+      setTimeout(() => setCopiedSecret(false), 2000);
+    }
+  };
+
+  const handle2FAModalClose = async () => {
+    setShow2FAModal(false);
+    if (twoFactorData) {
+      // Refresh user data after enabling 2FA
+      await refreshAuth();
+    }
+    setTwoFactorData(null);
   };
 
   if (!user) {
@@ -166,11 +273,20 @@ const ProfilePage: React.FC = () => {
 
           <PageSection title="Security controls" headerAlignment="left">
             <div className="space-y-3">
-              <Button variant="outline" className="w-full justify-between">
+              <Button 
+                variant="outline" 
+                className="w-full justify-between"
+                onClick={() => setShowPasswordModal(true)}
+              >
                 <span>Change password</span>
                 <Shield className="h-4 w-4 text-primary-500" />
               </Button>
-              <Button variant="outline" className="w-full justify-between">
+              <Button 
+                variant="outline" 
+                className="w-full justify-between"
+                onClick={user.twoFactorEnabled ? handleDisable2FA : handleEnable2FA}
+                loading={twoFactorLoading}
+              >
                 <span>{user.twoFactorEnabled ? 'Disable two-factor authentication' : 'Enable two-factor authentication'}</span>
                 <Shield className="h-4 w-4 text-primary-500" />
               </Button>
@@ -178,6 +294,150 @@ const ProfilePage: React.FC = () => {
           </PageSection>
         </div>
       </div>
+
+      {/* Password Change Modal */}
+      <Modal
+        isOpen={showPasswordModal}
+        onClose={() => {
+          setShowPasswordModal(false);
+          resetPasswordForm();
+        }}
+        title="Change Password"
+        size="md"
+      >
+        <form onSubmit={handlePasswordSubmit(onPasswordChange)} className="space-y-4">
+          <Input
+            label="Current Password"
+            type="password"
+            placeholder="Enter your current password"
+            {...registerPassword('currentPassword')}
+            error={passwordErrors.currentPassword?.message}
+            required
+          />
+
+          <Input
+            label="New Password"
+            type="password"
+            placeholder="Enter your new password"
+            {...registerPassword('newPassword')}
+            error={passwordErrors.newPassword?.message}
+            required
+          />
+
+          <Input
+            label="Confirm New Password"
+            type="password"
+            placeholder="Confirm your new password"
+            {...registerPassword('confirmPassword')}
+            error={passwordErrors.confirmPassword?.message}
+            required
+          />
+
+          <div className="pt-4 flex gap-3">
+            <Button
+              type="submit"
+              variant="primary"
+              loading={passwordLoading}
+              className="flex-1"
+            >
+              Change Password
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowPasswordModal(false);
+                resetPasswordForm();
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* 2FA Setup Modal */}
+      <Modal
+        isOpen={show2FAModal}
+        onClose={handle2FAModalClose}
+        title="Two-Factor Authentication Setup"
+        size="lg"
+      >
+        {twoFactorData ? (
+          <div className="space-y-6">
+            <div className="bg-primary-50 border border-primary-200 rounded-xl p-4">
+              <p className="text-sm text-primary-800 font-medium mb-2">
+                Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center space-y-4">
+              <div className="bg-white p-4 rounded-xl border-2 border-gray-200 shadow-sm">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=1&data=${encodeURIComponent(twoFactorData.qrCodeUrl)}`}
+                  alt="2FA QR Code"
+                  className="w-56 h-56 mx-auto"
+                  onError={(e) => {
+                    // Fallback if QR service fails
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
+              </div>
+
+              <div className="w-full">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Secret Code (Backup)
+                </label>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 font-mono text-sm break-all">
+                    {twoFactorData.secret}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCopySecret}
+                    className="p-2 bg-primary-100 hover:bg-primary-200 text-primary-700 rounded-lg transition-colors"
+                    title="Copy secret"
+                  >
+                    {copiedSecret ? (
+                      <CheckCircle className="h-5 w-5" />
+                    ) : (
+                      <Copy className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+                <p className="mt-2 text-xs text-gray-500">
+                  Save this secret code in a safe place. You'll need it if you lose access to your authenticator app.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <h4 className="font-semibold text-blue-900 mb-2">Instructions:</h4>
+              <ol className="list-decimal list-inside space-y-1 text-sm text-blue-800">
+                <li>Open your authenticator app on your mobile device</li>
+                <li>Tap the "+" or "Add Account" button</li>
+                <li>Scan the QR code above or enter the secret code manually</li>
+                <li>Enter the 6-digit code from your app when logging in</li>
+              </ol>
+            </div>
+
+            <div className="pt-4">
+              <Button
+                variant="primary"
+                onClick={handle2FAModalClose}
+                className="w-full"
+              >
+                I've Set Up My Authenticator App
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-600">Loading 2FA setup...</p>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

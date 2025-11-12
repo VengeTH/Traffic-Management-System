@@ -154,11 +154,19 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className="hidden md:flex md:flex-shrink-0" style={{ width: '256px', minWidth: '256px', maxWidth: '256px' }}>
-      <div className="flex flex-col w-64">
-        <div className="flex flex-col h-screen bg-white/95 backdrop-blur-sm border-r-2 border-primary-100/50 shadow-lg sticky top-0">
-          <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-            <nav className="flex-1 px-2 space-y-1">
+    <div 
+      className="hidden md:flex md:flex-shrink-0 fixed left-0 z-40" 
+      style={{ 
+        width: '256px', 
+        top: '80px', 
+        height: 'calc(100vh - 80px)',
+        overflowY: 'auto',
+        overflowX: 'hidden'
+      }}
+    >
+      <div className="flex flex-col w-full h-full bg-white/95 backdrop-blur-sm border-r-2 border-primary-100/50 shadow-lg">
+        <div className="flex-1 overflow-y-auto pt-5 pb-6">
+          <nav className="px-2 space-y-1">
               {/* Main Navigation */}
               <div className="pb-2">
                 <h2 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
@@ -203,7 +211,6 @@ const Sidebar: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

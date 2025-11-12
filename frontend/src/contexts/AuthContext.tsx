@@ -298,33 +298,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     safeLocalStorageSet('user', JSON.stringify(userData));
   };
 
-  // Refresh auth function
+  // Refresh auth function - fetches current user data
   const refreshAuth = async () => {
-    const refreshToken = safeLocalStorageGet('refreshToken');
-    if (!refreshToken) {
-      throw new Error('No refresh token available');
-    }
-
     try {
-      const response = await apiService.logout(); // This should be a refresh endpoint
-      const { token, refreshToken: newRefreshToken } = response.data;
+      const response = await apiService.getCurrentUser();
+      const updatedUser = response.data;
       
-      safeLocalStorageSet('token', token);
-      safeLocalStorageSet('refreshToken', newRefreshToken);
-      
-      // Update state with new tokens
+      // Update user in state and localStorage
       dispatch({
-        type: 'AUTH_SUCCESS',
-        payload: {
-          user: state.user!,
-          token,
-          refreshToken: newRefreshToken,
-        },
+        type: 'UPDATE_USER',
+        payload: updatedUser,
       });
+      safeLocalStorageSet('user', JSON.stringify(updatedUser));
     } catch (error) {
-      console.error('Token refresh failed:', error);
-      logout();
-      throw error;
+      console.error('Failed to refresh user data:', error);
+      // Don't logout on error, just log it
     }
   };
 
