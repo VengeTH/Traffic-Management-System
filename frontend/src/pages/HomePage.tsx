@@ -314,7 +314,7 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
-      {/* Footer */}
+      {/* Footer - Bottom */}
       <footer className="border-t border-white/60 bg-white/80 py-10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 text-sm text-gray-600 md:flex-row lg:px-8">
           <div className="flex items-center gap-3">
