@@ -4,21 +4,31 @@
  */
 
 const logger = require('../utils/logger');
+const { sanitizeError, sanitizeObject, redactSensitive } = require('../utils/sanitize');
 
 // * Error handler middleware
 const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
   
-  // * Log error
-  logger.error('Error occurred:', {
-    message: err.message,
-    stack: err.stack,
+  // * Sanitize error before logging
+  const sanitizedError = sanitizeError(err);
+  const sanitizedRequest = sanitizeObject({
+    requestId: req.id, // Include request ID for tracing
     url: req.url,
     method: req.method,
     ip: req.ip,
     userAgent: req.get('User-Agent'),
-    userId: req.user?.id
+    userId: req.user?.id,
+    body: req.body,
+    query: req.query,
+    params: req.params
+  });
+  
+  // * Log error with sanitized data
+  logger.error('Error occurred:', {
+    ...sanitizedError,
+    request: sanitizedRequest
   });
   
   // * Sequelize validation error
@@ -115,14 +125,18 @@ const errorHandler = (err, req, res, next) => {
   const message = error.message || 'Internal Server Error';
   const errorCode = error.error || 'INTERNAL_ERROR';
   
+  // * Sanitize error message before sending to client
+  const sanitizedMessage = redactSensitive(message);
+  
   // * Don't send error details in production
   const response = {
     success: false,
-    message,
+    message: sanitizedMessage,
     error: errorCode,
+    requestId: req.id, // Include request ID in error response
     ...(process.env.NODE_ENV === 'development' && {
-      stack: err.stack,
-      details: error
+      stack: sanitizedError?.stack,
+      details: sanitizeObject(error)
     })
   };
   

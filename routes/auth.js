@@ -5,14 +5,43 @@
 
 const express = require('express');
 const { body, validationResult } = require('express-validator');
+const rateLimit = require('express-rate-limit');
 const { User } = require('../models');
 const { generateToken, generateRefreshToken, verifyRefreshToken, auth } = require('../middleware/auth');
 const { asyncHandler, ValidationError, AuthenticationError, NotFoundError } = require('../middleware/errorHandler');
+const { blacklistToken, blacklistRefreshToken } = require('../middleware/tokenBlacklist');
 const { sendEmail } = require('../utils/email');
 const { sendSMS } = require('../utils/sms');
+const jwt = require('jsonwebtoken');
 const logger = require('../utils/logger');
 
 const router = express.Router();
+
+// * Rate limiting for authentication endpoints
+const isDevelopment = process.env.NODE_ENV === 'development';
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: isDevelopment ? 20 : 5, // 5 attempts per 15 minutes in production
+  message: {
+    error: 'Too many authentication attempts. Please try again later.',
+    retryAfter: 15
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true // Don't count successful requests
+});
+
+// * Rate limiting for password reset endpoints
+const passwordResetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: isDevelopment ? 10 : 3, // 3 attempts per hour in production
+  message: {
+    error: 'Too many password reset attempts. Please try again later.',
+    retryAfter: 60
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 // * Validation middleware
 const validateRegistration = [
@@ -108,7 +137,7 @@ const checkValidation = (req, res, next) => {
  * @desc    Register a new user
  * @access  Public
  */
-router.post('/register', validateRegistration, checkValidation, asyncHandler(async (req, res) => {
+router.post('/register', authLimiter, validateRegistration, checkValidation, asyncHandler(async (req, res) => {
   const {
     firstName,
     lastName,
@@ -195,7 +224,7 @@ router.post('/register', validateRegistration, checkValidation, asyncHandler(asy
  * @desc    Login user
  * @access  Public
  */
-router.post('/login', validateLogin, checkValidation, asyncHandler(async (req, res) => {
+router.post('/login', authLimiter, validateLogin, checkValidation, asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   
   // * Find user by email
@@ -260,6 +289,15 @@ router.post('/refresh', asyncHandler(async (req, res) => {
     throw new AuthenticationError('Invalid refresh token');
   }
   
+  // * Blacklist old refresh token (token rotation)
+  try {
+    const refreshDecoded = jwt.decode(refreshToken);
+    const refreshExpiresAt = refreshDecoded.exp ? refreshDecoded.exp * 1000 : Date.now() + (7 * 24 * 60 * 60 * 1000);
+    blacklistRefreshToken(refreshToken, refreshExpiresAt);
+  } catch (error) {
+    logger.warn('Failed to blacklist old refresh token:', error);
+  }
+  
   // * Generate new tokens
   const newToken = generateToken(user.id);
   const newRefreshToken = generateRefreshToken(user.id);
@@ -279,7 +317,7 @@ router.post('/refresh', asyncHandler(async (req, res) => {
  * @desc    Send password reset email
  * @access  Public
  */
-router.post('/forgot-password', validatePasswordReset, checkValidation, asyncHandler(async (req, res) => {
+router.post('/forgot-password', passwordResetLimiter, validatePasswordReset, checkValidation, asyncHandler(async (req, res) => {
   const { email } = req.body;
   
   // * Find user by email
@@ -297,6 +335,7 @@ router.post('/forgot-password', validatePasswordReset, checkValidation, asyncHan
   await user.save();
   
   // * Send password reset email
+  // * Note: Token is NOT included in URL for security. Frontend should use POST with token in body.
   try {
     await sendEmail({
       to: user.email,
@@ -304,7 +343,9 @@ router.post('/forgot-password', validatePasswordReset, checkValidation, asyncHan
       template: 'passwordReset',
       data: {
         name: user.getFullName(),
-        resetUrl: `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`
+        resetUrl: `${process.env.FRONTEND_URL}/reset-password`,
+        resetToken: resetToken, // Token sent separately, not in URL
+        expiresIn: '30 minutes'
       }
     });
   } catch (error) {
@@ -322,7 +363,7 @@ router.post('/forgot-password', validatePasswordReset, checkValidation, asyncHan
  * @desc    Reset password with token
  * @access  Public
  */
-router.post('/reset-password', validatePasswordUpdate, checkValidation, asyncHandler(async (req, res) => {
+router.post('/reset-password', passwordResetLimiter, validatePasswordUpdate, checkValidation, asyncHandler(async (req, res) => {
   const { token, password } = req.body;
   
   // * Find user by reset token
@@ -444,17 +485,46 @@ router.get('/me', auth, asyncHandler(async (req, res) => {
 
 /**
  * @route   POST /api/auth/logout
- * @desc    Logout user (client-side token removal)
+ * @desc    Logout user and blacklist tokens
  * @access  Private
  */
 router.post('/logout', auth, asyncHandler(async (req, res) => {
-  // * In a more complex system, you might want to blacklist the token
-  // * For now, we'll just return success and let the client remove the token
+  const token = req.token;
+  const refreshToken = req.body.refreshToken || req.get('X-Refresh-Token');
   
-  res.json({
-    success: true,
-    message: 'Logged out successfully'
-  });
+  try {
+    // * Decode token to get expiration
+    const decoded = jwt.decode(token);
+    const expiresAt = decoded.exp ? decoded.exp * 1000 : Date.now() + (24 * 60 * 60 * 1000); // Default to 24h if no exp
+    
+    // * Blacklist access token
+    blacklistToken(token, expiresAt);
+    
+    // * Blacklist refresh token if provided
+    if (refreshToken) {
+      try {
+        const refreshDecoded = jwt.decode(refreshToken);
+        const refreshExpiresAt = refreshDecoded.exp ? refreshDecoded.exp * 1000 : Date.now() + (7 * 24 * 60 * 60 * 1000);
+        blacklistRefreshToken(refreshToken, refreshExpiresAt);
+      } catch (error) {
+        logger.warn('Failed to blacklist refresh token:', error);
+      }
+    }
+    
+    logger.info('User logged out', { userId: req.user.id });
+    
+    res.json({
+      success: true,
+      message: 'Logged out successfully'
+    });
+  } catch (error) {
+    logger.error('Logout error:', error);
+    // * Still return success to prevent token reuse even if blacklisting fails
+    res.json({
+      success: true,
+      message: 'Logged out successfully'
+    });
+  }
 }));
 
 module.exports = router;

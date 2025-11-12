@@ -40,6 +40,9 @@ const userRoutes = require('./routes/users');
 const { errorHandler } = require('./middleware/errorHandler');
 const notFound = require('./middleware/notFound');
 const { auth } = require('./middleware/auth');
+const { csrfProtection, addCSRFToken } = require('./middleware/csrf');
+const { enforceHTTPS } = require('./middleware/httpsEnforcement');
+const { requestId } = require('./middleware/requestId');
 
 // * Import utilities
 const logger = require('./utils/logger');
@@ -47,29 +50,74 @@ const logger = require('./utils/logger');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// * HTTPS enforcement (must be before other middleware)
+app.use(enforceHTTPS);
+
+// * Request ID tracking (for security incident tracing)
+app.use(requestId);
+
 // * Security middleware
+const isProduction = process.env.NODE_ENV === 'production';
+
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      styleSrc: isProduction 
+        ? ["'self'", "https://fonts.googleapis.com"]
+        : ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:"],
       scriptSrc: ["'self'"],
-      connectSrc: ["'self'", "https://api.paymongo.com", "https://api.gcash.com"]
+      connectSrc: ["'self'", "https://api.paymongo.com", "https://api.gcash.com"],
+      formAction: ["'self'"]
+    }
+  },
+  hsts: isProduction ? {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true
+  } : false,
+  referrerPolicy: {
+    policy: 'strict-origin-when-cross-origin'
+  },
+  permissionsPolicy: {
+    features: {
+      geolocation: ["'self'"],
+      camera: [],
+      microphone: []
     }
   }
 }));
 
 // * CORS configuration
+const corsOrigins = process.env.CORS_ORIGIN 
+  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+  : ['http://localhost:3000'];
+
+// * Add GitHub Pages origin only if explicitly allowed
+if (process.env.ALLOW_GITHUB_PAGES === 'true') {
+  corsOrigins.push('https://vengeth.github.io');
+}
+
 app.use(cors({
-  origin: [
-    process.env.CORS_ORIGIN || 'http://localhost:3000',
-    'https://vengeth.github.io'
-  ],
+  origin: (origin, callback) => {
+    // * Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) {
+      return callback(null, true);
+    }
+    
+    if (corsOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      logger.warn('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
+  exposedHeaders: ['X-CSRF-Token']
 }));
 
 // * Compression middleware
@@ -108,12 +156,68 @@ const speedLimiter = slowDown({
 app.use('/api/', limiter);
 app.use('/api/', speedLimiter);
 
+// * Stricter rate limiting for authentication endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: isDevelopment ? 20 : 5, // 5 attempts per 15 minutes in production
+  message: {
+    error: 'Too many authentication attempts. Please try again later.',
+    retryAfter: 15
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true // Don't count successful requests
+});
+
+// * Rate limiting for password reset endpoints
+const passwordResetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: isDevelopment ? 10 : 3, // 3 attempts per hour in production
+  message: {
+    error: 'Too many password reset attempts. Please try again later.',
+    retryAfter: 60
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
 // * Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// * Static files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// * Input sanitization middleware
+const { sanitizeInput } = require('./middleware/sanitizeInput');
+app.use('/api/', sanitizeInput);
+
+// * CSRF protection for state-changing requests
+app.use('/api/', csrfProtection);
+
+// * Add CSRF token to responses for authenticated requests
+app.use('/api/', addCSRFToken);
+
+// * Static files - serve uploads with security headers
+app.use('/uploads', (req, res, next) => {
+  // * Prevent directory traversal
+  const requestedPath = path.normalize(req.path);
+  if (requestedPath.includes('..')) {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied',
+      error: 'INVALID_PATH'
+    });
+  }
+  
+  // * Set security headers for uploaded files
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Content-Disposition', 'inline'); // Don't force download
+  
+  next();
+}, express.static(path.join(__dirname, 'uploads'), {
+  // * Don't serve directory listings
+  index: false,
+  // * Set cache control
+  maxAge: '1d'
+}));
 
 // * Health check endpoint
 app.get('/health', (req, res) => {
@@ -131,22 +235,42 @@ app.get('/api', (req, res) => {
     message: 'Welcome to E-VioPay API',
     version: '1.0.0',
     status: 'Server is running',
+    apiVersion: 'v1',
     endpoints: {
       health: '/health',
       api: '/api',
-      documentation: {
+      v1: {
+        auth: '/api/v1/auth',
+        violations: '/api/v1/violations',
+        payments: '/api/v1/payments',
+        admin: '/api/v1/admin',
+        users: '/api/v1/users'
+      },
+      // * Legacy endpoints (deprecated, use v1)
+      legacy: {
         auth: '/api/auth',
         violations: '/api/violations',
         payments: '/api/payments',
         admin: '/api/admin',
         users: '/api/users'
-      }
+      },
+      note: 'Legacy endpoints are deprecated. Please migrate to /api/v1/* endpoints.'
     },
     timestamp: new Date().toISOString()
   });
 });
 
 // * API Routes (must come before static files)
+// * API versioning: Current version is v1
+// * Future versions should use /api/v2/, /api/v3/, etc.
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/violations', violationRoutes);
+app.use('/api/v1/payments', paymentRoutes);
+app.use('/api/v1/admin', auth, adminRoutes);
+app.use('/api/v1/users', auth, userRoutes);
+
+// * Backward compatibility: Support non-versioned routes (deprecated)
+// * TODO: Remove in future version after migration period
 app.use('/api/auth', authRoutes);
 app.use('/api/violations', violationRoutes);
 app.use('/api/payments', paymentRoutes);
@@ -169,9 +293,73 @@ app.get('*', (req, res, next) => {
 app.use(notFound);
 app.use(errorHandler);
 
+// * Validate critical environment variables
+const validateEnvironment = () => {
+  const requiredVars = {
+    JWT_SECRET: {
+      value: process.env.JWT_SECRET,
+      minLength: 32,
+      description: 'JWT secret key for token signing'
+    },
+    JWT_REFRESH_SECRET: {
+      value: process.env.JWT_REFRESH_SECRET,
+      minLength: 32,
+      description: 'JWT refresh secret key for refresh token signing'
+    }
+  };
+  
+  // * Validate payment gateway secrets if payment features are enabled
+  const isProduction = process.env.NODE_ENV === 'production';
+  if (isProduction) {
+    // * In production, at least one payment gateway should be configured
+    const hasPayMongo = process.env.PAYMONGO_SECRET_KEY && process.env.PAYMONGO_SECRET_KEY.startsWith('sk_');
+    const hasGCash = process.env.GCASH_CLIENT_ID && process.env.GCASH_CLIENT_SECRET;
+    const hasMaya = process.env.MAYA_CLIENT_ID && process.env.MAYA_CLIENT_SECRET;
+    const hasDragonPay = process.env.DRAGONPAY_MERCHANT_ID && process.env.DRAGONPAY_PASSWORD;
+    
+    if (!hasPayMongo && !hasGCash && !hasMaya && !hasDragonPay) {
+      logger.warn('⚠️  No payment gateway configured in production. Payment features will not work.');
+    }
+  }
+
+  const missing = [];
+  const invalid = [];
+
+  for (const [varName, config] of Object.entries(requiredVars)) {
+    if (!config.value) {
+      missing.push(varName);
+    } else if (config.value.length < config.minLength) {
+      invalid.push({
+        name: varName,
+        currentLength: config.value.length,
+        requiredLength: config.minLength,
+        description: config.description
+      });
+    }
+  }
+
+  if (missing.length > 0) {
+    logger.error('❌ Missing required environment variables:', missing);
+    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+  }
+
+  if (invalid.length > 0) {
+    logger.error('❌ Invalid environment variables (too short):');
+    invalid.forEach(({ name, currentLength, requiredLength, description }) => {
+      logger.error(`  - ${name}: ${description} must be at least ${requiredLength} characters (current: ${currentLength})`);
+    });
+    throw new Error(`Invalid environment variables: ${invalid.map(v => v.name).join(', ')}`);
+  }
+
+  logger.info('✅ Environment variables validated successfully');
+};
+
 // * Database connection and server startup
 const startServer = async () => {
   try {
+    // * Validate environment variables first
+    validateEnvironment();
+    
     // * Test database connection
     await sequelize.authenticate();
     logger.info('Database connection established successfully.');

@@ -52,7 +52,9 @@ if (shouldUseSqlite) {
 			dialectOptions: {
 				ssl: process.env.NODE_ENV === 'production' ? {
 					require: true,
-					rejectUnauthorized: false
+					rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false' // Default to true for security
+					// * If using self-signed certificates, set DB_SSL_REJECT_UNAUTHORIZED=false
+					// * and provide CA certificate via DB_SSL_CA environment variable
 				} : false
 			},
 			define: {

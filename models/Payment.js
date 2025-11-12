@@ -526,4 +526,13 @@ Payment.afterCreate(async (payment) => {
   await payment.save();
 });
 
+// * Exclude sensitive fields from JSON serialization
+Payment.prototype.toJSON = function() {
+  const values = Object.assign({}, this.get());
+  // * Exclude sensitive gateway information that may contain secrets
+  delete values.gatewayResponse; // May contain sensitive gateway data
+  // * Keep other fields as they're needed for receipts and records
+  return values;
+};
+
 module.exports = Payment;

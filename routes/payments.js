@@ -5,15 +5,30 @@
 
 const express = require('express');
 const { body, validationResult } = require('express-validator');
+const rateLimit = require('express-rate-limit');
 const { Violation, Payment, User } = require('../models');
 const { auth, optionalAuth } = require('../middleware/auth');
 const { asyncHandler, ValidationError, NotFoundError } = require('../middleware/errorHandler');
+const { sanitizeObject, redactSensitive } = require('../utils/sanitize');
 const { sendPaymentReceipt } = require('../utils/email');
 const { sendPaymentConfirmationSMS } = require('../utils/sms');
 const { generateQRCode } = require('../utils/qrcode');
 const logger = require('../utils/logger');
 
 const router = express.Router();
+
+// * Stricter rate limiting for payment endpoints
+const isDevelopment = process.env.NODE_ENV === 'development';
+const paymentLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: isDevelopment ? 10 : 3, // 3 payment attempts per 15 minutes in production
+  message: {
+    error: 'Too many payment attempts. Please try again later.',
+    retryAfter: 15
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 // * Payment gateway integrations
 const paymentGateways = {
@@ -199,9 +214,11 @@ const checkValidation = (req, res, next) => {
 /**
  * @route   POST /api/payments/initiate
  * @desc    Initiate payment for violation
- * @access  Public
+ * @access  Public (with rate limiting)
  */
-router.post('/initiate', validatePaymentInitiation, checkValidation, asyncHandler(async (req, res) => {
+router.post('/initiate', paymentLimiter, validatePaymentInitiation, checkValidation, asyncHandler(async (req, res) => {
+  // * Sanitize input
+  const sanitizedBody = sanitizeObject(req.body, ['payerEmail', 'payerPhone', 'payerName']);
   const {
     ovrNumber,
     paymentMethod,
@@ -209,7 +226,7 @@ router.post('/initiate', validatePaymentInitiation, checkValidation, asyncHandle
     payerEmail,
     payerPhone,
     payerId
-  } = req.body;
+  } = sanitizedBody;
   
   // * Find violation by OVR number
   const violation = await Violation.findByOVR(ovrNumber);
@@ -222,6 +239,18 @@ router.post('/initiate', validatePaymentInitiation, checkValidation, asyncHandle
     throw new ValidationError('This violation has already been paid');
   }
   
+  // * Validate payment amount matches violation amount (prevent tampering)
+  const expectedAmount = parseFloat(violation.totalFine);
+  if (req.body.amount && Math.abs(parseFloat(req.body.amount) - expectedAmount) > 0.01) {
+    logger.warn('Payment amount mismatch', {
+      expected: expectedAmount,
+      provided: req.body.amount,
+      ovrNumber,
+      ip: req.ip
+    });
+    throw new ValidationError('Payment amount does not match violation amount');
+  }
+  
   // * Check if violation is overdue
   if (violation.isOverdue()) {
     // * Add late payment penalty (10% of total fine)
@@ -231,15 +260,19 @@ router.post('/initiate', validatePaymentInitiation, checkValidation, asyncHandle
     await violation.save();
   }
   
+  // * Sanitize payer name and email before storage
+  const sanitizedName = redactSensitive(payerName).replace(/[<>]/g, '');
+  const sanitizedEmail = payerEmail.toLowerCase().trim();
+  
   // * Create payment record
   const payment = await Payment.create({
     violationId: violation.id,
     ovrNumber: violation.ovrNumber,
     citationNumber: violation.citationNumber,
     payerId: payerId || null,
-    payerName,
-    payerEmail: payerEmail.toLowerCase(),
-    payerPhone,
+    payerName: sanitizedName,
+    payerEmail: sanitizedEmail,
+    payerPhone: payerPhone ? redactSensitive(payerPhone) : null,
     amount: violation.totalFine,
     currency: 'PHP',
     paymentMethod,
@@ -249,6 +282,15 @@ router.post('/initiate', validatePaymentInitiation, checkValidation, asyncHandle
                     paymentMethod === 'dragonpay' ? 'DragonPay' : 'Other',
     ipAddress: req.ip,
     userAgent: req.get('User-Agent')
+  });
+  
+  // * Log payment initiation for audit
+  logger.info('Payment initiated', {
+    paymentId: payment.paymentId,
+    ovrNumber,
+    amount: payment.amount,
+    paymentMethod,
+    ip: req.ip
   });
   
   // * Process payment through gateway
@@ -299,10 +341,12 @@ router.post('/initiate', validatePaymentInitiation, checkValidation, asyncHandle
 /**
  * @route   POST /api/payments/confirm
  * @desc    Confirm payment completion
- * @access  Public
+ * @access  Public (with rate limiting)
  */
-router.post('/confirm', validatePaymentConfirmation, checkValidation, asyncHandler(async (req, res) => {
-  const { paymentId, gatewayTransactionId } = req.body;
+router.post('/confirm', paymentLimiter, validatePaymentConfirmation, checkValidation, asyncHandler(async (req, res) => {
+  // * Sanitize input
+  const sanitizedBody = sanitizeObject(req.body);
+  const { paymentId, gatewayTransactionId } = sanitizedBody;
   
   // * Find payment
   const payment = await Payment.findByPaymentId(paymentId);

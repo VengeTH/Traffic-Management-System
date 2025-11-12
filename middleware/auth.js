@@ -6,6 +6,7 @@
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
 const logger = require('../utils/logger');
+const { isTokenBlacklisted } = require('./tokenBlacklist');
 
 // * Authentication middleware
 const auth = async (req, res, next) => {
@@ -27,6 +28,15 @@ const auth = async (req, res, next) => {
         success: false,
         message: 'Access denied. No token provided.',
         error: 'AUTH_TOKEN_MISSING'
+      });
+    }
+    
+    // * Check if token is blacklisted
+    if (isTokenBlacklisted(token)) {
+      return res.status(401).json({
+        success: false,
+        message: 'Token has been revoked.',
+        error: 'AUTH_TOKEN_REVOKED'
       });
     }
     
@@ -208,6 +218,13 @@ const generateRefreshToken = (userId) => {
 
 // * Verify refresh token
 const verifyRefreshToken = (token) => {
+  const { isRefreshTokenBlacklisted } = require('./tokenBlacklist');
+  
+  // * Check if refresh token is blacklisted
+  if (isRefreshTokenBlacklisted(token)) {
+    throw new Error('Refresh token has been revoked');
+  }
+  
   try {
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
     

@@ -1,0 +1,28 @@
+Contact: security@laspinas.gov.ph
+Expires: 2025-12-31T23:59:59.000Z
+Preferred-Languages: en, fil
+Canonical: https://eviopay.laspinas.gov.ph/.well-known/security.txt
+Policy: https://eviopay.laspinas.gov.ph/security-policy
+
+# Security Policy
+We take security seriously. If you discover a security vulnerability, please follow responsible disclosure:
+
+1. Do not disclose the vulnerability publicly until we have addressed it
+2. Provide detailed information about the vulnerability
+3. Allow us reasonable time to fix the issue before disclosure
+4. Act in good faith and avoid accessing or modifying data that does not belong to you
+
+# Scope
+This security policy applies to:
+- The E-VioPay application and API
+- All subdomains of eviopay.laspinas.gov.ph
+
+# Out of Scope
+- Social engineering attacks
+- Physical attacks
+- Denial of service attacks
+- Issues requiring physical access to devices
+
+# Recognition
+We appreciate security researchers who help us keep our systems secure. With your permission, we may acknowledge your contribution.
+

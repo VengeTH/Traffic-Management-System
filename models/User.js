@@ -343,7 +343,7 @@ User.prototype.resetLoginAttempts = async function() {
 User.prototype.generatePasswordResetToken = function() {
   const crypto = require('crypto');
   this.passwordResetToken = crypto.randomBytes(32).toString('hex');
-  this.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+  this.passwordResetExpires = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes (reduced from 1 hour for security)
   return this.passwordResetToken;
 };
 

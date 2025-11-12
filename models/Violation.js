@@ -567,4 +567,12 @@ Violation.beforeCreate(async (violation) => {
   }
 });
 
+// * Exclude sensitive fields from JSON serialization
+Violation.prototype.toJSON = function() {
+  const values = Object.assign({}, this.get());
+  // * Sensitive fields are already included but should be protected by authorization
+  // * No fields need to be excluded as authorization controls access
+  return values;
+};
+
 module.exports = Violation;

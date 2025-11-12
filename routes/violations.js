@@ -5,6 +5,7 @@
 
 const express = require('express');
 const { body, query, validationResult } = require('express-validator');
+const rateLimit = require('express-rate-limit');
 const { Violation, User } = require('../models');
 const { auth, enforcerAuth } = require('../middleware/auth');
 const { asyncHandler, ValidationError, NotFoundError, AuthorizationError } = require('../middleware/errorHandler');
@@ -13,6 +14,19 @@ const { sendViolationNotification } = require('../utils/email');
 const logger = require('../utils/logger');
 
 const router = express.Router();
+
+// * Rate limiting for violation search (privacy protection)
+const isDevelopment = process.env.NODE_ENV === 'development';
+const violationSearchLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: isDevelopment ? 50 : 10, // 10 searches per 15 minutes in production
+  message: {
+    error: 'Too many search requests. Please try again later.',
+    retryAfter: 15
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 // * Validation middleware
 const validateViolationSearch = [
@@ -152,25 +166,47 @@ const checkValidation = (req, res, next) => {
 /**
  * @route   GET /api/violations/search
  * @desc    Search violations by OVR number, plate number, or driver license
- * @access  Public
+ * @access  Private (requires authentication for privacy protection)
  */
-router.get('/search', validateViolationSearch, checkValidation, asyncHandler(async (req, res) => {
+router.get('/search', auth, violationSearchLimiter, validateViolationSearch, checkValidation, asyncHandler(async (req, res) => {
   const { ovrNumber, plateNumber, driverLicenseNumber } = req.query;
+  
+  // * Log search for audit purposes
+  logger.info('Violation search performed', {
+    userId: req.user.id,
+    userEmail: req.user.email,
+    searchType: ovrNumber ? 'ovr' : plateNumber ? 'plate' : 'license',
+    searchValue: ovrNumber || plateNumber || driverLicenseNumber,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
   
   let violations = [];
   
+  // * Sanitize search inputs to prevent injection
+  const sanitizeSearchInput = (input) => {
+    if (!input) return input;
+    return input
+      .trim()
+      .replace(/[%_\\]/g, '') // Remove special LIKE characters
+      .substring(0, 50); // Limit length
+  };
+  
   if (ovrNumber) {
     // * Search by OVR number
-    const violation = await Violation.findByOVR(ovrNumber);
+    const sanitizedOVR = sanitizeSearchInput(ovrNumber);
+    const violation = await Violation.findByOVR(sanitizedOVR);
     if (violation) {
       violations = [violation];
     }
   } else if (plateNumber) {
     // * Search by plate number
-    violations = await Violation.findByPlateNumber(plateNumber);
+    const sanitizedPlate = sanitizeSearchInput(plateNumber);
+    violations = await Violation.findByPlateNumber(sanitizedPlate);
   } else if (driverLicenseNumber) {
     // * Search by driver license number
-    violations = await Violation.findByDriverLicense(driverLicenseNumber);
+    const sanitizedLicense = sanitizeSearchInput(driverLicenseNumber);
+    violations = await Violation.findByDriverLicense(sanitizedLicense);
   } else {
     throw new ValidationError('Please provide OVR number, plate number, or driver license number');
   }
@@ -215,11 +251,17 @@ router.get('/enforcer', enforcerAuth, asyncHandler(async (req, res) => {
   };
   
   if (search) {
+    // * Sanitize search input to prevent SQL injection
+    // * Escape special characters used in LIKE patterns
+    const sanitizedSearch = search
+      .replace(/[%_\\]/g, '\\$&') // Escape %, _, and backslash
+      .substring(0, 100); // Limit length to prevent DoS
+    
     whereClause[require('sequelize').Op.or] = [
-      { ovrNumber: { [require('sequelize').Op.iLike]: `%${search}%` } },
-      { citationNumber: { [require('sequelize').Op.iLike]: `%${search}%` } },
-      { plateNumber: { [require('sequelize').Op.iLike]: `%${search}%` } },
-      { driverName: { [require('sequelize').Op.iLike]: `%${search}%` } }
+      { ovrNumber: { [require('sequelize').Op.iLike]: `%${sanitizedSearch}%` } },
+      { citationNumber: { [require('sequelize').Op.iLike]: `%${sanitizedSearch}%` } },
+      { plateNumber: { [require('sequelize').Op.iLike]: `%${sanitizedSearch}%` } },
+      { driverName: { [require('sequelize').Op.iLike]: `%${sanitizedSearch}%` } }
     ];
   }
   
@@ -262,9 +304,9 @@ router.get('/enforcer', enforcerAuth, asyncHandler(async (req, res) => {
 /**
  * @route   GET /api/violations/:id
  * @desc    Get violation by ID
- * @access  Public
+ * @access  Private (requires authentication for privacy protection)
  */
-router.get('/:id', asyncHandler(async (req, res) => {
+router.get('/:id', auth, asyncHandler(async (req, res) => {
   const { id } = req.params;
   
   const violation = await Violation.findByPk(id, {
@@ -280,6 +322,25 @@ router.get('/:id', asyncHandler(async (req, res) => {
   if (!violation) {
     throw new NotFoundError('Violation not found');
   }
+  
+  // * Check if user has permission to view this violation
+  // * Users can view violations they own, enforcers can view their own violations, admins can view all
+  const canView = 
+    req.user.canPerformAdminAction() || // Admin can view all
+    violation.enforcerId === req.user.id || // Enforcer can view their own
+    (req.user.driverLicenseNumber && violation.driverLicenseNumber === req.user.driverLicenseNumber) || // User can view their own
+    (req.user.phoneNumber && violation.driverPhone === req.user.phoneNumber); // User can view by phone match
+  
+  if (!canView) {
+    throw new AuthorizationError('You do not have permission to view this violation');
+  }
+  
+  // * Log access for audit
+  logger.info('Violation accessed', {
+    userId: req.user.id,
+    violationId: id,
+    ip: req.ip
+  });
   
   res.json({
     success: true,

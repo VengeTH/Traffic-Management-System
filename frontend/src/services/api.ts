@@ -2,8 +2,12 @@ import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
 import { ApiError } from '../types';
 
 // Create axios instance
+// * API versioning: Currently using v1 endpoints
+// * Backward compatibility: Non-versioned endpoints still work but are deprecated
+const API_VERSION = process.env.REACT_APP_API_VERSION || 'v1';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 const api: AxiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+  baseURL: `${API_BASE_URL}/api/${API_VERSION}`,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -41,7 +45,9 @@ api.interceptors.response.use(
       
       if (refreshToken) {
         try {
-          const response = await axios.post('/api/auth/refresh', {
+          // * Use versioned endpoint for token refresh
+          const refreshUrl = `${API_BASE_URL}/api/${API_VERSION}/auth/refresh`;
+          const response = await axios.post(refreshUrl, {
             refreshToken,
           });
           

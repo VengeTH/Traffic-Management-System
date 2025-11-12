@@ -617,6 +617,15 @@ router.get('/reports/payments', adminAuth, asyncHandler(async (req, res) => {
  * @access  Private (Admin)
  */
 router.get('/settings', adminAuth, asyncHandler(async (req, res) => {
+  // * Log access to settings for audit
+  logger.info('Admin settings accessed', {
+    userId: req.user.id,
+    userEmail: req.user.email,
+    ip: req.ip,
+    userAgent: req.get('User-Agent'),
+    timestamp: new Date().toISOString()
+  });
+  
   // * Get settings from environment variables
   // * In production, you might want to store these in a database
   const settings = {
@@ -678,10 +687,15 @@ router.put('/settings', adminAuth, asyncHandler(async (req, res) => {
     throw new ValidationError('SMS configuration is incomplete');
   }
 
-  // * In production, save to database here
+  // * Log settings update for audit (sanitize sensitive data)
+  const { sanitizeObject } = require('../utils/sanitize');
   logger.info('System settings updated by admin', {
     adminId: req.user.id,
-    changes: { email, sms, payment, security, app }
+    adminEmail: req.user.email,
+    ip: req.ip,
+    userAgent: req.get('User-Agent'),
+    timestamp: new Date().toISOString(),
+    changes: sanitizeObject({ email, sms, payment, security, app })
   });
 
   res.json({
