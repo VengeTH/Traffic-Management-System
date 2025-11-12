@@ -5,7 +5,7 @@
 
 require('dotenv').config();
 const { sequelize } = require('../config/database');
-const { User, Violation, Payment } = require('../models');
+const { User, Violation, Payment, Notification } = require('../models');
 const logger = require('../utils/logger');
 
 const runMigrations = async () => {

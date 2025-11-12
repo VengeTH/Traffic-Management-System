@@ -456,38 +456,72 @@ router.delete('/account', auth, asyncHandler(async (req, res) => {
  * @access  Private
  */
 router.get('/notifications', auth, asyncHandler(async (req, res) => {
-  const { page = 1, limit = 50, unreadOnly = false } = req.query;
-  const offset = (page - 1) * limit;
-  
-  let whereClause = { userId: req.user.id };
-  
-  if (unreadOnly === 'true') {
-    whereClause.isRead = false;
-  }
-  
-  const notifications = await Notification.findAll({
-    where: whereClause,
-    order: [['createdAt', 'DESC']],
-    limit: parseInt(limit),
-    offset: parseInt(offset)
-  });
-  
-  const unreadCount = await Notification.getUnreadCount(req.user.id);
-  const total = await Notification.count({ where: { userId: req.user.id } });
-  
-  res.json({
-    success: true,
-    data: {
-      notifications: notifications.map(n => n.toJSON()),
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / limit)
-      },
-      unreadCount
+  try {
+    const { page = 1, limit = 50, unreadOnly = false } = req.query;
+    const offset = (page - 1) * limit;
+    
+    let whereClause = { userId: req.user.id };
+    
+    if (unreadOnly === 'true') {
+      whereClause.isRead = false;
     }
-  });
+    
+    const notifications = await Notification.findAll({
+      where: whereClause,
+      order: [['createdAt', 'DESC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    });
+    
+    const unreadCount = await Notification.getUnreadCount(req.user.id);
+    const total = await Notification.count({ where: { userId: req.user.id } });
+    
+    // * Map notifications to match frontend expected format (createdAt -> timestamp)
+    const mappedNotifications = notifications.map(n => {
+      const notification = n.toJSON();
+      return {
+        ...notification,
+        timestamp: notification.createdAt || notification.created_at
+      };
+    });
+    
+    res.json({
+      success: true,
+      data: {
+        notifications: mappedNotifications,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit)
+        },
+        unreadCount
+      }
+    });
+  } catch (error) {
+    // * Check if error is related to missing table or database issues
+    if (error.name === 'SequelizeDatabaseError' || 
+        error.message?.includes('does not exist') ||
+        error.message?.includes('no such table')) {
+      logger.warn('Notifications table may not exist. Run migrations to create it.');
+      // * Return empty array if table doesn't exist (graceful degradation)
+      return res.json({
+        success: true,
+        data: {
+          notifications: [],
+          pagination: {
+            page: parseInt(req.query.page) || 1,
+            limit: parseInt(req.query.limit) || 50,
+            total: 0,
+            pages: 0
+          },
+          unreadCount: 0
+        }
+      });
+    }
+    // * Re-throw other errors to be handled by asyncHandler
+    throw error;
+  }
 }));
 
 /**
@@ -496,12 +530,28 @@ router.get('/notifications', auth, asyncHandler(async (req, res) => {
  * @access  Private
  */
 router.get('/notifications/unread-count', auth, asyncHandler(async (req, res) => {
-  const count = await Notification.getUnreadCount(req.user.id);
-  
-  res.json({
-    success: true,
-    data: { count }
-  });
+  try {
+    const count = await Notification.getUnreadCount(req.user.id);
+    
+    res.json({
+      success: true,
+      data: { count: count || 0 }
+    });
+  } catch (error) {
+    // * Check if error is related to missing table or database issues
+    if (error.name === 'SequelizeDatabaseError' || 
+        error.message?.includes('does not exist') ||
+        error.message?.includes('no such table')) {
+      logger.warn('Notifications table may not exist. Run migrations to create it.');
+      // * Return 0 if table doesn't exist (graceful degradation)
+      return res.json({
+        success: true,
+        data: { count: 0 }
+      });
+    }
+    // * Re-throw other errors to be handled by asyncHandler
+    throw error;
+  }
 }));
 
 /**
