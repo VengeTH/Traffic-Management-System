@@ -224,7 +224,57 @@
   }
   
   .input {
-    @apply block w-full rounded-lg border-2 border-gray-200 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm transition-all duration-200 hover:border-primary-300;
+    @apply block w-full rounded-lg border-2 border-gray-200 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm transition-all duration-200 hover:border-primary-300 text-left;
+  }
+  
+  /* Ensure all input placeholders are left-aligned on mobile */
+  @media (max-width: 640px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="password"],
+    input[type="number"],
+    input[type="search"],
+    input[type="url"],
+    textarea,
+    input {
+      text-align: left !important;
+      direction: ltr !important;
+      padding-left: 0.5rem !important;
+    }
+    
+    /* Remove left padding for inputs with icons on mobile - text starts at leftmost */
+    input.pl-10,
+    input[class*="pl-10"] {
+      padding-left: 0.5rem !important;
+    }
+    
+    /* Position icons to not overlap with text */
+    .relative input.pl-10 + div,
+    .relative > div.absolute.left-0 {
+      display: none;
+    }
+    
+    input::placeholder,
+    input::-webkit-input-placeholder,
+    input::-moz-placeholder,
+    input:-ms-input-placeholder {
+      text-align: left !important;
+      direction: ltr !important;
+    }
+    
+    /* Force left alignment for all form inputs */
+    form input,
+    form textarea {
+      text-align: left !important;
+      direction: ltr !important;
+    }
+    
+    /* Override any center alignment */
+    input[style*="text-align: center"],
+    input[style*="text-align:center"] {
+      text-align: left !important;
+    }
   }
   
   /* Hide ALL browser's default password reveal buttons - AGGRESSIVE */
@@ -381,6 +431,18 @@
       linear-gradient(to bottom, rgba(20,83,45,0.06) 1px, transparent 1px);
     background-size: 28px 28px;
     mask-image: radial-gradient(80% 60% at 50% 0%, #000 40%, transparent 100%);
+    z-index: 0;
+  }
+  
+  /* Ensure grid-overlay is visible on mobile */
+  @media (max-width: 640px) {
+    .grid-overlay {
+      background-image:
+        linear-gradient(to right, rgba(20,83,45,0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(20,83,45,0.04) 1px, transparent 1px);
+      background-size: 20px 20px;
+      opacity: 0.8;
+    }
   }
 
   /* Glowing CTA button helper */
@@ -852,14 +914,24 @@
     .section-glow::before {
       display: none;
     }
+    /* Keep mesh-bg visible on mobile with simplified background */
+    .mesh-bg {
+      background-image:
+        radial-gradient(30% 30% at 10% 10%, rgba(34,197,94,0.12), transparent 60%),
+        radial-gradient(25% 25% at 80% 20%, rgba(56,189,248,0.10), transparent 60%),
+        radial-gradient(20% 20% at 20% 80%, rgba(245,158,11,0.10), transparent 60%);
+      will-change: auto;
+    }
     .mesh-bg.mobile-bg {
       background: linear-gradient(to bottom right, rgba(220, 252, 231, 0.3), rgba(255, 255, 255, 0.8), rgba(219, 234, 254, 0.3)) !important;
     }
+    /* Keep grid-overlay visible on mobile */
     .grid-overlay.mobile-hidden {
       display: none;
     }
-    .vignette {
-      display: none;
+    /* Keep vignette visible on mobile but simplified */
+    .vignette::after {
+      background: radial-gradient(100% 60% at 50% 0%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.04) 100%);
     }
     .gradient-mesh {
       background: rgba(255, 255, 255, 0.5) !important;
@@ -886,18 +958,19 @@
       opacity: 1 !important;
       transform: none !important;
     }
+    /* Keep payment indicators visible on mobile */
     .payment-indicator {
-      display: none;
+      display: block;
     }
     .marquee-track {
       animation: none !important;
     }
-    .vehicle {
-      animation: none !important;
+    /* Keep vehicle animations on mobile - they're lightweight */
+    .vehicle.drive-right {
+      animation: drive-right 18s linear infinite !important;
     }
-    .vehicle.drive-right,
     .vehicle.drive-left {
-      animation: none !important;
+      animation: drive-left 20s linear infinite !important;
     }
   }
 

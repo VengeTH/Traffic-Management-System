@@ -82,8 +82,8 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-secondary-50 py-12 px-4 sm:px-6 lg:px-8 gradient-mesh">
-      <div className="max-w-md w-full space-y-8 animate-fade-in-up">
+    <div className="min-h-screen flex items-center justify-center sm:justify-center bg-gradient-to-br from-primary-50 via-white to-secondary-50 py-8 sm:py-12 px-2 sm:px-4 md:px-6 lg:px-8 gradient-mesh" style={{marginTop: '0', paddingTop: '20px'}}>
+      <div className="max-w-md w-full space-y-8 animate-fade-in-up mx-auto sm:mx-auto" style={{textAlign: 'left'}}>
         <div>
           <div className="mx-auto h-14 w-14 bg-gradient-to-br from-primary-600 to-primary-700 rounded-2xl flex items-center justify-center shadow-xl premium-glow">
             <span className="text-white font-black text-xl">EV</span>
@@ -102,8 +102,8 @@ const RegisterPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="rounded-3xl border-2 border-gray-100/50 bg-white/95 backdrop-blur-sm p-8 shadow-2xl premium-glow glassmorphism">
-        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <div className="rounded-3xl border-2 border-gray-100/50 bg-white/95 backdrop-blur-sm p-4 sm:p-6 md:p-8 shadow-2xl premium-glow glassmorphism">
+        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)} style={{textAlign: 'left'}}>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -111,16 +111,17 @@ const RegisterPage: React.FC = () => {
                   First name
                 </label>
                 <div className="mt-1 relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none hidden sm:flex">
                     <User className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
                     {...register('firstName')}
                     id="firstName"
                     type="text"
+                    style={{textAlign: 'left', direction: 'ltr'}}
                     className={`
-                      appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 
-                      placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
+                      appearance-none relative block w-full pl-2 sm:pl-10 pr-3 py-2 border border-gray-300 
+                      placeholder-gray-500 text-gray-900 text-left rounded-md focus:outline-none 
                       focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm
                       ${errors.firstName ? 'border-danger-300 focus:border-danger-500 focus:ring-danger-500' : ''}
                     `}
@@ -137,16 +138,17 @@ const RegisterPage: React.FC = () => {
                   Last name
                 </label>
                 <div className="mt-1 relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none hidden sm:flex">
                     <User className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
                     {...register('lastName')}
                     id="lastName"
                     type="text"
+                    style={{textAlign: 'left', direction: 'ltr'}}
                     className={`
-                      appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 
-                      placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
+                      appearance-none relative block w-full pl-2 sm:pl-10 pr-3 py-2 border border-gray-300 
+                      placeholder-gray-500 text-gray-900 text-left rounded-md focus:outline-none 
                       focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm
                       ${errors.lastName ? 'border-danger-300 focus:border-danger-500 focus:ring-danger-500' : ''}
                     `}
@@ -164,7 +166,7 @@ const RegisterPage: React.FC = () => {
                 Email address
               </label>
               <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none hidden sm:flex">
                   <Mail className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
@@ -172,9 +174,10 @@ const RegisterPage: React.FC = () => {
                   id="email"
                   type="email"
                   autoComplete="email"
+                  style={{textAlign: 'left', direction: 'ltr'}}
                   className={`
-                    appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 
-                    placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
+                    appearance-none relative block w-full pl-2 sm:pl-10 pr-3 py-2 border border-gray-300 
+                    placeholder-gray-500 text-gray-900 text-left rounded-md focus:outline-none 
                     focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm
                     ${errors.email ? 'border-danger-300 focus:border-danger-500 focus:ring-danger-500' : ''}
                   `}
@@ -191,7 +194,7 @@ const RegisterPage: React.FC = () => {
                 Phone number
               </label>
               <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none hidden sm:flex">
                   <Phone className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
@@ -199,9 +202,10 @@ const RegisterPage: React.FC = () => {
                   id="phoneNumber"
                   type="tel"
                   autoComplete="tel"
+                  style={{textAlign: 'left', direction: 'ltr'}}
                   className={`
-                    appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 
-                    placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
+                    appearance-none relative block w-full pl-2 sm:pl-10 pr-3 py-2 border border-gray-300 
+                    placeholder-gray-500 text-gray-900 text-left rounded-md focus:outline-none 
                     focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm
                     ${errors.phoneNumber ? 'border-danger-300 focus:border-danger-500 focus:ring-danger-500' : ''}
                   `}
@@ -218,15 +222,16 @@ const RegisterPage: React.FC = () => {
                 Driver's License Number (Optional)
               </label>
               <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none hidden sm:flex">
                   <Car className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
                   {...register('driverLicenseNumber')}
                   id="driverLicenseNumber"
                   type="text"
-                  className="appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 
-                    placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
+                  style={{textAlign: 'left', direction: 'ltr'}}
+                  className="appearance-none relative block w-full pl-2 sm:pl-10 pr-3 py-2 border border-gray-300 
+                    placeholder-gray-500 text-gray-900 text-left rounded-md focus:outline-none 
                     focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
                   placeholder="Enter your driver's license number"
                 />
@@ -238,7 +243,7 @@ const RegisterPage: React.FC = () => {
                 Password
               </label>
               <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none hidden sm:flex">
                   <Lock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
@@ -246,9 +251,10 @@ const RegisterPage: React.FC = () => {
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
+                  style={{textAlign: 'left', direction: 'ltr'}}
                   className={`
-                    appearance-none relative block w-full pl-10 pr-10 py-2 border border-gray-300 
-                    placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
+                    appearance-none relative block w-full pl-2 sm:pl-10 pr-10 py-2 border border-gray-300 
+                    placeholder-gray-500 text-gray-900 text-left rounded-md focus:outline-none 
                     focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm
                     ${errors.password ? 'border-danger-300 focus:border-danger-500 focus:ring-danger-500' : ''}
                   `}
@@ -278,7 +284,7 @@ const RegisterPage: React.FC = () => {
                 Confirm Password
               </label>
               <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none hidden sm:flex">
                   <Lock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
@@ -286,9 +292,10 @@ const RegisterPage: React.FC = () => {
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
                   autoComplete="new-password"
+                  style={{textAlign: 'left', direction: 'ltr'}}
                   className={`
-                    appearance-none relative block w-full pl-10 pr-10 py-2 border border-gray-300 
-                    placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
+                    appearance-none relative block w-full pl-2 sm:pl-10 pr-10 py-2 border border-gray-300 
+                    placeholder-gray-500 text-gray-900 text-left rounded-md focus:outline-none 
                     focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm
                     ${errors.confirmPassword ? 'border-danger-300 focus:border-danger-500 focus:ring-danger-500' : ''}
                   `}

@@ -58,28 +58,28 @@ const HomePage: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-secondary-50 overflow-x-hidden w-full" style={{maxWidth: '100vw'}}>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-secondary-50 overflow-x-hidden w-full" style={{maxWidth: '100vw', marginTop: '0', paddingTop: '0'}}>
       {/* Hero */}
-      <section className="relative pt-16 pb-12 sm:pt-20 sm:pb-16 vignette w-full">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-secondary-50 mesh-bg" />
-        <div className="grid-overlay" />
+      <section className="relative pt-8 pb-12 sm:pt-12 sm:pb-16 md:pt-20 md:pb-16 vignette w-full">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-secondary-50 mesh-bg z-0" />
+        <div className="grid-overlay z-0" />
         <div className="relative mx-auto flex max-w-7xl flex-col gap-6 sm:gap-8 lg:gap-14 px-3 sm:px-4 md:px-6 lg:grid lg:grid-cols-[1.15fr_0.9fr] lg:px-8 w-full">
-          <div className="space-y-5 sm:space-y-6 md:space-y-8 hero-orbit w-full min-w-0">
+          <div className="space-y-6 sm:space-y-6 md:space-y-8 hero-orbit w-full min-w-0">
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full">
-              <span className="badge-pill text-xs sm:text-xs break-words max-w-full flex-shrink">
+              <span className="badge-pill text-sm sm:text-xs break-words max-w-full flex-shrink">
                 <span className="whitespace-nowrap">EV Insights</span>
                 <span className="h-1.5 w-1.5 rounded-full bg-success-500 inline-block mx-1"></span>
                 <span className="break-words">Las Piñas official traffic payments</span>
               </span>
-              <span className="badge-pill border-secondary-300 text-secondary-700 text-xs sm:text-xs break-words max-w-full flex-shrink" style={{borderColor: 'rgba(2,132,199,0.35)'}}>
+              <span className="badge-pill border-secondary-300 text-secondary-700 text-sm sm:text-xs break-words max-w-full flex-shrink" style={{borderColor: 'rgba(2,132,199,0.35)'}}>
                 Trusted by Las Piñas Traffic Management Office
               </span>
             </div>
             <div className="space-y-3 sm:space-y-4 w-full min-w-0 animate-fade-in-up">
-              <h1 className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-black leading-tight break-words hyphens-auto text-gradient-premium" style={{wordBreak: 'break-word', overflowWrap: 'break-word'}}>
+              <h1 className="text-3xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-black leading-tight break-words hyphens-auto text-gradient-premium" style={{wordBreak: 'break-word', overflowWrap: 'break-word'}}>
                 E-VioPay — settle traffic fines without lining up in city hall.
               </h1>
-              <p className="text-sm sm:text-sm md:text-base lg:text-lg text-gray-700 font-medium break-words leading-relaxed" style={{wordBreak: 'break-word', overflowWrap: 'break-word'}}>
+              <p className="text-base sm:text-sm md:text-base lg:text-lg text-gray-700 font-medium break-words leading-relaxed" style={{wordBreak: 'break-word', overflowWrap: 'break-word'}}>
                 Search, verify, and pay violations anytime. Our digital desk synchronizes with the Las Piñas Traffic Management Office so you always see accurate dues and receipts.
               </p>
             </div>
@@ -109,14 +109,18 @@ const HomePage: React.FC = () => {
               {heroHighlights.map((item, index) => (
                 <div 
                   key={item.title} 
-                  className="lux-card animated-gradient-border highlight-card hover-lift premium-glow-hover p-4 sm:p-6 shine-effect animate-fade-in-up mobile-optimized"
+                  className="group lux-card animated-gradient-border highlight-card hover-lift premium-glow-hover p-4 sm:p-6 shine-effect animate-fade-in-up mobile-optimized"
                   style={{ animationDelay: `${index * 0.08}s` }}
                 >
-                  <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 shadow-lg premium-glow">
-                    {item.icon}
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    <div className="flex-shrink-0 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 shadow-lg premium-glow group-hover:scale-110 transition-transform duration-200">
+                      {item.icon}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg sm:text-base font-bold text-gray-900 leading-tight">{item.title}</h3>
+                      <p className="mt-1.5 sm:mt-2 text-base sm:text-sm text-gray-700 leading-relaxed">{item.description}</p>
+                    </div>
                   </div>
-                  <h3 className="mt-3 text-base sm:text-base font-bold text-gray-900">{item.title}</h3>
-                  <p className="mt-2 text-sm sm:text-sm text-gray-700 leading-relaxed">{item.description}</p>
                 </div>
               ))}
             </div>
@@ -129,21 +133,21 @@ const HomePage: React.FC = () => {
                   <FileText className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.1em] sm:tracking-[0.2em] md:tracking-[0.3em] text-primary-600 break-words">Quick action</p>
-                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 break-words mt-1">Resolve a citation in three steps</h3>
+                  <p className="text-sm sm:text-sm font-semibold uppercase tracking-[0.1em] sm:tracking-[0.2em] md:tracking-[0.3em] text-primary-600 break-words">Quick action</p>
+                  <h3 className="text-lg sm:text-lg md:text-xl font-bold text-gray-900 break-words mt-1">Resolve a citation in three steps</h3>
                 </div>
               </div>
-              <ol className="mt-4 sm:mt-6 space-y-3 sm:space-y-4 text-xs sm:text-sm text-gray-600">
+              <ol className="mt-4 sm:mt-6 space-y-3 sm:space-y-4 text-sm sm:text-sm text-gray-600">
                 <li className="rounded-xl sm:rounded-2xl border border-primary-100 bg-primary-50/60 p-3 sm:p-4 tilt-on-hover">
-                  <span className="font-semibold text-primary-700 block mb-1">1 · Search</span>
+                  <span className="font-semibold text-primary-700 block mb-1 text-base">1 · Search</span>
                   <p className="mt-1 break-words">Enter your OVR number, plate number, or driver's license to pull up records instantly.</p>
                 </li>
                 <li className="rounded-xl sm:rounded-2xl border border-secondary-100 bg-secondary-50/60 p-3 sm:p-4 tilt-on-hover">
-                  <span className="font-semibold text-secondary-700 block mb-1">2 · Review</span>
+                  <span className="font-semibold text-secondary-700 block mb-1 text-base">2 · Review</span>
                   <p className="mt-1 break-words">Check violation details, location map pin, penalties, and official due dates.</p>
                 </li>
                 <li className="rounded-xl sm:rounded-2xl border border-success-100 bg-success-50/70 p-3 sm:p-4 tilt-on-hover">
-                  <span className="font-semibold text-success-700 block mb-1">3 · Pay & receive</span>
+                  <span className="font-semibold text-success-700 block mb-1 text-base">3 · Pay & receive</span>
                   <p className="mt-1 break-words">Choose a partner gateway and get an emailed PDF receipt plus SMS confirmation.</p>
                 </li>
               </ol>
@@ -157,16 +161,16 @@ const HomePage: React.FC = () => {
 
       {/* Road showcase */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 lg:px-8">
-        <div className="text-center mb-8 sm:mb-12 animate-fade-in-up">
+        <div className="text-center mb-6 sm:mb-8 md:mb-12 animate-fade-in-up">
           <h2 className="text-3xl sm:text-3xl md:text-4xl font-black text-gradient-premium">A smoother journey</h2>
-          <p className="mt-3 text-base sm:text-base md:text-lg text-gray-700 font-medium">Visualize payments on the road—safe, fast, and verified.</p>
+          <p className="mt-2 sm:mt-3 text-base sm:text-base md:text-lg text-gray-700 font-medium">Visualize payments on the road—safe, fast, and verified.</p>
         </div>
         <div className="road h-40 sm:h-48 md:h-56 tilt-on-hover premium-glow-hover rounded-3xl overflow-hidden relative">
           <div className="road-edge top"></div>
           <div className="road-edge bottom"></div>
           
-          {/* Payment Indicators - Floating on road */}
-          <div className="payment-indicator payment-float-1 hidden sm:block" style={{ top: '20%', left: '15%' }}>
+          {/* Payment Indicators - Floating on road - visible on all devices */}
+          <div className="payment-indicator payment-float-1" style={{ top: '20%', left: '15%' }}>
             <div className="payment-badge">
               <CreditCard className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="text-[8px] sm:text-[10px] font-bold">Pay</span>
@@ -178,13 +182,13 @@ const HomePage: React.FC = () => {
               <span className="text-[8px] sm:text-[10px] font-bold">GCash</span>
             </div>
           </div>
-          <div className="payment-indicator payment-float-3 hidden sm:block" style={{ top: '75%', left: '35%' }}>
+          <div className="payment-indicator payment-float-3" style={{ top: '75%', left: '35%' }}>
             <div className="payment-badge">
               <QrCode className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="text-[8px] sm:text-[10px] font-bold">QR</span>
             </div>
           </div>
-          <div className="payment-indicator payment-float-4 hidden md:block" style={{ top: '25%', left: '80%' }}>
+          <div className="payment-indicator payment-float-4" style={{ top: '25%', left: '80%' }}>
             <div className="payment-badge">
               <Smartphone className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="text-[8px] sm:text-[10px] font-bold">Maya</span>
@@ -313,11 +317,15 @@ const HomePage: React.FC = () => {
               className="group lux-card animated-gradient-border hover-lift premium-glow-hover section-glow p-6 sm:p-8 transition shine-effect animate-fade-in-up"
               style={{ animationDelay: `${index * 0.08}s` }}
             >
-              <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 shadow-lg premium-glow">
-                {feature.icon}
+              <div className="flex items-start gap-4 sm:gap-5">
+                <div className="flex-shrink-0 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 shadow-lg premium-glow group-hover:scale-110 transition-transform duration-200">
+                  {feature.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">{feature.title}</h3>
+                  <p className="mt-2 sm:mt-3 text-base sm:text-base text-gray-700 leading-relaxed">{feature.description}</p>
+                </div>
               </div>
-              <h3 className="mt-4 sm:mt-5 text-xl sm:text-2xl font-bold text-gray-900">{feature.title}</h3>
-              <p className="mt-3 text-base sm:text-base text-gray-700 leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>

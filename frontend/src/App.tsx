@@ -113,7 +113,8 @@ const AppLayout: React.FC = () => {
             minHeight: 'calc(100vh - 80px)', 
             overflow: 'visible',
             marginLeft: shouldShowSidebar ? '256px' : '0',
-            transition: 'margin-left 0.3s ease'
+            transition: 'margin-left 0.3s ease',
+            paddingTop: isPublicRoute ? '0' : '0'
           }}
         >
           <Routes>

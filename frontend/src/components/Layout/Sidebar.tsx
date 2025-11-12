@@ -208,9 +208,9 @@ const Sidebar: React.FC = () => {
                 </div>
               )}
             </nav>
-          </div>
         </div>
       </div>
+    </div>
   );
 };
 
