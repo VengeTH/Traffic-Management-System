@@ -9,43 +9,46 @@ import { ApiError } from '../types';
  * * 3. Default to localhost for development
  */
 const getApiBaseUrl = (): string => {
-  // * Use environment variable if explicitly set
-  if (process.env.REACT_APP_API_URL) {
-    return process.env.REACT_APP_API_URL;
+  // * Use environment variable if explicitly set (this is set at build time)
+  const envApiUrl = process.env.REACT_APP_API_URL;
+  if (envApiUrl) {
+    return envApiUrl;
   }
 
   // * Auto-detect based on current location (client-side only)
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+    const isGitHubPages = hostname.includes('github.io');
 
     // * Development: localhost or 127.0.0.1
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    if (isLocalhost) {
       return `http://localhost:5000`;
     }
 
-    // * Production: Use same origin if API is on same domain, otherwise use environment variable
-    // * For GitHub Pages deployment, API is typically on a separate server
-    // * Set REACT_APP_API_URL in your build environment or use a relative URL
-    // * If API is on same domain, use relative URL
-    if (hostname.includes('github.io')) {
-      // * GitHub Pages: API should be on separate server
-      // * Set REACT_APP_API_URL during build: REACT_APP_API_URL=https://your-api-domain.com npm run build
-      // * For now, try relative URL (if API is proxied) or use window.location.origin
-      // * If API is on different domain, you MUST set REACT_APP_API_URL
-      console.warn(
-        '⚠️ REACT_APP_API_URL not set. Using relative URL. ' +
-        'If API is on a different domain, set REACT_APP_API_URL environment variable during build.'
+    // * Production: GitHub Pages or other production domains
+    if (isGitHubPages) {
+      // * GitHub Pages: API must be on separate server
+      // * If REACT_APP_API_URL wasn't set during build, show error
+      console.error(
+        '❌ REACT_APP_API_URL not configured!\n' +
+        'The frontend was built without REACT_APP_API_URL set.\n' +
+        'To fix this:\n' +
+        '1. Rebuild with: REACT_APP_API_URL=https://your-api-domain.com npm run build\n' +
+        '2. Replace "https://your-api-domain.com" with your actual API server URL\n' +
+        '3. Redeploy the frontend\n\n' +
+        'Using relative URL as fallback (will only work if API is on same domain or proxied).'
       );
-      // * Use relative URL - assumes API is on same origin or proxied
+      // * Use relative URL as fallback (only works if API is proxied or on same domain)
       return '';
     }
 
-    // * Other production domains: use same origin
+    // * Other production domains: use same origin (relative URL)
     return '';
   }
 
   // * Server-side rendering fallback
-  return process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  return 'http://localhost:5000';
 };
 
 // Create axios instance

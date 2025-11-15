@@ -32,9 +32,11 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "build:prod": "echo \"⚠️  Building for production. Make sure REACT_APP_API_URL is set!\" && react-scripts build",
     "predeploy": "npm run build",
     "gh-pages-clean": "node -e \"require('fs').rmSync('node_modules/.cache/gh-pages', {recursive: true, force: true})\"",
     "deploy": "gh-pages -d build -r https://github.com/vengeth/Traffic-Management-System.git",
+    "deploy:prod": "echo \"⚠️  Deploying to production. Make sure REACT_APP_API_URL is set!\" && npm run build && npm run deploy",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
