@@ -77,7 +77,16 @@ const csrfProtection = (req, res, next) => {
   const requestPath = req.path || req.url?.split('?')[0] || ''
   const fullPath = req.originalUrl?.split('?')[0] || req.baseUrl + requestPath || requestPath
   
-  // * Debug: Log the request path for troubleshooting (use info level so it always shows)
+  // * Debug: Log the request path for troubleshooting (use console.log as fallback)
+  console.log('🔵 CSRF CHECK:', {
+    method: req.method,
+    path: requestPath,
+    fullPath: fullPath,
+    originalUrl: req.originalUrl,
+    baseUrl: req.baseUrl,
+    url: req.url
+  })
+  
   logger.info('CSRF check', {
     method: req.method,
     path: requestPath,
@@ -153,6 +162,11 @@ const csrfProtection = (req, res, next) => {
     fullPath.includes('/health')
   
   if (isPublicAuthEndpoint) {
+    console.log('✅ CSRF check PASSED - public auth endpoint', { 
+      path: requestPath, 
+      fullPath: fullPath,
+      method: req.method
+    })
     logger.info('✅ CSRF check passed - public auth endpoint', { 
       path: requestPath, 
       fullPath: fullPath,
@@ -162,6 +176,15 @@ const csrfProtection = (req, res, next) => {
   }
   
   // * Log why CSRF check failed
+  console.log('❌ CSRF check FAILED - endpoint not in public list', {
+    path: requestPath,
+    fullPath: fullPath,
+    method: req.method,
+    originalUrl: req.originalUrl,
+    baseUrl: req.baseUrl,
+    includesAuthLogin: requestPath.includes('/auth/login') || fullPath.includes('/auth/login')
+  })
+  
   logger.warn('❌ CSRF check failed - endpoint not in public list', {
     path: requestPath,
     fullPath: fullPath,
