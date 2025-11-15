@@ -66,18 +66,12 @@ const verifyCSRFToken = (token) => {
  * Requires CSRF token in X-CSRF-Token header for state-changing requests
  */
 const csrfProtection = (req, res, next) => {
-  // * TEMPORARY: COMPLETELY DISABLE CSRF - ALWAYS ALLOW
-  // * TODO: Re-enable with proper fixes after testing
-  return next()
-  
-  // * OLD CODE BELOW - DISABLED
-  /*
   // * Skip CSRF check for safe methods
   if (["GET", "HEAD", "OPTIONS"].includes(req.method)) {
     return next()
   }
   
-  // * SIMPLE FIX: Get the URL path and check if it contains login/auth
+  // * Get the URL path and check if it contains login/auth
   // * Combine all possible path representations
   const allPaths = [
     req.path || '',
@@ -103,7 +97,6 @@ const csrfProtection = (req, res, next) => {
   if (isAuthEndpoint) {
     return next()
   }
-  */
 
   // * Get CSRF token from header
   const csrfToken = req.get("X-CSRF-Token") || req.body._csrf

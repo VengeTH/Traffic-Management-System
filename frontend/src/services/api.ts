@@ -18,7 +18,6 @@ const getApiBaseUrl = (): string => {
 
     // * Development: localhost or 127.0.0.1 - ALWAYS use localhost:5000
     if (isLocalhost) {
-      console.log('🔵 Detected localhost - using http://localhost:5000 for API');
       return `http://localhost:5000`;
     }
 
@@ -27,21 +26,10 @@ const getApiBaseUrl = (): string => {
       // * Use environment variable if set (from build time)
       const envApiUrl = process.env.REACT_APP_API_URL;
       if (envApiUrl) {
-        console.log('🔵 Detected GitHub Pages - using REACT_APP_API_URL:', envApiUrl);
         return envApiUrl;
       }
       
       // * GitHub Pages: API must be on separate server
-      // * If REACT_APP_API_URL wasn't set during build, show error
-      console.error(
-        '❌ REACT_APP_API_URL not configured!\n' +
-        'The frontend was built without REACT_APP_API_URL set.\n' +
-        'To fix this:\n' +
-        '1. Rebuild with: REACT_APP_API_URL=https://your-api-domain.com npm run build\n' +
-        '2. Replace "https://your-api-domain.com" with your actual API server URL\n' +
-        '3. Redeploy the frontend\n\n' +
-        'Using relative URL as fallback (will only work if API is on same domain or proxied).'
-      );
       // * Use relative URL as fallback (only works if API is proxied or on same domain)
       return '';
     }
@@ -71,15 +59,6 @@ const api: AxiosInstance = axios.create({
   },
 });
 
-// * Log API configuration for debugging
-if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-  console.log('🔵 API Configuration:', {
-    baseURL: api.defaults.baseURL,
-    timeout: api.defaults.timeout,
-    apiBaseUrl: API_BASE_URL,
-    apiVersion: API_VERSION
-  });
-}
 
 // Request interceptor to add auth token
 api.interceptors.request.use(

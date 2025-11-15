@@ -47,22 +47,11 @@ const LoginPage: React.FC = () => {
   })
 
   const onSubmit = async (data: LoginFormData) => {
-    console.log('🔵 Login form submitted', { email: data.email });
     setIsLoading(true);
     try {
-      console.log('🟡 Calling login function...');
       await login(data.email, data.password);
-      console.log('🟢 Login successful, navigating to:', from);
       navigate(from, { replace: true });
     } catch (error: unknown) {
-      // * Safely log error without crashing
-      try {
-        console.error('🔴 Login error:', error);
-      } catch (e) {
-        // * Ignore console errors (may be caused by browser extensions)
-        console.log('🔴 Login error occurred');
-      }
-      
       let message = 'Login failed. Please try again.';
       
       // Handle Axios errors
@@ -82,33 +71,12 @@ const LoginPage: React.FC = () => {
         } else if (axiosError.message) {
           message = axiosError.message;
         }
-        
-        try {
-          console.error('🔴 Server error response:', axiosError.response?.data);
-        } catch (e) {
-          // * Ignore console errors
-        }
       } else if (error instanceof Error) {
-        try {
-          console.error('🔴 Error message:', error.message);
-        } catch (e) {
-          // * Ignore console errors
-        }
         message = error.message || message;
         if (error.message?.includes('not initialized')) {
           message = 'Authentication service is not available. Please refresh the page.';
         }
       }
-      
-      try {
-        console.error('🔴 Setting error message:', message);
-      } catch (e) {
-        // * Ignore console errors
-      }
-      setError("root", {
-        type: "manual",
-        message,
-      })
       
       setError('root', {
         type: 'manual',
@@ -116,7 +84,6 @@ const LoginPage: React.FC = () => {
       });
     } finally {
       setIsLoading(false);
-      console.log('⚪ Login attempt finished');
     }
   }
 
@@ -180,25 +147,25 @@ const LoginPage: React.FC = () => {
               <div className="mt-4 grid gap-2 text-xs text-gray-600 sm:grid-cols-2">
                 <p>
                   <span className="font-semibold text-gray-900">Admin:</span>{" "}
-                  admin@laspinas.gov.ph / Admin123!
+                  admin@laspinas.gov.ph / admin123456
                 </p>
                 <p>
                   <span className="font-semibold text-gray-900">
                     Citizen 1:
                   </span>{" "}
-                  pedro.garcia@email.com / Citizen123!
+                  pedro.garcia@email.com / citizen123
                 </p>
                 <p>
                   <span className="font-semibold text-gray-900">
                     Enforcer 1:
                   </span>{" "}
-                  enforcer1@laspinas.gov.ph / Enforcer123!
+                  enforcer1@laspinas.gov.ph / enforcer123
                 </p>
                 <p>
                   <span className="font-semibold text-gray-900">
                     Enforcer 2:
                   </span>{" "}
-                  enforcer2@laspinas.gov.ph / Enforcer123!
+                  enforcer2@laspinas.gov.ph / enforcer123
                 </p>
               </div>
             </div>
@@ -227,12 +194,11 @@ const LoginPage: React.FC = () => {
 
             <form 
               className="mt-8 space-y-6" 
-              onSubmit={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('🔵 Form onSubmit event fired');
-                handleSubmit(onSubmit)(e);
-              }}
+      onSubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        handleSubmit(onSubmit)(e);
+      }}
             >
               <div className="space-y-5">
                 <Input
