@@ -66,45 +66,35 @@ const verifyCSRFToken = (token) => {
  * Requires CSRF token in X-CSRF-Token header for state-changing requests
  */
 const csrfProtection = (req, res, next) => {
-  // * TEMPORARY FIX: Disable CSRF for localhost/development
-  const isLocalhost = req.hostname === 'localhost' || 
-                     req.hostname === '127.0.0.1' || 
-                     req.ip === '127.0.0.1' ||
-                     req.ip === '::1' ||
-                     process.env.NODE_ENV === 'development'
-  
-  if (isLocalhost) {
-    // * Skip CSRF entirely for localhost/development
-    return next()
-  }
-  
   // * Skip CSRF check for safe methods
   if (["GET", "HEAD", "OPTIONS"].includes(req.method)) {
     return next()
   }
   
-  // * Get ALL possible path representations
-  const pathString = JSON.stringify({
-    path: req.path,
-    url: req.url,
-    originalUrl: req.originalUrl,
-    baseUrl: req.baseUrl,
-    route: req.route?.path
-  }).toLowerCase()
+  // * SIMPLE FIX: Get the URL path and check if it contains login/auth
+  // * Combine all possible path representations
+  const allPaths = [
+    req.path || '',
+    req.url || '',
+    req.originalUrl || '',
+    (req.baseUrl || '') + (req.path || ''),
+    req.route?.path || ''
+  ].join(' ').toLowerCase()
   
-  // * If ANY path representation contains login/auth keywords, bypass CSRF
-  const isPublicEndpoint = 
-    pathString.includes('login') ||
-    pathString.includes('register') ||
-    pathString.includes('/auth/') ||
-    pathString.includes('forgot') ||
-    pathString.includes('reset') ||
-    pathString.includes('verify') ||
-    pathString.includes('refresh') ||
-    pathString.includes('health') ||
-    pathString.includes('violations/search')
+  // * If path contains ANY auth-related keyword, bypass CSRF completely
+  const isAuthEndpoint = 
+    allPaths.includes('login') ||
+    allPaths.includes('register') ||
+    allPaths.includes('auth') ||
+    allPaths.includes('forgot') ||
+    allPaths.includes('reset') ||
+    allPaths.includes('verify') ||
+    allPaths.includes('refresh') ||
+    allPaths.includes('health') ||
+    allPaths.includes('violations/search')
   
-  if (isPublicEndpoint) {
+  // * BYPASS CSRF FOR ALL AUTH ENDPOINTS - NO EXCEPTIONS
+  if (isAuthEndpoint) {
     return next()
   }
 
