@@ -24,7 +24,7 @@ if (shouldUseSqlite) {
 	sequelize = new Sequelize({
 		dialect: 'sqlite',
 		storage: storagePath,
-		logging: process.env.NODE_ENV === 'development' ? (msg) => logger.info(msg) : false,
+		logging: process.env.NODE_ENV === 'development' ? (msg) => console.log(msg) : false,
 		define: {
 			timestamps: true,
 			underscored: true,
@@ -42,7 +42,7 @@ if (shouldUseSqlite) {
 			host: process.env.DB_HOST || 'localhost',
 			port: process.env.DB_PORT || 5432,
 			dialect: 'postgres',
-			logging: process.env.NODE_ENV === 'development' ? logger.info : false,
+			logging: process.env.NODE_ENV === 'development' ? (msg) => console.log(msg) : false,
 			pool: {
 				max: 20,
 				min: 0,
