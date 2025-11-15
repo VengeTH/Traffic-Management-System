@@ -50,12 +50,30 @@ if (shouldUseSqlite) {
 				idle: 10000
 			},
 			dialectOptions: {
-				ssl: process.env.NODE_ENV === 'production' ? {
-					require: true,
-					rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false' // Default to true for security
-					// * If using self-signed certificates, set DB_SSL_REJECT_UNAUTHORIZED=false
-					// * and provide CA certificate via DB_SSL_CA environment variable
-				} : false
+				// * SSL configuration
+				// * Disable SSL for localhost connections, enable for remote connections
+				ssl: (() => {
+					const host = process.env.DB_HOST || 'localhost';
+					const isLocalhost = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+					
+					// * For localhost, don't use SSL
+					if (isLocalhost) {
+						return false;
+					}
+					
+					// * For remote connections in production, use SSL
+					if (process.env.NODE_ENV === 'production') {
+						return {
+							require: true,
+							rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false' // Default to true for security
+							// * If using self-signed certificates, set DB_SSL_REJECT_UNAUTHORIZED=false
+							// * and provide CA certificate via DB_SSL_CA environment variable
+						};
+					}
+					
+					// * Development mode - no SSL
+					return false;
+				})()
 			},
 			define: {
 				timestamps: true,
