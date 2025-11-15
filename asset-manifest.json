@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/Traffic-Management-System/static/css/main.9b02d301.css",
-    "main.js": "/Traffic-Management-System/static/js/main.18926afa.js",
+    "main.css": "/Traffic-Management-System/static/css/main.32523412.css",
+    "main.js": "/Traffic-Management-System/static/js/main.a6479ab8.js",
     "index.html": "/Traffic-Management-System/index.html",
-    "main.9b02d301.css.map": "/Traffic-Management-System/static/css/main.9b02d301.css.map",
-    "main.18926afa.js.map": "/Traffic-Management-System/static/js/main.18926afa.js.map"
+    "main.32523412.css.map": "/Traffic-Management-System/static/css/main.32523412.css.map",
+    "main.a6479ab8.js.map": "/Traffic-Management-System/static/js/main.a6479ab8.js.map"
   },
   "entrypoints": [
-    "static/css/main.9b02d301.css",
-    "static/js/main.18926afa.js"
+    "static/css/main.32523412.css",
+    "static/js/main.a6479ab8.js"
   ]
 }
