@@ -86,48 +86,65 @@ api.interceptors.response.use(
     
     // Handle 401 errors (unauthorized)
     if (error.response?.status === 401 && originalRequest) {
+      // * Skip token refresh/redirect for auth endpoints (login, register, etc.)
+      // * These endpoints return 401 for invalid credentials, not expired tokens
+      const requestUrl = originalRequest.url || '';
+      const isAuthEndpoint = 
+        requestUrl.includes('/auth/login') ||
+        requestUrl.includes('/auth/register') ||
+        requestUrl.includes('/auth/forgot-password') ||
+        requestUrl.includes('/auth/reset-password') ||
+        requestUrl.includes('/auth/verify-email');
+      
+      // * If this is an auth endpoint, just reject the error normally
+      // * The login/register page will handle the error and show the message
+      if (isAuthEndpoint) {
+        return Promise.reject(error);
+      }
+      
+      // * For other endpoints, try to refresh the token
       try {
         const refreshToken = typeof window !== 'undefined' && window.localStorage 
           ? localStorage.getItem('refreshToken') 
           : null;
       
-      if (refreshToken) {
-        try {
-          // * Use versioned endpoint for token refresh
-          const refreshUrl = API_BASE_URL 
-            ? `${API_BASE_URL}/api/${API_VERSION}/auth/refresh`
-            : `/api/${API_VERSION}/auth/refresh`;
-          const response = await axios.post(refreshUrl, {
-            refreshToken,
-          });
-          
-          const { token } = response.data.data;
+        if (refreshToken) {
+          try {
+            // * Use versioned endpoint for token refresh
+            const refreshUrl = API_BASE_URL 
+              ? `${API_BASE_URL}/api/${API_VERSION}/auth/refresh`
+              : `/api/${API_VERSION}/auth/refresh`;
+            const response = await axios.post(refreshUrl, {
+              refreshToken,
+            });
+            
+            const { token } = response.data.data;
             if (typeof window !== 'undefined' && window.localStorage) {
-          localStorage.setItem('token', token);
+              localStorage.setItem('token', token);
             }
-          
-          // Retry original request
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return api(originalRequest);
-        } catch (refreshError) {
-          // Refresh token failed, redirect to login
+            
+            // Retry original request
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return api(originalRequest);
+          } catch (refreshError) {
+            // Refresh token failed, redirect to login
             if (typeof window !== 'undefined' && window.localStorage) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('refreshToken');
-          localStorage.removeItem('user');
+              localStorage.removeItem('token');
+              localStorage.removeItem('refreshToken');
+              localStorage.removeItem('user');
             }
+            // * Redirect to login with proper basename
+            window.location.href = getFullPath('/login');
+          }
+        } else {
+          // No refresh token, redirect to login
+          if (typeof window !== 'undefined' && window.localStorage) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+          }
           // * Redirect to login with proper basename
           window.location.href = getFullPath('/login');
         }
-      } else {
-        // No refresh token, redirect to login
-        if (typeof window !== 'undefined' && window.localStorage) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-        }
-        // * Redirect to login with proper basename
-        window.location.href = getFullPath('/login');
-      }
       } catch {
         // If localStorage access fails, just redirect to login
         if (typeof window !== 'undefined') {
