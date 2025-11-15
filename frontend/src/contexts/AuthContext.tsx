@@ -223,25 +223,58 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Login function
   const login = async (email: string, password: string) => {
+    console.log('🟡 AuthContext.login called', { email });
     try {
       dispatch({ type: 'AUTH_START' });
+      console.log('🟡 Calling apiService.login...');
       const response = await apiService.login(email, password);
+      console.log('🟢 API login response received:', response);
       
       const { user, token, refreshToken } = response.data;
+      console.log('🟢 Extracted tokens and user data');
       
       // Store tokens in localStorage (safe)
       safeLocalStorageSet('token', token);
       safeLocalStorageSet('refreshToken', refreshToken);
       safeLocalStorageSet('user', JSON.stringify(user));
+      console.log('🟢 Tokens stored in localStorage');
       
       dispatch({
         type: 'AUTH_SUCCESS',
         payload: { user, token, refreshToken },
       });
+      console.log('🟢 Auth state updated');
       
       toast.success('Login successful!');
+      console.log('🟢 Toast notification shown');
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Login failed';
+      // * Safely log error without crashing
+      try {
+        console.error('🔴 AuthContext.login error:', error);
+        if (error?.response) {
+          console.error('🔴 Error response:', error.response);
+        }
+      } catch (e) {
+        // * Ignore console errors (may be caused by browser extensions)
+        console.log('🔴 Login error occurred');
+      }
+      
+      let message = 'Login failed';
+      
+      if (error?.code === 'ECONNABORTED' || error?.code === 'ETIMEDOUT') {
+        message = 'Connection timeout. Please check if the backend server is running on http://localhost:5000';
+      } else if (error?.code === 'ERR_NETWORK') {
+        message = 'Network error. Please check if the backend server is running on http://localhost:5000';
+      } else {
+        message = error?.response?.data?.message || error?.message || 'Login failed';
+      }
+      
+      try {
+        console.error('🔴 Error message:', message);
+      } catch (e) {
+        // * Ignore console errors
+      }
+      
       dispatch({ type: 'AUTH_FAILURE', payload: message });
       toast.error(message);
       throw error;

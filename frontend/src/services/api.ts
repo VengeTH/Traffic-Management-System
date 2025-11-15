@@ -9,25 +9,28 @@ import { ApiError } from '../types';
  * * 3. Default to localhost for development
  */
 const getApiBaseUrl = (): string => {
-  // * Use environment variable if explicitly set (this is set at build time)
-  const envApiUrl = process.env.REACT_APP_API_URL;
-  if (envApiUrl) {
-    return envApiUrl;
-  }
-
   // * Auto-detect based on current location (client-side only)
+  // * This takes priority over environment variable for localhost development
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
     const isGitHubPages = hostname.includes('github.io');
 
-    // * Development: localhost or 127.0.0.1
+    // * Development: localhost or 127.0.0.1 - ALWAYS use localhost:5000
     if (isLocalhost) {
+      console.log('🔵 Detected localhost - using http://localhost:5000 for API');
       return `http://localhost:5000`;
     }
 
     // * Production: GitHub Pages or other production domains
     if (isGitHubPages) {
+      // * Use environment variable if set (from build time)
+      const envApiUrl = process.env.REACT_APP_API_URL;
+      if (envApiUrl) {
+        console.log('🔵 Detected GitHub Pages - using REACT_APP_API_URL:', envApiUrl);
+        return envApiUrl;
+      }
+      
       // * GitHub Pages: API must be on separate server
       // * If REACT_APP_API_URL wasn't set during build, show error
       console.error(
@@ -43,7 +46,11 @@ const getApiBaseUrl = (): string => {
       return '';
     }
 
-    // * Other production domains: use same origin (relative URL)
+    // * Other production domains: use environment variable or same origin
+    const envApiUrl = process.env.REACT_APP_API_URL;
+    if (envApiUrl) {
+      return envApiUrl;
+    }
     return '';
   }
 
@@ -58,11 +65,21 @@ const API_VERSION = process.env.REACT_APP_API_VERSION || 'v1';
 const API_BASE_URL = getApiBaseUrl();
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL ? `${API_BASE_URL}/api/${API_VERSION}` : `/api/${API_VERSION}`,
-  timeout: 10000,
+  timeout: 30000, // * Increased timeout to 30 seconds
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+// * Log API configuration for debugging
+if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+  console.log('🔵 API Configuration:', {
+    baseURL: api.defaults.baseURL,
+    timeout: api.defaults.timeout,
+    apiBaseUrl: API_BASE_URL,
+    apiVersion: API_VERSION
+  });
+}
 
 // Request interceptor to add auth token
 api.interceptors.request.use(

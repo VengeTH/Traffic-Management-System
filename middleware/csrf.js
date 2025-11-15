@@ -68,19 +68,49 @@ const csrfProtection = (req, res, next) => {
     return next();
   }
   
+  // * Debug: Log the request path for troubleshooting
+  const requestPath = req.path || req.url?.split('?')[0] || '';
+  logger.debug('CSRF check', {
+    method: req.method,
+    path: requestPath,
+    originalUrl: req.originalUrl,
+    url: req.url
+  });
+  
   // * Skip CSRF check for public endpoints that don't modify state
-  const publicEndpoints = [
+  // * Support both versioned (/api/v1/auth/login) and non-versioned (/api/auth/login) endpoints
+  const publicEndpointPatterns = [
     '/api/auth/login',
+    '/api/v1/auth/login',
+    '/api/v2/auth/login',
     '/api/auth/register',
+    '/api/v1/auth/register',
+    '/api/v2/auth/register',
     '/api/auth/forgot-password',
+    '/api/v1/auth/forgot-password',
     '/api/auth/reset-password',
+    '/api/v1/auth/reset-password',
     '/api/auth/verify-email',
+    '/api/v1/auth/verify-email',
     '/api/auth/refresh',
+    '/api/v1/auth/refresh',
     '/api/violations/search',
-    '/api/health'
+    '/api/v1/violations/search',
+    '/api/health',
+    '/api/v1/health'
   ];
   
-  if (publicEndpoints.some(endpoint => req.path.startsWith(endpoint))) {
+  // * Check if path matches any public endpoint pattern
+  if (publicEndpointPatterns.some(endpoint => requestPath.startsWith(endpoint))) {
+    logger.debug('CSRF check passed - public endpoint', { path: requestPath });
+    return next();
+  }
+  
+  // * Also check for versioned endpoints using regex pattern
+  // * Matches /api/v1/auth/login, /api/v2/auth/login, etc.
+  const versionedPublicPattern = /^\/api\/v\d+\/(auth\/(login|register|forgot-password|reset-password|verify-email|refresh)|violations\/search|health)/;
+  if (versionedPublicPattern.test(requestPath)) {
+    logger.debug('CSRF check passed - versioned public endpoint', { path: requestPath });
     return next();
   }
   

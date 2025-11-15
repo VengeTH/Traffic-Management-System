@@ -34,24 +34,72 @@ const LoginPage: React.FC = () => {
   });
 
   const onSubmit = async (data: LoginFormData) => {
+    console.log('🔵 Login form submitted', { email: data.email });
     setIsLoading(true);
     try {
+      console.log('🟡 Calling login function...');
       await login(data.email, data.password);
+      console.log('🟢 Login successful, navigating to:', from);
       navigate(from, { replace: true });
     } catch (error: unknown) {
-      let message = 'Login failed. Please try again.';
-      if (typeof error === 'object' && error !== null && 'response' in error) {
-        const serverError = error as { response?: { data?: { message?: string } } };
-        message = serverError.response?.data?.message ?? message;
-      } else if (error instanceof Error && error.message.includes('not initialized')) {
-        message = 'Authentication service is not available. Please refresh the page.';
+      // * Safely log error without crashing
+      try {
+        console.error('🔴 Login error:', error);
+      } catch (e) {
+        // * Ignore console errors (may be caused by browser extensions)
+        console.log('🔴 Login error occurred');
       }
+      
+      let message = 'Login failed. Please try again.';
+      
+      // Handle Axios errors
+      if (typeof error === 'object' && error !== null) {
+        const axiosError = error as { 
+          response?: { data?: { message?: string } };
+          code?: string;
+          message?: string;
+        };
+        
+        if (axiosError.code === 'ECONNABORTED' || axiosError.code === 'ETIMEDOUT') {
+          message = 'Connection timeout. Please check if the backend server is running on http://localhost:5000';
+        } else if (axiosError.code === 'ERR_NETWORK') {
+          message = 'Network error. Please check if the backend server is running on http://localhost:5000';
+        } else if (axiosError.response?.data?.message) {
+          message = axiosError.response.data.message;
+        } else if (axiosError.message) {
+          message = axiosError.message;
+        }
+        
+        try {
+          console.error('🔴 Server error response:', axiosError.response?.data);
+        } catch (e) {
+          // * Ignore console errors
+        }
+      } else if (error instanceof Error) {
+        try {
+          console.error('🔴 Error message:', error.message);
+        } catch (e) {
+          // * Ignore console errors
+        }
+        message = error.message || message;
+        if (error.message?.includes('not initialized')) {
+          message = 'Authentication service is not available. Please refresh the page.';
+        }
+      }
+      
+      try {
+        console.error('🔴 Setting error message:', message);
+      } catch (e) {
+        // * Ignore console errors
+      }
+      
       setError('root', {
         type: 'manual',
         message
       });
     } finally {
       setIsLoading(false);
+      console.log('⚪ Login attempt finished');
     }
   };
 
@@ -122,7 +170,15 @@ const LoginPage: React.FC = () => {
               </p>
             </div>
 
-            <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            <form 
+              className="mt-8 space-y-6" 
+              onSubmit={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🔵 Form onSubmit event fired');
+                handleSubmit(onSubmit)(e);
+              }}
+            >
               <div className="space-y-5">
                 <Input
                   {...register('email')}
