@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { apiService } from '../../services/api';
-import { DashboardStats, Violation } from '../../types';
+import React, { useEffect, useMemo, useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { useAuth } from "../../contexts/AuthContext"
+import { apiService } from "../../services/api"
+import { DashboardStats, Violation } from "../../types"
 import {
   Search,
   CreditCard,
@@ -16,144 +16,163 @@ import {
   Calendar,
   Car,
   User,
-  AlertCircle
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/UI/Card';
-import Button from '../../components/UI/Button';
-import LoadingSpinner from '../../components/UI/LoadingSpinner';
+  AlertCircle,
+} from "lucide-react"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/UI/Card"
+import Button from "../../components/UI/Button"
+import LoadingSpinner from "../../components/UI/LoadingSpinner"
 
-const formatViolationLabel = (value: string) => value.replace(/_/g, ' ');
+const formatViolationLabel = (value: string) => value.replace(/_/g, " ")
 
 const DashboardPage: React.FC = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [recentViolations, setRecentViolations] = useState<Violation[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const { user } = useAuth()
+  const navigate = useNavigate()
+  const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [recentViolations, setRecentViolations] = useState<Violation[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
 
-  const totalViolations = stats?.totalViolations ?? 0;
-  const paidViolations = stats?.paidViolations ?? 0;
-  const pendingViolations = stats?.pendingViolations ?? 0;
-  const overdueViolations = stats?.overdueViolations ?? 0;
+  const totalViolations = stats?.totalViolations ?? 0
+  const paidViolations = stats?.paidViolations ?? 0
+  const pendingViolations = stats?.pendingViolations ?? 0
+  const overdueViolations = stats?.overdueViolations ?? 0
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        setLoading(true);
+        setLoading(true)
         const [statsResponse, violationsResponse] = await Promise.all([
           apiService.getUserStatistics(),
-          apiService.getUserViolations()
-        ]);
+          apiService.getUserViolations(),
+        ])
 
-        setStats(statsResponse.data);
-        setRecentViolations(violationsResponse.data.violations || []);
+        setStats(statsResponse.data)
+        setRecentViolations(violationsResponse.data.violations || [])
       } catch (error) {
-        console.error('Failed to fetch dashboard data:', error);
+        console.error("Failed to fetch dashboard data:", error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchDashboardData();
-  }, []);
+    fetchDashboardData()
+  }, [])
 
   // * Determine the nearest deadline for the hero alert
   const nextDueViolation = useMemo(() => {
     if (!recentViolations.length) {
-      return null;
+      return null
     }
 
     const upcoming = [...recentViolations]
-      .filter((violation) => violation.status !== 'paid' && violation.dueDate)
+      .filter((violation) => violation.status !== "paid" && violation.dueDate)
       .sort((violationA, violationB) => {
-        const firstDate = new Date(violationA.dueDate ?? violationA.violationDate).getTime();
-        const secondDate = new Date(violationB.dueDate ?? violationB.violationDate).getTime();
-        return firstDate - secondDate;
-      });
+        const firstDate = new Date(
+          violationA.dueDate ?? violationA.violationDate
+        ).getTime()
+        const secondDate = new Date(
+          violationB.dueDate ?? violationB.violationDate
+        ).getTime()
+        return firstDate - secondDate
+      })
 
-    return upcoming[0] ?? null;
-  }, [recentViolations]);
+    return upcoming[0] ?? null
+  }, [recentViolations])
 
   // * Build analytic insight cards to highlight account health
   const insightCards = useMemo(() => {
-    const resolutionRate = totalViolations > 0
-      ? Math.round((paidViolations / totalViolations) * 100)
-      : 0;
+    const resolutionRate =
+      totalViolations > 0
+        ? Math.round((paidViolations / totalViolations) * 100)
+        : 0
 
-    const overdueRate = totalViolations > 0
-      ? Math.round((overdueViolations / totalViolations) * 100)
-      : 0;
+    const overdueRate =
+      totalViolations > 0
+        ? Math.round((overdueViolations / totalViolations) * 100)
+        : 0
 
-    const pendingShare = totalViolations > 0
-      ? Math.round((pendingViolations / totalViolations) * 100)
-      : 0;
+    const pendingShare =
+      totalViolations > 0
+        ? Math.round((pendingViolations / totalViolations) * 100)
+        : 0
 
-    const monthlyRevenue = stats?.monthlyRevenue ?? 0;
-    const totalAmountPaid = stats?.totalAmountPaid ?? 0;
-    const monthlyShare = totalAmountPaid > 0
-      ? Math.min(100, Math.round((monthlyRevenue / totalAmountPaid) * 100))
-      : 0;
+    const monthlyRevenue = stats?.monthlyRevenue ?? 0
+    const totalAmountPaid = stats?.totalAmountPaid ?? 0
+    const monthlyShare =
+      totalAmountPaid > 0
+        ? Math.min(100, Math.round((monthlyRevenue / totalAmountPaid) * 100))
+        : 0
 
     return [
       {
-        label: 'Resolution rate',
+        label: "Resolution rate",
         value: `${resolutionRate}%`,
-        deltaLabel: resolutionRate >= 70 ? 'On track' : 'Needs attention',
-        isPositive: resolutionRate >= 70
+        deltaLabel: resolutionRate >= 70 ? "On track" : "Needs attention",
+        isPositive: resolutionRate >= 70,
       },
       {
-        label: 'Outstanding share',
+        label: "Outstanding share",
         value: `${pendingShare}%`,
-        deltaLabel: pendingShare <= 30 ? 'Healthy queue' : 'Follow up required',
-        isPositive: pendingShare <= 30
+        deltaLabel: pendingShare <= 30 ? "Healthy queue" : "Follow up required",
+        isPositive: pendingShare <= 30,
       },
       {
-        label: 'Overdue exposure',
+        label: "Overdue exposure",
         value: `${overdueRate}%`,
-        deltaLabel: overdueRate <= 10 ? 'Within limits' : 'Escalate soon',
-        isPositive: overdueRate <= 10
+        deltaLabel: overdueRate <= 10 ? "Within limits" : "Escalate soon",
+        isPositive: overdueRate <= 10,
       },
       {
-        label: 'Monthly revenue',
-        value: `₱${monthlyRevenue.toLocaleString('en-PH', { minimumFractionDigits: 2 })}`,
+        label: "Monthly revenue",
+        value: `₱${monthlyRevenue.toLocaleString("en-PH", { minimumFractionDigits: 2 })}`,
         deltaLabel: `${monthlyShare}% of total`,
-        isPositive: monthlyShare >= 20
-      }
-    ];
-  }, [overdueViolations, paidViolations, pendingViolations, stats, totalViolations]);
+        isPositive: monthlyShare >= 20,
+      },
+    ]
+  }, [
+    overdueViolations,
+    paidViolations,
+    pendingViolations,
+    stats,
+    totalViolations,
+  ])
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'paid':
-        return <CheckCircle className="h-5 w-5 text-success-600" />;
-      case 'pending':
-        return <Clock className="h-5 w-5 text-warning-600" />;
-      case 'overdue':
-        return <AlertTriangle className="h-5 w-5 text-danger-600" />;
+      case "paid":
+        return <CheckCircle className="h-5 w-5 text-success-600" />
+      case "pending":
+        return <Clock className="h-5 w-5 text-warning-600" />
+      case "overdue":
+        return <AlertTriangle className="h-5 w-5 text-danger-600" />
       default:
-        return <FileText className="h-5 w-5 text-gray-600" />;
+        return <FileText className="h-5 w-5 text-gray-600" />
     }
-  };
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'paid':
-        return 'text-success-600 bg-success-50';
-      case 'pending':
-        return 'text-warning-600 bg-warning-50';
-      case 'overdue':
-        return 'text-danger-600 bg-danger-50';
+      case "paid":
+        return "text-success-600 bg-success-50"
+      case "pending":
+        return "text-warning-600 bg-warning-50"
+      case "overdue":
+        return "text-danger-600 bg-danger-50"
       default:
-        return 'text-gray-600 bg-gray-50';
+        return "text-gray-600 bg-gray-50"
     }
-  };
+  }
 
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
   return (
@@ -173,7 +192,8 @@ const DashboardPage: React.FC = () => {
                 Add your driver&apos;s license for personalized monitoring
               </h3>
               <p className="mt-2 text-sm text-warning-800">
-                Update your profile with a license number so the dashboard can surface active fines and personalized reminders.
+                Update your profile with a license number so the dashboard can
+                surface active fines and personalized reminders.
               </p>
             </div>
             <Link to="/profile" className="flex-shrink-0">
@@ -205,11 +225,17 @@ const DashboardPage: React.FC = () => {
               </div>
             </div>
             <p className="max-w-2xl text-base text-white/80">
-              The control center visualizes everything about your violations, payments, and reminders. Use the shortcuts to act quickly or review the analytic insights below.
+              The control center visualizes everything about your violations,
+              payments, and reminders. Use the shortcuts to act quickly or
+              review the analytic insights below.
             </p>
             <div className="flex flex-col gap-4 sm:flex-row">
               <Link to="/violations/search">
-                <Button variant="primary" size="lg" className="bg-white/15 px-8 py-4 text-white shadow-xl hover:bg-white/25 hover:text-white">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="bg-white/15 px-8 py-4 text-white shadow-xl hover:bg-white/25 hover:text-white"
+                >
                   <Search className="mr-2 h-5 w-5" />
                   Locate fines
                 </Button>
@@ -217,7 +243,7 @@ const DashboardPage: React.FC = () => {
               <Button
                 variant="outline"
                 size="lg"
-                onClick={() => navigate('/payments')}
+                onClick={() => navigate("/payments")}
                 className="border-white/40 bg-white/10 px-8 py-4 text-white hover:bg-white/20"
               >
                 <CreditCard className="mr-2 h-5 w-5" />
@@ -229,9 +255,14 @@ const DashboardPage: React.FC = () => {
           <div className="grid gap-4 rounded-3xl border border-white/15 bg-black/10 p-6 backdrop-blur-md">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm font-semibold text-white/70">Current outstanding balance</p>
+                <p className="text-sm font-semibold text-white/70">
+                  Current outstanding balance
+                </p>
                 <h2 className="mt-2 text-3xl font-black">
-                  ₱{(stats?.totalRevenue ?? 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+                  ₱
+                  {(stats?.totalRevenue ?? 0).toLocaleString("en-PH", {
+                    minimumFractionDigits: 2,
+                  })}
                 </h2>
               </div>
               <div className="rounded-2xl bg-white/15 p-3">
@@ -245,10 +276,13 @@ const DashboardPage: React.FC = () => {
                   Upcoming deadline
                 </p>
                 <div className="mt-2 text-lg font-semibold">
-                  {new Date(nextDueViolation.dueDate ?? nextDueViolation.violationDate).toLocaleDateString()}
+                  {new Date(
+                    nextDueViolation.dueDate ?? nextDueViolation.violationDate
+                  ).toLocaleDateString()}
                 </div>
                 <p className="mt-1 text-white/70">
-                  {formatViolationLabel(nextDueViolation.violationType)} • {nextDueViolation.plateNumber}
+                  {formatViolationLabel(nextDueViolation.violationType)} •{" "}
+                  {nextDueViolation.plateNumber}
                 </p>
               </div>
             ) : (
@@ -258,7 +292,8 @@ const DashboardPage: React.FC = () => {
                   No pending deadlines
                 </p>
                 <p className="mt-2">
-                  All violations are currently cleared or awaiting assessment. Stay tuned for new updates here.
+                  All violations are currently cleared or awaiting assessment.
+                  Stay tuned for new updates here.
                 </p>
               </div>
             )}
@@ -267,9 +302,12 @@ const DashboardPage: React.FC = () => {
                 <TrendingUp className="h-4 w-4 text-white" />
               </div>
               <div>
-                <span className="block font-semibold">Automated reminders active</span>
+                <span className="block font-semibold">
+                  Automated reminders active
+                </span>
                 <span className="text-white/70">
-                  SMS and email notifications are enabled for payment follow ups.
+                  SMS and email notifications are enabled for payment follow
+                  ups.
                 </span>
               </div>
             </div>
@@ -289,12 +327,19 @@ const DashboardPage: React.FC = () => {
                 Lookup
               </div>
             </div>
-            <h3 className="mt-6 text-xl font-bold text-gradient-premium">Smart violation search</h3>
+            <h3 className="mt-6 text-xl font-bold text-gradient-premium">
+              Smart violation search
+            </h3>
             <p className="mt-2 text-sm text-gray-600 font-medium">
-              Search by OVR, plate, or license number and get a consolidated view including penalties and deadlines.
+              Search by OVR, plate, or license number and get a consolidated
+              view including penalties and deadlines.
             </p>
             <Link to="/violations/search" className="mt-6 block">
-              <Button variant="primary" size="sm" className="w-full shadow-xl btn-glow">
+              <Button
+                variant="primary"
+                size="sm"
+                className="w-full shadow-xl btn-glow"
+              >
                 Start a search
               </Button>
             </Link>
@@ -311,12 +356,19 @@ const DashboardPage: React.FC = () => {
                 Wallet
               </div>
             </div>
-            <h3 className="mt-6 text-xl font-bold text-gradient-premium">Centralized payment records</h3>
+            <h3 className="mt-6 text-xl font-bold text-gradient-premium">
+              Centralized payment records
+            </h3>
             <p className="mt-2 text-sm text-gray-600 font-medium">
-              Review recent payments, download digital receipts, and check processing status across gateways.
+              Review recent payments, download digital receipts, and check
+              processing status across gateways.
             </p>
             <Link to="/payments" className="mt-6 block">
-              <Button variant="outline" size="sm" className="w-full border-primary-200 text-primary-700 shadow-md hover:shadow-lg">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full border-primary-200 text-primary-700 shadow-md hover:shadow-lg"
+              >
                 Review history
               </Button>
             </Link>
@@ -333,12 +385,19 @@ const DashboardPage: React.FC = () => {
                 Account
               </div>
             </div>
-            <h3 className="mt-6 text-xl font-bold text-gradient-premium">Profile & notification rules</h3>
+            <h3 className="mt-6 text-xl font-bold text-gradient-premium">
+              Profile & notification rules
+            </h3>
             <p className="mt-2 text-sm text-gray-600 font-medium">
-              Manage contact details, two-factor security, and notification channels to stay informed.
+              Manage contact details, two-factor security, and notification
+              channels to stay informed.
             </p>
             <Link to="/profile" className="mt-6 block">
-              <Button variant="outline" size="sm" className="w-full border-accent-200 text-accent-700 shadow-md hover:shadow-lg">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full border-accent-200 text-accent-700 shadow-md hover:shadow-lg"
+              >
                 Manage profile
               </Button>
             </Link>
@@ -358,9 +417,13 @@ const DashboardPage: React.FC = () => {
                 <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">
                   {insight.label}
                 </p>
-                <p className="mt-2 text-3xl font-black text-gradient-premium">{insight.value}</p>
+                <p className="mt-2 text-3xl font-black text-gradient-premium">
+                  {insight.value}
+                </p>
               </div>
-              <div className={`rounded-2xl p-3 ${insight.isPositive ? 'bg-success-100 text-success-700' : 'bg-danger-100 text-danger-700'}`}>
+              <div
+                className={`rounded-2xl p-3 ${insight.isPositive ? "bg-success-100 text-success-700" : "bg-danger-100 text-danger-700"}`}
+              >
                 {insight.isPositive ? (
                   <TrendingUp className="h-5 w-5" />
                 ) : (
@@ -368,7 +431,9 @@ const DashboardPage: React.FC = () => {
                 )}
               </div>
             </div>
-            <p className={`mt-3 text-sm font-semibold ${insight.isPositive ? 'text-success-700' : 'text-danger-700'}`}>
+            <p
+              className={`mt-3 text-sm font-semibold ${insight.isPositive ? "text-success-700" : "text-danger-700"}`}
+            >
               {insight.deltaLabel}
             </p>
           </div>
@@ -385,7 +450,12 @@ const DashboardPage: React.FC = () => {
               </div>
               Active violations overview
             </CardTitle>
-            <Button variant="outline" size="sm" onClick={() => navigate('/violations/search')} className="border-primary-200 text-primary-700">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/violations/search")}
+              className="border-primary-200 text-primary-700"
+            >
               View all
             </Button>
           </CardHeader>
@@ -396,9 +466,12 @@ const DashboardPage: React.FC = () => {
                   <div className="absolute inset-0 rounded-full bg-gray-100 blur-xl" />
                   <FileText className="relative mx-auto h-16 w-16 text-gray-300" />
                 </div>
-                <h3 className="mt-4 text-lg font-bold text-gray-900">No violations found</h3>
+                <h3 className="mt-4 text-lg font-bold text-gray-900">
+                  No violations found
+                </h3>
                 <p className="mt-2 text-sm text-gray-600">
-                  You do not have any traffic violations on record. Keep up the great driving!
+                  You do not have any traffic violations on record. Keep up the
+                  great driving!
                 </p>
               </div>
             ) : (
@@ -425,7 +498,10 @@ const DashboardPage: React.FC = () => {
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {recentViolations.map((violation) => (
-                      <tr key={violation.id} className="cursor-pointer transition-all duration-150 hover:bg-gradient-to-r hover:from-primary-50/40 hover:to-blue-50/20">
+                      <tr
+                        key={violation.id}
+                        className="cursor-pointer transition-all duration-150 hover:bg-gradient-to-r hover:from-primary-50/40 hover:to-blue-50/20"
+                      >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-4">
                             <div className="h-10 w-10">
@@ -442,13 +518,17 @@ const DashboardPage: React.FC = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900">
-                          {new Date(violation.violationDate).toLocaleDateString()}
+                          {new Date(
+                            violation.violationDate
+                          ).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                          ₱{violation.totalFine.toFixed(2)}
+                          ₱{Number(violation.totalFine).toFixed(2)}
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${getStatusColor(violation.status)}`}>
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${getStatusColor(violation.status)}`}
+                          >
                             {getStatusIcon(violation.status)}
                             {violation.status.toUpperCase()}
                           </span>
@@ -488,17 +568,27 @@ const DashboardPage: React.FC = () => {
                 </div>
                 <div className="rounded-2xl border border-primary-100 bg-primary-50/70 p-4 shadow-sm">
                   <p className="text-xs font-semibold uppercase tracking-widest text-primary-600">
-                    {new Date(violation.paymentDeadline ?? violation.dueDate ?? violation.violationDate).toLocaleDateString()}
+                    {new Date(
+                      violation.paymentDeadline ??
+                        violation.dueDate ??
+                        violation.violationDate
+                    ).toLocaleDateString()}
                   </p>
                   <p className="mt-2 text-sm font-bold text-gray-900">
-                    {formatViolationLabel(violation.violationType)} • ₱{violation.totalFine.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+                    {formatViolationLabel(violation.violationType)} • ₱
+                    {Number(violation.totalFine).toLocaleString("en-PH", {
+                      minimumFractionDigits: 2,
+                    })}
                   </p>
                   <p className="mt-1 text-xs text-gray-600">
                     Status: {violation.status.toUpperCase()}
                   </p>
                   <div className="mt-3 flex items-center justify-between text-xs text-primary-700">
                     <span>Tap to view instructions</span>
-                    <Link to={`/violations/${violation.id}`} className="font-semibold hover:underline">
+                    <Link
+                      to={`/violations/${violation.id}`}
+                      className="font-semibold hover:underline"
+                    >
                       Open
                     </Link>
                   </div>
@@ -507,14 +597,15 @@ const DashboardPage: React.FC = () => {
             ))}
             {recentViolations.length === 0 && (
               <div className="rounded-2xl border border-gray-200 bg-gray-50/80 p-6 text-sm text-gray-600">
-                No reminders scheduled right now. New violations will automatically populate here.
+                No reminders scheduled right now. New violations will
+                automatically populate here.
               </div>
             )}
           </CardContent>
         </Card>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default DashboardPage;
+export default DashboardPage

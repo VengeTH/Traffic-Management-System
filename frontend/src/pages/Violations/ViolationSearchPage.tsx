@@ -1,90 +1,114 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { apiService } from '../../services/api';
-import { Violation } from '../../types';
-import { Search, Car, FileText, AlertTriangle, CheckCircle, Clock, MapPin, Calendar } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/UI/Card';
-import Button from '../../components/UI/Button';
-import Input from '../../components/UI/Input';
-import LoadingSpinner from '../../components/UI/LoadingSpinner';
+import React, { useState } from "react"
+import { useForm } from "react-hook-form"
+import { yupResolver } from "@hookform/resolvers/yup"
+import * as yup from "yup"
+import { apiService } from "../../services/api"
+import { Violation } from "../../types"
+import {
+  Search,
+  Car,
+  FileText,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  MapPin,
+  Calendar,
+} from "lucide-react"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "../../components/UI/Card"
+import Button from "../../components/UI/Button"
+import Input from "../../components/UI/Input"
+import LoadingSpinner from "../../components/UI/LoadingSpinner"
 
-const schema = yup.object({
-  searchType: yup.string().required('Please select a search type'),
-  searchValue: yup.string().required('Please enter a search value'),
-}).required();
+const schema = yup
+  .object({
+    searchType: yup.string().required("Please select a search type"),
+    searchValue: yup.string().required("Please enter a search value"),
+  })
+  .required()
 
-type SearchFormData = yup.InferType<typeof schema>;
+type SearchFormData = yup.InferType<typeof schema>
 
 const ViolationSearchPage: React.FC = () => {
-  const [violations, setViolations] = useState<Violation[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [searched, setSearched] = useState(false);
+  const [violations, setViolations] = useState<Violation[]>([])
+  const [loading, setLoading] = useState(false)
+  const [searched, setSearched] = useState(false)
 
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<SearchFormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm<SearchFormData>({
     resolver: yupResolver(schema),
     defaultValues: {
-      searchType: 'ovr',
+      searchType: "ovr",
     },
-  });
+  })
 
-  const searchType = watch('searchType');
+  const searchType = watch("searchType")
 
   const onSubmit = async (data: SearchFormData) => {
     try {
-      setLoading(true);
-      setSearched(true);
-      
-      const response = await apiService.searchViolations(data.searchType, data.searchValue);
-      
-      setViolations(response.data.violations || []);
+      setLoading(true)
+      setSearched(true)
+
+      const response = await apiService.searchViolations(
+        data.searchType,
+        data.searchValue
+      )
+
+      setViolations(response.data.violations || [])
     } catch (error: any) {
-      console.error('Search failed:', error);
-      setViolations([]);
+      console.error("Search failed:", error)
+      setViolations([])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'paid':
-        return <CheckCircle className="h-5 w-5 text-success-600" />;
-      case 'pending':
-        return <Clock className="h-5 w-5 text-warning-600" />;
-      case 'overdue':
-        return <AlertTriangle className="h-5 w-5 text-danger-600" />;
+      case "paid":
+        return <CheckCircle className="h-5 w-5 text-success-600" />
+      case "pending":
+        return <Clock className="h-5 w-5 text-warning-600" />
+      case "overdue":
+        return <AlertTriangle className="h-5 w-5 text-danger-600" />
       default:
-        return <FileText className="h-5 w-5 text-gray-600" />;
+        return <FileText className="h-5 w-5 text-gray-600" />
     }
-  };
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'paid':
-        return 'text-success-600 bg-success-50';
-      case 'pending':
-        return 'text-warning-600 bg-warning-50';
-      case 'overdue':
-        return 'text-danger-600 bg-danger-50';
+      case "paid":
+        return "text-success-600 bg-success-50"
+      case "pending":
+        return "text-warning-600 bg-warning-50"
+      case "overdue":
+        return "text-danger-600 bg-danger-50"
       default:
-        return 'text-gray-600 bg-gray-50';
+        return "text-gray-600 bg-gray-50"
     }
-  };
+  }
 
   const getSearchPlaceholder = () => {
     switch (searchType) {
-      case 'ovr':
-        return 'Enter OVR number (e.g., OVR-2024-001)';
-      case 'plate':
-        return 'Enter plate number (e.g., ABC-123)';
-      case 'license':
-        return 'Enter driver\'s license number';
+      case "ovr":
+        return "Enter OVR number (e.g., OVR-2024-001)"
+      case "plate":
+        return "Enter plate number (e.g., ABC-123)"
+      case "license":
+        return "Enter driver's license number"
       default:
-        return 'Enter search value';
+        return "Enter search value"
     }
-  };
+  }
 
   return (
     <div className="space-y-6 pt-8 px-4 pb-8">
@@ -101,7 +125,8 @@ const ViolationSearchPage: React.FC = () => {
               Search Violations
             </h1>
             <p className="text-gray-600 mt-2 text-base font-medium">
-              Look up traffic violations using OVR number, plate number, or driver's license number.
+              Look up traffic violations using OVR number, plate number, or
+              driver's license number.
             </p>
           </div>
         </div>
@@ -125,7 +150,7 @@ const ViolationSearchPage: React.FC = () => {
                   Search Type
                 </label>
                 <select
-                  {...register('searchType')}
+                  {...register("searchType")}
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
                 >
                   <option value="ovr">OVR Number</option>
@@ -138,7 +163,7 @@ const ViolationSearchPage: React.FC = () => {
                 <Input
                   label="Search Value"
                   placeholder={getSearchPlaceholder()}
-                  {...register('searchValue')}
+                  {...register("searchValue")}
                   error={errors.searchValue?.message}
                   required
                 />
@@ -172,7 +197,8 @@ const ViolationSearchPage: React.FC = () => {
               Search Results
               {violations.length > 0 && (
                 <span className="ml-2 text-sm font-normal text-gray-500">
-                  ({violations.length} violation{violations.length !== 1 ? 's' : ''} found)
+                  ({violations.length} violation
+                  {violations.length !== 1 ? "s" : ""} found)
                 </span>
               )}
             </CardTitle>
@@ -188,9 +214,12 @@ const ViolationSearchPage: React.FC = () => {
                   <div className="absolute inset-0 bg-gray-100 rounded-full blur-xl"></div>
                   <FileText className="relative mx-auto h-16 w-16 text-gray-300" />
                 </div>
-                <h3 className="mt-4 text-lg font-bold text-gray-900">No violations found</h3>
+                <h3 className="mt-4 text-lg font-bold text-gray-900">
+                  No violations found
+                </h3>
                 <p className="mt-2 text-sm text-gray-600 max-w-sm mx-auto">
-                  No traffic violations match your search criteria. Try a different search value.
+                  No traffic violations match your search criteria. Try a
+                  different search value.
                 </p>
               </div>
             ) : (
@@ -209,10 +238,13 @@ const ViolationSearchPage: React.FC = () => {
                           </div>
                           <div>
                             <h3 className="text-lg font-semibold text-gray-900">
-                              {violation.violationType.replace('_', ' ').toUpperCase()}
+                              {violation.violationType
+                                .replace("_", " ")
+                                .toUpperCase()}
                             </h3>
                             <p className="text-sm text-gray-500">
-                              OVR: {violation.ovrNumber} • Citation: {violation.citationNumber}
+                              OVR: {violation.ovrNumber} • Citation:{" "}
+                              {violation.citationNumber}
                             </p>
                           </div>
                         </div>
@@ -221,37 +253,50 @@ const ViolationSearchPage: React.FC = () => {
                           <div className="flex items-center space-x-2">
                             <Car className="h-4 w-4 text-gray-400" />
                             <span className="text-sm text-gray-600">
-                              <span className="font-medium">Plate:</span> {violation.plateNumber}
+                              <span className="font-medium">Plate:</span>{" "}
+                              {violation.plateNumber}
                             </span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Calendar className="h-4 w-4 text-gray-400" />
                             <span className="text-sm text-gray-600">
-                              <span className="font-medium">Date:</span> {new Date(violation.violationDate).toLocaleDateString()}
+                              <span className="font-medium">Date:</span>{" "}
+                              {new Date(
+                                violation.violationDate
+                              ).toLocaleDateString()}
                             </span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <MapPin className="h-4 w-4 text-gray-400" />
                             <span className="text-sm text-gray-600">
-                              <span className="font-medium">Location:</span> {violation.violationLocation}
+                              <span className="font-medium">Location:</span>{" "}
+                              {violation.violationLocation}
                             </span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <span className="text-sm text-gray-600">
-                              <span className="font-medium">Fine:</span> ₱{violation.totalFine.toFixed(2)}
+                              <span className="font-medium">Fine:</span> ₱
+                              {Number(violation.totalFine).toFixed(2)}
                             </span>
                           </div>
                         </div>
 
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(violation.status)}`}>
+                            <span
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(violation.status)}`}
+                            >
                               {getStatusIcon(violation.status)}
-                              <span className="ml-1">{violation.status.toUpperCase()}</span>
+                              <span className="ml-1">
+                                {violation.status.toUpperCase()}
+                              </span>
                             </span>
-                            {violation.status === 'pending' && (
+                            {violation.status === "pending" && (
                               <span className="text-xs text-gray-500">
-                                Due: {new Date(violation.dueDate).toLocaleDateString()}
+                                Due:{" "}
+                                {new Date(
+                                  violation.dueDate
+                                ).toLocaleDateString()}
                               </span>
                             )}
                           </div>
@@ -260,16 +305,26 @@ const ViolationSearchPage: React.FC = () => {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => window.open(`/violations/${violation.id}`, '_blank')}
+                              onClick={() =>
+                                window.open(
+                                  `/violations/${violation.id}`,
+                                  "_blank"
+                                )
+                              }
                               className="border-2 hover:bg-gray-50 transition-colors"
                             >
                               View Details
                             </Button>
-                            {violation.status === 'pending' && (
+                            {violation.status === "pending" && (
                               <Button
                                 variant="primary"
                                 size="sm"
-                                onClick={() => window.open(`/payment/${violation.id}`, '_blank')}
+                                onClick={() =>
+                                  window.open(
+                                    `/payment/${violation.id}`,
+                                    "_blank"
+                                  )
+                                }
                                 className="shadow-md hover:shadow-lg transition-all"
                               >
                                 Pay Now
@@ -287,7 +342,7 @@ const ViolationSearchPage: React.FC = () => {
         </Card>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default ViolationSearchPage;
+export default ViolationSearchPage
