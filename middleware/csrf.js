@@ -71,126 +71,51 @@ const csrfProtection = (req, res, next) => {
     return next()
   }
   
-  // * Get the full path - req.path is relative to mount point, so use originalUrl or baseUrl + path
-  // * Since middleware is mounted at /api/, req.path will be relative to /api/
-  // * For /api/v1/auth/login, req.path will be /v1/auth/login
-  const requestPath = req.path || req.url?.split('?')[0] || ''
-  const fullPath = req.originalUrl?.split('?')[0] || req.baseUrl + requestPath || requestPath
+  // * AGGRESSIVE FIX: Get ALL possible path representations
+  const requestPath = req.path || ''
+  const originalUrl = req.originalUrl || ''
+  const url = req.url || ''
+  const baseUrl = req.baseUrl || ''
   
-  // * Debug: Log the request path for troubleshooting (use console.log as fallback)
+  // * Combine all path representations into one string for checking
+  const allPaths = [requestPath, originalUrl, url, baseUrl + requestPath].filter(Boolean).join(' ')
+  
+  // * AGGRESSIVE: Check if ANY path representation contains login/auth endpoints
+  // * This catches: /login, /auth/login, /v1/auth/login, /api/v1/auth/login, etc.
+  const isPublicAuthEndpoint = 
+    allPaths.includes('login') ||
+    allPaths.includes('register') ||
+    allPaths.includes('forgot-password') ||
+    allPaths.includes('reset-password') ||
+    allPaths.includes('verify-email') ||
+    allPaths.includes('refresh') ||
+    allPaths.includes('violations/search') ||
+    allPaths.includes('/health')
+  
+  // * Log for debugging
   console.log('🔵 CSRF CHECK:', {
     method: req.method,
-    path: requestPath,
-    fullPath: fullPath,
-    originalUrl: req.originalUrl,
-    baseUrl: req.baseUrl,
-    url: req.url
+    requestPath,
+    originalUrl,
+    url,
+    baseUrl,
+    allPaths,
+    isPublicAuthEndpoint
   })
-  
-  logger.info('CSRF check', {
-    method: req.method,
-    path: requestPath,
-    fullPath: fullPath,
-    originalUrl: req.originalUrl,
-    baseUrl: req.baseUrl,
-    url: req.url
-  })
-  
-  // * Skip CSRF check for public endpoints that don't modify state
-  // * Check both relative path (req.path) and full path (originalUrl)
-  // * req.path will be like: /v1/auth/login (relative to /api/ mount point)
-  // * fullPath will be like: /api/v1/auth/login (full URL path)
-  const publicEndpointPatterns = [
-    // Full paths
-    '/api/auth/login',
-    '/api/v1/auth/login',
-    '/api/v2/auth/login',
-    '/api/auth/register',
-    '/api/v1/auth/register',
-    '/api/v2/auth/register',
-    '/api/auth/forgot-password',
-    '/api/v1/auth/forgot-password',
-    '/api/auth/reset-password',
-    '/api/v1/auth/reset-password',
-    '/api/auth/verify-email',
-    '/api/v1/auth/verify-email',
-    '/api/auth/refresh',
-    '/api/v1/auth/refresh',
-    '/api/violations/search',
-    '/api/v1/violations/search',
-    '/api/health',
-    '/api/v1/health',
-    // Relative paths (when mounted at /api/)
-    '/auth/login',
-    '/v1/auth/login',
-    '/v2/auth/login',
-    '/auth/register',
-    '/v1/auth/register',
-    '/v2/auth/register',
-    '/auth/forgot-password',
-    '/v1/auth/forgot-password',
-    '/auth/reset-password',
-    '/v1/auth/reset-password',
-    '/auth/verify-email',
-    '/v1/auth/verify-email',
-    '/auth/refresh',
-    '/v1/auth/refresh',
-    '/violations/search',
-    '/v1/violations/search',
-    '/health',
-    '/v1/health'
-  ]
-  
-  // * SIMPLIFIED: Check if path contains any public auth endpoint
-  // * This works regardless of how routes are mounted
-  const isPublicAuthEndpoint = 
-    requestPath.includes('/auth/login') ||
-    requestPath.includes('/auth/register') ||
-    requestPath.includes('/auth/forgot-password') ||
-    requestPath.includes('/auth/reset-password') ||
-    requestPath.includes('/auth/verify-email') ||
-    requestPath.includes('/auth/refresh') ||
-    requestPath.includes('/violations/search') ||
-    requestPath.includes('/health') ||
-    fullPath.includes('/auth/login') ||
-    fullPath.includes('/auth/register') ||
-    fullPath.includes('/auth/forgot-password') ||
-    fullPath.includes('/auth/reset-password') ||
-    fullPath.includes('/auth/verify-email') ||
-    fullPath.includes('/auth/refresh') ||
-    fullPath.includes('/violations/search') ||
-    fullPath.includes('/health')
   
   if (isPublicAuthEndpoint) {
-    console.log('✅ CSRF check PASSED - public auth endpoint', { 
-      path: requestPath, 
-      fullPath: fullPath,
-      method: req.method
-    })
-    logger.info('✅ CSRF check passed - public auth endpoint', { 
-      path: requestPath, 
-      fullPath: fullPath,
-      method: req.method
-    })
+    console.log('✅ CSRF BYPASSED - public auth endpoint')
     return next()
   }
   
   // * Log why CSRF check failed
-  console.log('❌ CSRF check FAILED - endpoint not in public list', {
-    path: requestPath,
-    fullPath: fullPath,
+  console.log('❌ CSRF BLOCKED:', {
     method: req.method,
-    originalUrl: req.originalUrl,
-    baseUrl: req.baseUrl,
-    includesAuthLogin: requestPath.includes('/auth/login') || fullPath.includes('/auth/login')
-  })
-  
-  logger.warn('❌ CSRF check failed - endpoint not in public list', {
-    path: requestPath,
-    fullPath: fullPath,
-    method: req.method,
-    originalUrl: req.originalUrl,
-    baseUrl: req.baseUrl
+    requestPath,
+    originalUrl,
+    url,
+    baseUrl,
+    allPaths
   })
 
   // * Get CSRF token from header
