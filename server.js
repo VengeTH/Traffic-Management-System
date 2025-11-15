@@ -50,6 +50,9 @@ const logger = require("./utils/logger")
 const app = express()
 const PORT = process.env.PORT || 5000
 
+// * Trust proxy - required when behind reverse proxy (NGINX, Cloudflare, ngrok, etc.)
+app.set('trust proxy', true)
+
 // * HTTPS enforcement (must be before other middleware)
 app.use(enforceHTTPS)
 

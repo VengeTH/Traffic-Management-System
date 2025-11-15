@@ -30,8 +30,9 @@ const getApiBaseUrl = (): string => {
       }
       
       // * GitHub Pages: API must be on separate server
-      // * Use relative URL as fallback (only works if API is proxied or on same domain)
-      return '';
+      // * If REACT_APP_API_URL is not set, default to backend server
+      // * Change this to your actual backend URL if not using environment variable
+      return 'https://112.207.191.27';
     }
 
     // * Other production domains: use environment variable or same origin
