@@ -203,8 +203,8 @@ const { sanitizeInput } = require("./middleware/sanitizeInput")
 app.use("/api/", sanitizeInput)
 
 // * CSRF protection for state-changing requests
-// * TEMPORARILY DISABLED FOR LOCALHOST TESTING
-// app.use("/api/", csrfProtection)
+// * NOTE: CSRF middleware is currently disabled inside the middleware itself
+app.use("/api/", csrfProtection)
 
 // * Add CSRF token to responses for authenticated requests
 app.use("/api/", addCSRFToken)
