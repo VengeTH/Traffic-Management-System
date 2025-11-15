@@ -16,20 +16,33 @@ const runMigrations = async () => {
     await sequelize.authenticate();
     logger.info('Database connection established successfully.');
     
-    // * Sync Notification model first (new table, less likely to have conflicts)
-    logger.info('Syncing Notification model...');
-    await Notification.sync({ force: false, alter: true });
-    logger.info('Notification table synchronized successfully.');
-    
-    // * Sync other models (User, Violation, Payment)
+    // * Sync models in correct order (respecting foreign key dependencies)
     // * Use alter: false for SQLite to avoid unique constraint issues with NULLs
     const isSQLite = sequelize.getDialect() === 'sqlite';
     const syncOptions = isSQLite ? { force: false, alter: false } : { force: false, alter: true };
     
-    logger.info(`Syncing other models (alter: ${!isSQLite})...`);
+    logger.info(`Syncing models (alter: ${!isSQLite})...`);
+    
+    // * 1. User table (no dependencies)
+    logger.info('Syncing User model...');
     await User.sync(syncOptions);
+    logger.info('User table synchronized successfully.');
+    
+    // * 2. Violation table (depends on User via enforcer_id)
+    logger.info('Syncing Violation model...');
     await Violation.sync(syncOptions);
+    logger.info('Violation table synchronized successfully.');
+    
+    // * 3. Payment table (depends on User and Violation)
+    logger.info('Syncing Payment model...');
     await Payment.sync(syncOptions);
+    logger.info('Payment table synchronized successfully.');
+    
+    // * 4. Notification table (depends on User)
+    logger.info('Syncing Notification model...');
+    await Notification.sync(syncOptions);
+    logger.info('Notification table synchronized successfully.');
+    
     logger.info('All database tables synchronized successfully.');
     
     // * Create indexes for better performance

@@ -1,53 +1,64 @@
-import React, { useState, useEffect } from 'react';
-import { apiService } from '../../services/api';
-import { Payment } from '../../types';
-import { CreditCard, FileText, Download, Calendar, DollarSign } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/UI/Card';
-import Button from '../../components/UI/Button';
-import LoadingSpinner from '../../components/UI/LoadingSpinner';
+import React, { useState, useEffect } from "react"
+import { apiService } from "../../services/api"
+import { Payment } from "../../types"
+import {
+  CreditCard,
+  FileText,
+  Download,
+  Calendar,
+  DollarSign,
+} from "lucide-react"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "../../components/UI/Card"
+import Button from "../../components/UI/Button"
+import LoadingSpinner from "../../components/UI/LoadingSpinner"
 
 const PaymentHistoryPage: React.FC = () => {
-  const [payments, setPayments] = useState<Payment[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [payments, setPayments] = useState<Payment[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchPaymentHistory = async () => {
       try {
-        setLoading(true);
-        const response = await apiService.getUserPayments();
-        setPayments(response.data.payments || []);
+        setLoading(true)
+        const response = await apiService.getUserPayments()
+        setPayments(response.data.payments || [])
       } catch (error) {
-        console.error('Failed to fetch payment history:', error);
+        console.error("Failed to fetch payment history:", error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchPaymentHistory();
-  }, []);
+    fetchPaymentHistory()
+  }, [])
 
   const handleDownloadReceipt = async (payment: Payment) => {
     try {
-      const receiptBlob = await apiService.getPaymentReceipt(payment.id);
-      const url = window.URL.createObjectURL(receiptBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `receipt-${payment.receiptNumber}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      const receiptBlob = await apiService.getPaymentReceipt(payment.id)
+      const url = window.URL.createObjectURL(receiptBlob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = `receipt-${payment.receiptNumber}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
     } catch (error) {
-      console.error('Failed to download receipt:', error);
+      console.error("Failed to download receipt:", error)
     }
-  };
+  }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
   return (
@@ -81,7 +92,7 @@ const PaymentHistoryPage: React.FC = () => {
             Payment Records
             {payments.length > 0 && (
               <span className="ml-2 text-sm font-normal text-gray-500">
-                ({payments.length} payment{payments.length !== 1 ? 's' : ''})
+                ({payments.length} payment{payments.length !== 1 ? "s" : ""})
               </span>
             )}
           </CardTitle>
@@ -93,9 +104,12 @@ const PaymentHistoryPage: React.FC = () => {
                 <div className="absolute inset-0 bg-green-100 rounded-full blur-xl"></div>
                 <CreditCard className="relative mx-auto h-16 w-16 text-gray-300" />
               </div>
-              <h3 className="mt-4 text-lg font-bold text-gray-900">No payments found</h3>
+              <h3 className="mt-4 text-lg font-bold text-gray-900">
+                No payments found
+              </h3>
               <p className="mt-2 text-sm text-gray-600 max-w-sm mx-auto">
-                You haven't made any payments yet. Payments will appear here once completed.
+                You haven't made any payments yet. Payments will appear here
+                once completed.
               </p>
             </div>
           ) : (
@@ -117,7 +131,8 @@ const PaymentHistoryPage: React.FC = () => {
                             Payment #{payment.receiptNumber}
                           </h3>
                           <p className="text-sm text-gray-500">
-                            {payment.paymentMethod.toUpperCase()} • {payment.paymentProvider}
+                            {payment.paymentMethod.toUpperCase()} •{" "}
+                            {payment.paymentProvider}
                           </p>
                         </div>
                       </div>
@@ -126,24 +141,29 @@ const PaymentHistoryPage: React.FC = () => {
                         <div className="flex items-center space-x-2">
                           <DollarSign className="h-4 w-4 text-gray-400" />
                           <span className="text-sm text-gray-600">
-                            <span className="font-medium">Amount:</span> ₱{payment.amount.toFixed(2)}
+                            <span className="font-medium">Amount:</span> ₱
+                            {Number(payment.amount).toFixed(2)}
                           </span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <Calendar className="h-4 w-4 text-gray-400" />
                           <span className="text-sm text-gray-600">
-                            <span className="font-medium">Date:</span> {new Date(payment.completedAt || payment.initiatedAt).toLocaleDateString()}
+                            <span className="font-medium">Date:</span>{" "}
+                            {new Date(
+                              payment.completedAt || payment.initiatedAt
+                            ).toLocaleDateString()}
                           </span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <FileText className="h-4 w-4 text-gray-400" />
                           <span className="text-sm text-gray-600">
-                            <span className="font-medium">OVR:</span> {payment.ovrNumber}
+                            <span className="font-medium">OVR:</span>{" "}
+                            {payment.ovrNumber}
                           </span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <span className="text-sm text-gray-600">
-                            <span className="font-medium">Status:</span> 
+                            <span className="font-medium">Status:</span>
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-success-600 bg-success-50 ml-1">
                               Completed
                             </span>
@@ -176,7 +196,7 @@ const PaymentHistoryPage: React.FC = () => {
         </CardContent>
       </Card>
     </div>
-  );
-};
+  )
+}
 
-export default PaymentHistoryPage;
+export default PaymentHistoryPage
