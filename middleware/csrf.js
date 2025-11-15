@@ -71,52 +71,48 @@ const csrfProtection = (req, res, next) => {
     return next()
   }
   
-  // * AGGRESSIVE FIX: Get ALL possible path representations
-  const requestPath = req.path || ''
-  const originalUrl = req.originalUrl || ''
-  const url = req.url || ''
-  const baseUrl = req.baseUrl || ''
-  
-  // * Combine all path representations into one string for checking
-  const allPaths = [requestPath, originalUrl, url, baseUrl + requestPath].filter(Boolean).join(' ')
-  
-  // * AGGRESSIVE: Check if ANY path representation contains login/auth endpoints
-  // * This catches: /login, /auth/login, /v1/auth/login, /api/v1/auth/login, etc.
-  const isPublicAuthEndpoint = 
-    allPaths.includes('login') ||
-    allPaths.includes('register') ||
-    allPaths.includes('forgot-password') ||
-    allPaths.includes('reset-password') ||
-    allPaths.includes('verify-email') ||
-    allPaths.includes('refresh') ||
-    allPaths.includes('violations/search') ||
-    allPaths.includes('/health')
-  
-  // * Log for debugging
-  console.log('🔵 CSRF CHECK:', {
-    method: req.method,
-    requestPath,
-    originalUrl,
-    url,
-    baseUrl,
-    allPaths,
-    isPublicAuthEndpoint
+  // * NUCLEAR OPTION: Get EVERY possible path string and check for login/auth keywords
+  const pathString = JSON.stringify({
+    path: req.path,
+    url: req.url,
+    originalUrl: req.originalUrl,
+    baseUrl: req.baseUrl,
+    route: req.route?.path
   })
   
-  if (isPublicAuthEndpoint) {
-    console.log('✅ CSRF BYPASSED - public auth endpoint')
+  // * If ANY path representation contains login/auth keywords, bypass CSRF
+  const hasLogin = pathString.toLowerCase().includes('login')
+  const hasRegister = pathString.toLowerCase().includes('register')
+  const hasAuth = pathString.toLowerCase().includes('/auth/')
+  const hasForgotPassword = pathString.toLowerCase().includes('forgot')
+  const hasResetPassword = pathString.toLowerCase().includes('reset')
+  const hasVerifyEmail = pathString.toLowerCase().includes('verify')
+  const hasRefresh = pathString.toLowerCase().includes('refresh')
+  const hasHealth = pathString.toLowerCase().includes('health')
+  const hasViolationsSearch = pathString.toLowerCase().includes('violations/search')
+  
+  const isPublicEndpoint = hasLogin || hasRegister || hasAuth || hasForgotPassword || 
+                          hasResetPassword || hasVerifyEmail || hasRefresh || 
+                          hasHealth || hasViolationsSearch
+  
+  // * FORCE LOG - this MUST show up
+  console.log('='.repeat(80))
+  console.log('🔵 CSRF MIDDLEWARE CALLED')
+  console.log('Method:', req.method)
+  console.log('Path:', req.path)
+  console.log('URL:', req.url)
+  console.log('OriginalURL:', req.originalUrl)
+  console.log('BaseURL:', req.baseUrl)
+  console.log('PathString:', pathString)
+  console.log('IsPublicEndpoint:', isPublicEndpoint)
+  console.log('='.repeat(80))
+  
+  if (isPublicEndpoint) {
+    console.log('✅✅✅ CSRF BYPASSED - PUBLIC ENDPOINT ✅✅✅')
     return next()
   }
   
-  // * Log why CSRF check failed
-  console.log('❌ CSRF BLOCKED:', {
-    method: req.method,
-    requestPath,
-    originalUrl,
-    url,
-    baseUrl,
-    allPaths
-  })
+  console.log('❌❌❌ CSRF NOT BYPASSED - CHECKING TOKEN ❌❌❌')
 
   // * Get CSRF token from header
   const csrfToken = req.get("X-CSRF-Token") || req.body._csrf
