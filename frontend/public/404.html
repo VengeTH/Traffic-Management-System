@@ -2,20 +2,42 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.svg" type="image/svg+xml" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#1e40af" />
-    <meta
-      name="description"
-      content="E-VioPay - Pay traffic violations online with ease"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>E-VioPay</title>
+    <script>
+      // * GitHub Pages 404.html - Redirects to index.html for client-side routing
+      // * This file is served by GitHub Pages when a route doesn't exist
+      var path = window.location.pathname;
+      var basePath = '/Traffic-Management-System';
+      
+      // * If path doesn't start with basePath, redirect to it
+      if (!path.startsWith(basePath)) {
+        var newPath = basePath + (path === '/' ? '' : path);
+        if (window.location.search) {
+          newPath += window.location.search;
+        }
+        if (window.location.hash) {
+          newPath += window.location.hash;
+        }
+        window.location.replace(newPath);
+      } else {
+        // * If path already has basePath, redirect to index.html
+        var indexPath = basePath + '/index.html';
+        if (window.location.search) {
+          indexPath += window.location.search;
+        }
+        if (window.location.hash) {
+          indexPath += window.location.hash;
+        }
+        window.location.replace(indexPath);
+      }
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div style="text-align: center; padding: 50px; font-family: sans-serif;">
+      <h1>Loading...</h1>
+      <p>If you are not redirected, please <a href="/Traffic-Management-System/">click here</a>.</p>
+    </div>
   </body>
 </html>

@@ -1,7 +1,7 @@
 {
   "name": "las-pinas-traffic-frontend",
   "version": "1.0.0",
-  "homepage": "https://vengeth.github.io/Traffic-Management-System",
+  "homepage": "/Traffic-Management-System",
   "private": true,
   "dependencies": {
     "@headlessui/react": "^1.7.17",
