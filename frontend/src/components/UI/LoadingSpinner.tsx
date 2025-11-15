@@ -27,6 +27,9 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     <div className={`inline-block ${className}`}>
       <svg
         className={`animate-spin ${sizeClasses[size]} ${colorClasses[color]}`}
+        style={{
+          animation: 'spin 1s linear infinite',
+        }}
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"

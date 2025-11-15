@@ -12,6 +12,24 @@ const enforceHTTPS = (req, res, next) => {
   const isProduction = process.env.NODE_ENV === 'production';
   const forceHTTPS = process.env.FORCE_HTTPS === 'true';
   
+  // * Skip HTTPS enforcement if explicitly disabled
+  if (process.env.FORCE_HTTPS === 'false') {
+    return next();
+  }
+  
+  // * Skip HTTPS enforcement for localhost connections
+  const hostname = req.get('host')?.split(':')[0] || req.hostname;
+  const isLocalhost = hostname === 'localhost' || 
+                      hostname === '127.0.0.1' || 
+                      hostname === '::1' ||
+                      hostname.startsWith('192.168.') ||
+                      hostname.startsWith('10.') ||
+                      hostname.startsWith('172.');
+  
+  if (isLocalhost) {
+    return next();
+  }
+  
   // * Only enforce in production or if explicitly enabled
   if (!isProduction && !forceHTTPS) {
     return next();

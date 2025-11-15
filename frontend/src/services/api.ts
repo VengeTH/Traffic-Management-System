@@ -1,13 +1,63 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
 import { ApiError } from '../types';
 
+/**
+ * * Determines the API base URL based on environment
+ * * Priority:
+ * * 1. REACT_APP_API_URL environment variable (highest priority)
+ * * 2. Auto-detect based on current hostname
+ * * 3. Default to localhost for development
+ */
+const getApiBaseUrl = (): string => {
+  // * Use environment variable if explicitly set (this is set at build time)
+  const envApiUrl = process.env.REACT_APP_API_URL;
+  if (envApiUrl) {
+    return envApiUrl;
+  }
+
+  // * Auto-detect based on current location (client-side only)
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+    const isGitHubPages = hostname.includes('github.io');
+
+    // * Development: localhost or 127.0.0.1
+    if (isLocalhost) {
+      return `http://localhost:5000`;
+    }
+
+    // * Production: GitHub Pages or other production domains
+    if (isGitHubPages) {
+      // * GitHub Pages: API must be on separate server
+      // * If REACT_APP_API_URL wasn't set during build, show error
+      console.error(
+        '❌ REACT_APP_API_URL not configured!\n' +
+        'The frontend was built without REACT_APP_API_URL set.\n' +
+        'To fix this:\n' +
+        '1. Rebuild with: REACT_APP_API_URL=https://your-api-domain.com npm run build\n' +
+        '2. Replace "https://your-api-domain.com" with your actual API server URL\n' +
+        '3. Redeploy the frontend\n\n' +
+        'Using relative URL as fallback (will only work if API is on same domain or proxied).'
+      );
+      // * Use relative URL as fallback (only works if API is proxied or on same domain)
+      return '';
+    }
+
+    // * Other production domains: use same origin (relative URL)
+    return '';
+  }
+
+  // * Server-side rendering fallback
+  return 'http://localhost:5000';
+};
+
 // Create axios instance
 // * API versioning: Currently using v1 endpoints
 // * Backward compatibility: Non-versioned endpoints still work but are deprecated
 const API_VERSION = process.env.REACT_APP_API_VERSION || 'v1';
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_BASE_URL = getApiBaseUrl();
 const api: AxiosInstance = axios.create({
-  baseURL: `${API_BASE_URL}/api/${API_VERSION}`,
+  baseURL: API_BASE_URL ? `${API_BASE_URL}/api/${API_VERSION}` : `/api/${API_VERSION}`,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -46,7 +96,9 @@ api.interceptors.response.use(
       if (refreshToken) {
         try {
           // * Use versioned endpoint for token refresh
-          const refreshUrl = `${API_BASE_URL}/api/${API_VERSION}/auth/refresh`;
+          const refreshUrl = API_BASE_URL 
+            ? `${API_BASE_URL}/api/${API_VERSION}/auth/refresh`
+            : `/api/${API_VERSION}/auth/refresh`;
           const response = await axios.post(refreshUrl, {
             refreshToken,
           });
