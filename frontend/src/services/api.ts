@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
 import { ApiError } from '../types';
+import { getFullPath } from '../utils/router';
 
 /**
  * * Determines the API base URL based on environment
@@ -115,20 +116,23 @@ api.interceptors.response.use(
           localStorage.removeItem('refreshToken');
           localStorage.removeItem('user');
             }
-          window.location.href = '/login';
+          // * Redirect to login with proper basename
+          window.location.href = getFullPath('/login');
         }
       } else {
         // No refresh token, redirect to login
-          if (typeof window !== 'undefined' && window.localStorage) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-          }
-          window.location.href = '/login';
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
         }
+        // * Redirect to login with proper basename
+        window.location.href = getFullPath('/login');
+      }
       } catch {
         // If localStorage access fails, just redirect to login
         if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+          // * Redirect to login with proper basename
+          window.location.href = getFullPath('/login');
         }
       }
     }

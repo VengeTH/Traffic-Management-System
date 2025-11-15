@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PaymentProvider } from './contexts/PaymentContext';
+import { getBasename } from './utils/router';
 
 // Layout Components
 import Navbar from './components/Layout/Navbar';
@@ -249,27 +250,6 @@ const AppLayout: React.FC = () => {
 
 // Main App Component
 const AppContent: React.FC = () => {
-  // * Determine basename based on environment
-  // * Use basename only when deployed to GitHub Pages, not on localhost
-  const getBasename = () => {
-    try {
-      if (typeof window === 'undefined') return '';
-    // * Check if running on localhost
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      return '';
-    }
-    // * Check if deployed to GitHub Pages (vengeth.github.io domain)
-    if (window.location.hostname.includes('github.io')) {
-      return '/Traffic-Management-System';
-    }
-    // * Default: no basename for other deployments
-    return '';
-    } catch (error) {
-      console.error('Error determining basename:', error);
-      return '';
-    }
-  };
-
   try {
   return (
     <Router basename={getBasename()}>
