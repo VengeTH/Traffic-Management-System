@@ -132,26 +132,32 @@ const csrfProtection = (req, res, next) => {
     '/v1/health'
   ]
   
-  // * Check if path matches any public endpoint pattern (check both relative and full)
-  const matchesPublicEndpoint = publicEndpointPatterns.some(endpoint => 
-    requestPath.startsWith(endpoint) || fullPath.startsWith(endpoint)
-  )
+  // * SIMPLIFIED: Check if path contains any public auth endpoint
+  // * This works regardless of how routes are mounted
+  const isPublicAuthEndpoint = 
+    requestPath.includes('/auth/login') ||
+    requestPath.includes('/auth/register') ||
+    requestPath.includes('/auth/forgot-password') ||
+    requestPath.includes('/auth/reset-password') ||
+    requestPath.includes('/auth/verify-email') ||
+    requestPath.includes('/auth/refresh') ||
+    requestPath.includes('/violations/search') ||
+    requestPath.includes('/health') ||
+    fullPath.includes('/auth/login') ||
+    fullPath.includes('/auth/register') ||
+    fullPath.includes('/auth/forgot-password') ||
+    fullPath.includes('/auth/reset-password') ||
+    fullPath.includes('/auth/verify-email') ||
+    fullPath.includes('/auth/refresh') ||
+    fullPath.includes('/violations/search') ||
+    fullPath.includes('/health')
   
-  if (matchesPublicEndpoint) {
-    logger.info('✅ CSRF check passed - public endpoint', { path: requestPath, fullPath: fullPath })
-    return next()
-  }
-  
-  // * Also check for versioned endpoints using regex pattern
-  // * Matches /api/v1/auth/login, /api/v2/auth/login, etc. (full path)
-  // * Or /v1/auth/login, /v2/auth/login, etc. (relative path)
-  const versionedPublicPatternFull = /^\/api\/v\d+\/(auth\/(login|register|forgot-password|reset-password|verify-email|refresh)|violations\/search|health)/
-  const versionedPublicPatternRelative = /^\/v\d+\/(auth\/(login|register|forgot-password|reset-password|verify-email|refresh)|violations\/search|health)/
-  
-  const matchesVersioned = versionedPublicPatternFull.test(fullPath) || versionedPublicPatternRelative.test(requestPath)
-  
-  if (matchesVersioned) {
-    logger.info('✅ CSRF check passed - versioned public endpoint', { path: requestPath, fullPath: fullPath })
+  if (isPublicAuthEndpoint) {
+    logger.info('✅ CSRF check passed - public auth endpoint', { 
+      path: requestPath, 
+      fullPath: fullPath,
+      method: req.method
+    })
     return next()
   }
   
@@ -159,7 +165,9 @@ const csrfProtection = (req, res, next) => {
   logger.warn('❌ CSRF check failed - endpoint not in public list', {
     path: requestPath,
     fullPath: fullPath,
-    method: req.method
+    method: req.method,
+    originalUrl: req.originalUrl,
+    baseUrl: req.baseUrl
   })
 
   // * Get CSRF token from header
