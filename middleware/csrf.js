@@ -77,8 +77,8 @@ const csrfProtection = (req, res, next) => {
   const requestPath = req.path || req.url?.split('?')[0] || ''
   const fullPath = req.originalUrl?.split('?')[0] || req.baseUrl + requestPath || requestPath
   
-  // * Debug: Log the request path for troubleshooting
-  logger.debug('CSRF check', {
+  // * Debug: Log the request path for troubleshooting (use info level so it always shows)
+  logger.info('CSRF check', {
     method: req.method,
     path: requestPath,
     fullPath: fullPath,
@@ -133,8 +133,12 @@ const csrfProtection = (req, res, next) => {
   ]
   
   // * Check if path matches any public endpoint pattern (check both relative and full)
-  if (publicEndpointPatterns.some(endpoint => requestPath.startsWith(endpoint) || fullPath.startsWith(endpoint))) {
-    logger.debug('CSRF check passed - public endpoint', { path: requestPath, fullPath: fullPath })
+  const matchesPublicEndpoint = publicEndpointPatterns.some(endpoint => 
+    requestPath.startsWith(endpoint) || fullPath.startsWith(endpoint)
+  )
+  
+  if (matchesPublicEndpoint) {
+    logger.info('✅ CSRF check passed - public endpoint', { path: requestPath, fullPath: fullPath })
     return next()
   }
   
@@ -144,10 +148,19 @@ const csrfProtection = (req, res, next) => {
   const versionedPublicPatternFull = /^\/api\/v\d+\/(auth\/(login|register|forgot-password|reset-password|verify-email|refresh)|violations\/search|health)/
   const versionedPublicPatternRelative = /^\/v\d+\/(auth\/(login|register|forgot-password|reset-password|verify-email|refresh)|violations\/search|health)/
   
-  if (versionedPublicPatternFull.test(fullPath) || versionedPublicPatternRelative.test(requestPath)) {
-    logger.debug('CSRF check passed - versioned public endpoint', { path: requestPath, fullPath: fullPath })
+  const matchesVersioned = versionedPublicPatternFull.test(fullPath) || versionedPublicPatternRelative.test(requestPath)
+  
+  if (matchesVersioned) {
+    logger.info('✅ CSRF check passed - versioned public endpoint', { path: requestPath, fullPath: fullPath })
     return next()
   }
+  
+  // * Log why CSRF check failed
+  logger.warn('❌ CSRF check failed - endpoint not in public list', {
+    path: requestPath,
+    fullPath: fullPath,
+    method: req.method
+  })
 
   // * Get CSRF token from header
   const csrfToken = req.get("X-CSRF-Token") || req.body._csrf
