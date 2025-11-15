@@ -381,11 +381,13 @@ const startServer = async () => {
     });
 
     // * Start server
-    app.listen(PORT, () => {
+    // * Listen on 0.0.0.0 to accept connections from all network interfaces
+    app.listen(PORT, '0.0.0.0', () => {
       logger.info(`🚀 E-VioPay server running on port ${PORT}`);
       logger.info(`📊 Environment: ${process.env.NODE_ENV}`);
       logger.info(`🔗 Health check: http://localhost:${PORT}/health`);
       logger.info(`📱 API Base URL: http://localhost:${PORT}/api`);
+      logger.info(`🌐 Server accessible from: http://0.0.0.0:${PORT}`);
     });
     
   } catch (error) {
