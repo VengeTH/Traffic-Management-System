@@ -71,18 +71,28 @@ const csrfProtection = (req, res, next) => {
     return next()
   }
   
+  // * Get the full path - req.path is relative to mount point, so use originalUrl or baseUrl + path
+  // * Since middleware is mounted at /api/, req.path will be relative to /api/
+  // * For /api/v1/auth/login, req.path will be /v1/auth/login
+  const requestPath = req.path || req.url?.split('?')[0] || ''
+  const fullPath = req.originalUrl?.split('?')[0] || req.baseUrl + requestPath || requestPath
+  
   // * Debug: Log the request path for troubleshooting
-  const requestPath = req.path || req.url?.split('?')[0] || '';
   logger.debug('CSRF check', {
     method: req.method,
     path: requestPath,
+    fullPath: fullPath,
     originalUrl: req.originalUrl,
+    baseUrl: req.baseUrl,
     url: req.url
-  });
+  })
   
   // * Skip CSRF check for public endpoints that don't modify state
-  // * Support both versioned (/api/v1/auth/login) and non-versioned (/api/auth/login) endpoints
+  // * Check both relative path (req.path) and full path (originalUrl)
+  // * req.path will be like: /v1/auth/login (relative to /api/ mount point)
+  // * fullPath will be like: /api/v1/auth/login (full URL path)
   const publicEndpointPatterns = [
+    // Full paths
     '/api/auth/login',
     '/api/v1/auth/login',
     '/api/v2/auth/login',
@@ -100,21 +110,43 @@ const csrfProtection = (req, res, next) => {
     '/api/violations/search',
     '/api/v1/violations/search',
     '/api/health',
-    '/api/v1/health'
-  ];
+    '/api/v1/health',
+    // Relative paths (when mounted at /api/)
+    '/auth/login',
+    '/v1/auth/login',
+    '/v2/auth/login',
+    '/auth/register',
+    '/v1/auth/register',
+    '/v2/auth/register',
+    '/auth/forgot-password',
+    '/v1/auth/forgot-password',
+    '/auth/reset-password',
+    '/v1/auth/reset-password',
+    '/auth/verify-email',
+    '/v1/auth/verify-email',
+    '/auth/refresh',
+    '/v1/auth/refresh',
+    '/violations/search',
+    '/v1/violations/search',
+    '/health',
+    '/v1/health'
+  ]
   
-  // * Check if path matches any public endpoint pattern
-  if (publicEndpointPatterns.some(endpoint => requestPath.startsWith(endpoint))) {
-    logger.debug('CSRF check passed - public endpoint', { path: requestPath });
-    return next();
+  // * Check if path matches any public endpoint pattern (check both relative and full)
+  if (publicEndpointPatterns.some(endpoint => requestPath.startsWith(endpoint) || fullPath.startsWith(endpoint))) {
+    logger.debug('CSRF check passed - public endpoint', { path: requestPath, fullPath: fullPath })
+    return next()
   }
   
   // * Also check for versioned endpoints using regex pattern
-  // * Matches /api/v1/auth/login, /api/v2/auth/login, etc.
-  const versionedPublicPattern = /^\/api\/v\d+\/(auth\/(login|register|forgot-password|reset-password|verify-email|refresh)|violations\/search|health)/;
-  if (versionedPublicPattern.test(requestPath)) {
-    logger.debug('CSRF check passed - versioned public endpoint', { path: requestPath });
-    return next();
+  // * Matches /api/v1/auth/login, /api/v2/auth/login, etc. (full path)
+  // * Or /v1/auth/login, /v2/auth/login, etc. (relative path)
+  const versionedPublicPatternFull = /^\/api\/v\d+\/(auth\/(login|register|forgot-password|reset-password|verify-email|refresh)|violations\/search|health)/
+  const versionedPublicPatternRelative = /^\/v\d+\/(auth\/(login|register|forgot-password|reset-password|verify-email|refresh)|violations\/search|health)/
+  
+  if (versionedPublicPatternFull.test(fullPath) || versionedPublicPatternRelative.test(requestPath)) {
+    logger.debug('CSRF check passed - versioned public endpoint', { path: requestPath, fullPath: fullPath })
+    return next()
   }
 
   // * Get CSRF token from header
