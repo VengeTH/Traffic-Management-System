@@ -215,6 +215,43 @@ const HomePage: React.FC = () => {
 
       <div className="section-divider mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" />
 
+      {/* Hero Highlights */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 lg:px-8">
+        <div className="text-center mb-8 sm:mb-10 animate-fade-in-up">
+          <h2 className="text-3xl sm:text-3xl md:text-4xl font-black text-gradient-premium">
+            Why choose E-VioPay
+          </h2>
+          <p className="mt-2 sm:mt-3 text-base sm:text-base md:text-lg text-gray-700 font-medium">
+            Three pillars of our platform commitment.
+          </p>
+        </div>
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {heroHighlights.map((item, index) => (
+            <div
+              key={item.title}
+              className="group lux-card animated-gradient-border highlight-card hover-lift premium-glow-hover p-6 sm:p-8 shine-effect animate-fade-in-up mobile-optimized"
+              style={{ animationDelay: `${index * 0.08}s` }}
+            >
+              <div className="flex items-start gap-4 sm:gap-5">
+                <div className="flex-shrink-0 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 shadow-lg premium-glow group-hover:scale-110 transition-transform duration-200">
+                  {item.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xl sm:text-lg font-bold text-gray-900 leading-tight">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 sm:mt-2.5 text-base sm:text-base text-gray-700 leading-relaxed">
+                    {item.description}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="section-divider mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" />
+
       {/* Road showcase */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 lg:px-8">
         <div className="text-center mb-6 sm:mb-8 md:mb-12 animate-fade-in-up">
