@@ -144,9 +144,6 @@ const AdminDashboardPage: React.FC = () => {
                 Manage Violations
               </Button>
             </Link>
-            <Button variant="primary" size="sm" className="px-5">
-              Send Bulk Reminders
-            </Button>
           </>
         }
       />

@@ -36,6 +36,15 @@ const DashboardPage: React.FC = () => {
   const [recentViolations, setRecentViolations] = useState<Violation[]>([])
   const [loading, setLoading] = useState<boolean>(true)
 
+  // Redirect admins and enforcers to their respective dashboards
+  useEffect(() => {
+    if (user?.role === "admin") {
+      navigate("/admin", { replace: true })
+    } else if (user?.role === "enforcer") {
+      navigate("/enforcer/violations", { replace: true })
+    }
+  }, [user, navigate])
+
   const totalViolations = stats?.totalViolations ?? 0
   const paidViolations = stats?.paidViolations ?? 0
   const pendingViolations = stats?.pendingViolations ?? 0
@@ -83,64 +92,6 @@ const DashboardPage: React.FC = () => {
     return upcoming[0] ?? null
   }, [recentViolations])
 
-  // * Build analytic insight cards to highlight account health
-  const insightCards = useMemo(() => {
-    const resolutionRate =
-      totalViolations > 0
-        ? Math.round((paidViolations / totalViolations) * 100)
-        : 0
-
-    const overdueRate =
-      totalViolations > 0
-        ? Math.round((overdueViolations / totalViolations) * 100)
-        : 0
-
-    const pendingShare =
-      totalViolations > 0
-        ? Math.round((pendingViolations / totalViolations) * 100)
-        : 0
-
-    const monthlyRevenue = stats?.monthlyRevenue ?? 0
-    const totalAmountPaid = stats?.totalAmountPaid ?? 0
-    const monthlyShare =
-      totalAmountPaid > 0
-        ? Math.min(100, Math.round((monthlyRevenue / totalAmountPaid) * 100))
-        : 0
-
-    return [
-      {
-        label: "Resolution rate",
-        value: `${resolutionRate}%`,
-        deltaLabel: resolutionRate >= 70 ? "On track" : "Needs attention",
-        isPositive: resolutionRate >= 70,
-      },
-      {
-        label: "Outstanding share",
-        value: `${pendingShare}%`,
-        deltaLabel: pendingShare <= 30 ? "Healthy queue" : "Follow up required",
-        isPositive: pendingShare <= 30,
-      },
-      {
-        label: "Overdue exposure",
-        value: `${overdueRate}%`,
-        deltaLabel: overdueRate <= 10 ? "Within limits" : "Escalate soon",
-        isPositive: overdueRate <= 10,
-      },
-      {
-        label: "Monthly revenue",
-        value: `₱${monthlyRevenue.toLocaleString("en-PH", { minimumFractionDigits: 2 })}`,
-        deltaLabel: `${monthlyShare}% of total`,
-        isPositive: monthlyShare >= 20,
-      },
-    ]
-  }, [
-    overdueViolations,
-    paidViolations,
-    pendingViolations,
-    stats,
-    totalViolations,
-  ])
-
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "paid":
@@ -182,7 +133,6 @@ const DashboardPage: React.FC = () => {
       {/* Driver License Onboarding */}
       {!user?.driverLicenseNumber && (
         <div className="relative overflow-hidden rounded-3xl border border-warning-200 bg-gradient-to-r from-warning-50 via-amber-50 to-warning-50 shadow-lg">
-          <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-br from-accent-200/40 via-warning-100/40 to-transparent" />
           <div className="relative flex flex-col gap-6 px-8 py-7 sm:flex-row sm:items-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-warning-200/80">
               <AlertCircle className="h-7 w-7 text-warning-700" />
@@ -403,41 +353,6 @@ const DashboardPage: React.FC = () => {
             </Link>
           </CardContent>
         </Card>
-      </div>
-
-      {/* Insights Strip */}
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-        {insightCards.map((insight) => (
-          <div
-            key={insight.label}
-            className="relative overflow-hidden lux-card animated-gradient-border premium-glow hover-lift shine-effect p-5"
-          >
-            <div className="relative flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">
-                  {insight.label}
-                </p>
-                <p className="mt-2 text-3xl font-black text-gradient-premium">
-                  {insight.value}
-                </p>
-              </div>
-              <div
-                className={`rounded-2xl p-3 ${insight.isPositive ? "bg-success-100 text-success-700" : "bg-danger-100 text-danger-700"}`}
-              >
-                {insight.isPositive ? (
-                  <TrendingUp className="h-5 w-5" />
-                ) : (
-                  <TrendingDown className="h-5 w-5" />
-                )}
-              </div>
-            </div>
-            <p
-              className={`mt-3 text-sm font-semibold ${insight.isPositive ? "text-success-700" : "text-danger-700"}`}
-            >
-              {insight.deltaLabel}
-            </p>
-          </div>
-        ))}
       </div>
 
       {/* Recent Violations & Timeline */}
