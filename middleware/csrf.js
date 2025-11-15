@@ -3,21 +3,24 @@
  * Protects against Cross-Site Request Forgery attacks
  */
 
-const crypto = require('crypto');
-const logger = require('../utils/logger');
+const crypto = require("crypto")
+const logger = require("../utils/logger")
 
 // * Store CSRF tokens in memory (in production, use Redis)
-const csrfTokens = new Map();
+const csrfTokens = new Map()
 
 // * Clean up expired tokens periodically
-setInterval(() => {
-  const now = Date.now();
-  for (const [token, expiry] of csrfTokens.entries()) {
-    if (expiry < now) {
-      csrfTokens.delete(token);
+setInterval(
+  () => {
+    const now = Date.now()
+    for (const [token, expiry] of csrfTokens.entries()) {
+      if (expiry < now) {
+        csrfTokens.delete(token)
+      }
     }
-  }
-}, 60 * 60 * 1000); // Clean up every hour
+  },
+  60 * 60 * 1000
+) // Clean up every hour
 
 /**
  * Generate CSRF token
@@ -25,14 +28,14 @@ setInterval(() => {
  * @returns {string} CSRF token
  */
 const generateCSRFToken = (sessionId) => {
-  const token = crypto.randomBytes(32).toString('hex');
-  const expiry = Date.now() + (60 * 60 * 1000); // 1 hour expiry
-  
+  const token = crypto.randomBytes(32).toString("hex")
+  const expiry = Date.now() + 60 * 60 * 1000 // 1 hour expiry
+
   // * Store token with session ID as key
-  csrfTokens.set(token, expiry);
-  
-  return token;
-};
+  csrfTokens.set(token, expiry)
+
+  return token
+}
 
 /**
  * Verify CSRF token
@@ -41,21 +44,21 @@ const generateCSRFToken = (sessionId) => {
  */
 const verifyCSRFToken = (token) => {
   if (!token) {
-    return false;
+    return false
   }
-  
-  const expiry = csrfTokens.get(token);
+
+  const expiry = csrfTokens.get(token)
   if (!expiry) {
-    return false;
+    return false
   }
-  
+
   if (expiry < Date.now()) {
-    csrfTokens.delete(token);
-    return false;
+    csrfTokens.delete(token)
+    return false
   }
-  
-  return true;
-};
+
+  return true
+}
 
 /**
  * CSRF protection middleware
@@ -64,8 +67,8 @@ const verifyCSRFToken = (token) => {
  */
 const csrfProtection = (req, res, next) => {
   // * Skip CSRF check for safe methods
-  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
-    return next();
+  if (["GET", "HEAD", "OPTIONS"].includes(req.method)) {
+    return next()
   }
   
   // * Debug: Log the request path for troubleshooting
@@ -113,43 +116,43 @@ const csrfProtection = (req, res, next) => {
     logger.debug('CSRF check passed - versioned public endpoint', { path: requestPath });
     return next();
   }
-  
+
   // * Get CSRF token from header
-  const csrfToken = req.get('X-CSRF-Token') || req.body._csrf;
-  
+  const csrfToken = req.get("X-CSRF-Token") || req.body._csrf
+
   if (!csrfToken) {
-    logger.warn('CSRF token missing', {
+    logger.warn("CSRF token missing", {
       path: req.path,
       method: req.method,
-      ip: req.ip
-    });
-    
+      ip: req.ip,
+    })
+
     return res.status(403).json({
       success: false,
-      message: 'CSRF token missing',
-      error: 'CSRF_TOKEN_MISSING'
-    });
+      message: "CSRF token missing",
+      error: "CSRF_TOKEN_MISSING",
+    })
   }
-  
+
   if (!verifyCSRFToken(csrfToken)) {
-    logger.warn('Invalid CSRF token', {
+    logger.warn("Invalid CSRF token", {
       path: req.path,
       method: req.method,
-      ip: req.ip
-    });
-    
+      ip: req.ip,
+    })
+
     return res.status(403).json({
       success: false,
-      message: 'Invalid CSRF token',
-      error: 'CSRF_TOKEN_INVALID'
-    });
+      message: "Invalid CSRF token",
+      error: "CSRF_TOKEN_INVALID",
+    })
   }
-  
+
   // * Remove token after use (one-time use)
-  csrfTokens.delete(csrfToken);
-  
-  next();
-};
+  csrfTokens.delete(csrfToken)
+
+  next()
+}
 
 /**
  * Middleware to add CSRF token to response
@@ -158,17 +161,16 @@ const csrfProtection = (req, res, next) => {
 const addCSRFToken = (req, res, next) => {
   // * Generate token for authenticated users
   if (req.user) {
-    const token = generateCSRFToken(req.user.id);
-    res.setHeader('X-CSRF-Token', token);
+    const token = generateCSRFToken(req.user.id)
+    res.setHeader("X-CSRF-Token", token)
   }
-  
-  next();
-};
+
+  next()
+}
 
 module.exports = {
   csrfProtection,
   addCSRFToken,
   generateCSRFToken,
-  verifyCSRFToken
-};
-
+  verifyCSRFToken,
+}

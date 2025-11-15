@@ -1,6 +1,6 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import React from "react"
+import { Link, useLocation } from "react-router-dom"
+import { useAuth } from "../../contexts/AuthContext"
 import {
   Home,
   Search,
@@ -12,11 +12,11 @@ import {
   Users,
   Shield,
   Calendar,
-} from 'lucide-react';
+} from "lucide-react"
 
 const Sidebar: React.FC = () => {
-  const { user, loading } = useAuth();
-  const location = useLocation();
+  const { user, loading } = useAuth()
+  const location = useLocation()
 
   // Get user from localStorage as fallback during loading (safe access)
   // This ensures navigation shows immediately on refresh
@@ -24,19 +24,19 @@ const Sidebar: React.FC = () => {
   const currentUser = React.useMemo(() => {
     // If user is already loaded, use it
     if (user && user.role) {
-      return user;
+      return user
     }
-    
+
     // Otherwise, try to get from localStorage
     try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        const token = localStorage.getItem('token');
-        const stored = localStorage.getItem('user');
+      if (typeof window !== "undefined" && window.localStorage) {
+        const token = localStorage.getItem("token")
+        const stored = localStorage.getItem("user")
         if (token && stored) {
           try {
-            const parsed = JSON.parse(stored);
+            const parsed = JSON.parse(stored)
             if (parsed && parsed.role) {
-              return parsed;
+              return parsed
             }
           } catch {
             // Invalid JSON, ignore
@@ -46,94 +46,107 @@ const Sidebar: React.FC = () => {
     } catch {
       // localStorage access failed, ignore
     }
-    
-    return null;
-  }, [user, loading]); // Recalculate when user or loading changes
-  
+
+    return null
+  }, [user, loading]) // Recalculate when user or loading changes
+
   // Ensure we have a valid user with role before rendering
-  const hasValidUser = currentUser && currentUser.role;
+  const hasValidUser = currentUser && currentUser.role
 
   const isActive = (path: string) => {
-    return location.pathname === path;
-  };
+    return location.pathname === path
+  }
+
+  // Generate dashboard link based on user role
+  const getDashboardHref = () => {
+    if (!hasValidUser) return "/dashboard"
+    switch (currentUser.role) {
+      case "admin":
+        return "/admin"
+      case "enforcer":
+        return "/enforcer/violations"
+      default:
+        return "/dashboard"
+    }
+  }
 
   const navigationItems = [
     {
-      name: 'Dashboard',
-      href: '/dashboard',
+      name: "Dashboard",
+      href: getDashboardHref(),
       icon: Home,
-      roles: ['citizen', 'admin', 'enforcer'],
+      roles: ["citizen"],
     },
     {
-      name: 'Search Violations',
-      href: '/violations/search',
+      name: "Search Violations",
+      href: "/violations/search",
       icon: Search,
-      roles: ['citizen', 'admin', 'enforcer'],
+      roles: ["citizen", "admin", "enforcer"],
     },
     {
-      name: 'Payment History',
-      href: '/payments',
+      name: "Payment History",
+      href: "/payments",
       icon: CreditCard,
-      roles: ['citizen', 'admin'],
+      roles: ["citizen"],
     },
     {
-      name: 'My Violations',
-      href: '/violations',
+      name: "My Violations",
+      href: "/violations",
       icon: FileText,
-      roles: ['citizen'],
+      roles: ["citizen"],
     },
     {
-      name: 'Profile',
-      href: '/profile',
+      name: "Profile",
+      href: "/profile",
       icon: User,
-      roles: ['citizen', 'admin', 'enforcer'],
+      roles: ["citizen"],
     },
-  ];
+  ]
 
   const adminItems = [
     {
-      name: 'Admin Dashboard',
-      href: '/admin',
+      name: "Admin Dashboard",
+      href: "/admin",
       icon: BarChart3,
     },
     {
-      name: 'Manage Violations',
-      href: '/admin/violations',
+      name: "Manage Violations",
+      href: "/admin/violations",
       icon: FileText,
     },
     {
-      name: 'Manage Users',
-      href: '/admin/users',
+      name: "Manage Users",
+      href: "/admin/users",
       icon: Users,
     },
     {
-      name: 'Reports',
-      href: '/admin/reports',
+      name: "Reports",
+      href: "/admin/reports",
       icon: Calendar,
     },
     {
-      name: 'System Settings',
-      href: '/admin/settings',
+      name: "System Settings",
+      href: "/admin/settings",
       icon: Settings,
     },
-  ];
+  ]
 
   const enforcerItems = [
     {
-      name: 'Issue Violations',
-      href: '/enforcer/violations',
+      name: "Issue Violations",
+      href: "/enforcer/violations",
       icon: Shield,
     },
     {
-      name: 'My Issued Violations',
-      href: '/enforcer/my-violations',
+      name: "My Issued Violations",
+      href: "/enforcer/my-violations",
       icon: FileText,
     },
-  ];
+  ]
 
   const renderNavigationItem = (item: any) => {
-    const Icon = item.icon;
-    const active = isActive(item.href);
+    const Icon = item.icon
+    const active = isActive(item.href)
 
     return (
       <Link
@@ -141,80 +154,79 @@ const Sidebar: React.FC = () => {
         to={item.href}
         className={`
           flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200
-          ${active
-            ? 'bg-gradient-to-r from-primary-100 to-primary-50 text-primary-800 border-r-4 border-primary-600 shadow-md premium-glow'
-            : 'text-gray-700 hover:bg-primary-50/50 hover:text-primary-700 hover:shadow-sm'
+          ${
+            active
+              ? "bg-gradient-to-r from-primary-100 to-primary-50 text-primary-800 border-r-4 border-primary-600 shadow-md premium-glow"
+              : "text-gray-700 hover:bg-primary-50/50 hover:text-primary-700 hover:shadow-sm"
           }
         `}
       >
         <Icon className="mr-3 h-5 w-5" />
         {item.name}
       </Link>
-    );
-  };
+    )
+  }
 
   return (
-    <div 
-      className="hidden md:flex md:flex-shrink-0 fixed left-0 z-40" 
-      style={{ 
-        width: '256px', 
-        top: '80px', 
-        height: 'calc(100vh - 80px)',
-        overflowY: 'auto',
-        overflowX: 'hidden'
+    <div
+      className="hidden md:flex md:flex-shrink-0 fixed left-0 z-40"
+      style={{
+        width: "256px",
+        top: "80px",
+        height: "calc(100vh - 80px)",
+        overflowY: "auto",
+        overflowX: "hidden",
       }}
     >
       <div className="flex flex-col w-full h-full bg-white/95 backdrop-blur-sm border-r-2 border-primary-100/50 shadow-lg">
         <div className="flex-1 overflow-y-auto pt-5 pb-6">
           <nav className="px-2 space-y-1">
-              {/* Main Navigation */}
-              <div className="pb-2">
-                <h2 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                  Navigation
-                </h2>
-              </div>
-              {hasValidUser && navigationItems
-                .filter(item => item.roles.includes(currentUser.role))
+            {/* Main Navigation */}
+            <div className="pb-2">
+              <h2 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                Navigation
+              </h2>
+            </div>
+            {hasValidUser &&
+              navigationItems
+                .filter((item) => item.roles.includes(currentUser.role))
                 .map(renderNavigationItem)}
 
-              {/* Admin Navigation */}
-              {hasValidUser && currentUser.role === 'admin' && (
-                <>
-                  <div className="pt-6 pb-2">
-                    <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Administration
-                    </h3>
-                  </div>
-                  {adminItems.map(renderNavigationItem)}
-                </>
-              )}
-
-              {/* Enforcer Navigation */}
-              {hasValidUser && currentUser.role === 'enforcer' && (
-                <>
-                  <div className="pt-6 pb-2">
-                    <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Enforcement
-                    </h3>
-                  </div>
-                  {enforcerItems.map(renderNavigationItem)}
-                </>
-              )}
-              
-              {/* Loading state or no user */}
-              {!hasValidUser && (
-                <div className="px-3 py-4 text-sm text-gray-500 text-center">
-                  Loading navigation...
+            {/* Admin Navigation */}
+            {hasValidUser && currentUser.role === "admin" && (
+              <>
+                <div className="pt-6 pb-2">
+                  <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Administration
+                  </h3>
                 </div>
-              )}
-            </nav>
+                {adminItems.map(renderNavigationItem)}
+              </>
+            )}
+
+            {/* Enforcer Navigation */}
+            {hasValidUser && currentUser.role === "enforcer" && (
+              <>
+                <div className="pt-6 pb-2">
+                  <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Enforcement
+                  </h3>
+                </div>
+                {enforcerItems.map(renderNavigationItem)}
+              </>
+            )}
+
+            {/* Loading state or no user */}
+            {!hasValidUser && (
+              <div className="px-3 py-4 text-sm text-gray-500 text-center">
+                Loading navigation...
+              </div>
+            )}
+          </nav>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Sidebar;
-
-
-
+export default Sidebar

@@ -9,11 +9,13 @@ This guide will walk you through setting up the Las Piñas Traffic Online Paymen
 Before you begin, ensure you have the following installed:
 
 ### Required Software
+
 - **Node.js** (v18.0.0 or higher) - [Download here](https://nodejs.org/)
 - **PostgreSQL** (v12 or higher) - [Download here](https://www.postgresql.org/download/)
 - **Git** - [Download here](https://git-scm.com/downloads)
 
 ### Optional Software
+
 - **Redis** (for rate limiting and caching) - [Download here](https://redis.io/download)
 - **Postman** (for API testing) - [Download here](https://www.postman.com/downloads/)
 
@@ -151,6 +153,7 @@ curl http://localhost:5000/health
 ```
 
 Expected response:
+
 ```json
 {
   "status": "OK",
@@ -171,7 +174,7 @@ curl -X POST http://localhost:5000/api/auth/register \
     "lastName": "Doe",
     "email": "john.doe@example.com",
     "phoneNumber": "+639123456789",
-    "password": "password123"
+    "password": "Password123!"
   }'
 ```
 
@@ -182,7 +185,7 @@ curl -X POST http://localhost:5000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "john.doe@example.com",
-    "password": "password123"
+    "password": "Password123!"
   }'
 ```
 
@@ -247,6 +250,7 @@ las-pinas-traffic-payment-system/
 ### Email Configuration
 
 For Gmail, you'll need to:
+
 1. Enable 2-factor authentication
 2. Generate an App Password
 3. Use the App Password in `SMTP_PASS`
@@ -260,11 +264,13 @@ For Gmail, you'll need to:
 ### Payment Gateway Configuration
 
 #### PayMongo (Recommended for Philippines)
+
 1. Sign up at [PayMongo](https://paymongo.com/)
 2. Get your API keys from the dashboard
 3. Use test keys for development
 
 #### Other Gateways
+
 - GCash: Contact GCash for merchant integration
 - Maya: Contact Maya for merchant integration
 - DragonPay: Contact DragonPay for merchant integration
@@ -278,6 +284,7 @@ For Gmail, you'll need to:
 **Error**: `ECONNREFUSED` or `password authentication failed`
 
 **Solution**:
+
 ```bash
 # Check if PostgreSQL is running
 sudo systemctl status postgresql  # Linux
@@ -294,6 +301,7 @@ psql -h localhost -U postgres -d las_pinas_traffic_db
 **Error**: `EADDRINUSE`
 
 **Solution**:
+
 ```bash
 # Find process using port 5000
 netstat -ano | findstr :5000  # Windows
@@ -307,6 +315,7 @@ lsof -i :5000  # Mac/Linux
 **Error**: `Cannot find module`
 
 **Solution**:
+
 ```bash
 # Reinstall dependencies
 rm -rf node_modules package-lock.json
@@ -318,6 +327,7 @@ npm install
 **Error**: `jwt malformed` or `invalid signature`
 
 **Solution**:
+
 ```bash
 # Generate a new JWT secret
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
@@ -385,6 +395,3 @@ After successful setup:
 - [Sequelize Documentation](https://sequelize.org/docs/v6/)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
 - [JWT.io](https://jwt.io/) - JWT debugging and validation
-
-
-
