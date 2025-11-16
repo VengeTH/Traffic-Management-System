@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { Link, useParams } from "react-router-dom"
+import { Link, useParams, useSearchParams } from "react-router-dom"
 import { apiService } from "../../services/api"
 import { Payment } from "../../types"
 import {
@@ -20,13 +20,20 @@ import PageSection from "../../components/Layout/PageSection"
 const formatLabel = (value: string) => value.replace(/_/g, " ")
 
 const PaymentSuccessPage: React.FC = () => {
-  const { paymentId } = useParams<{ paymentId: string }>()
+  const { paymentId: paymentIdParam } = useParams<{ paymentId: string }>()
+  const [searchParams] = useSearchParams()
+  const paymentIdFromQuery = searchParams.get("payment_id")
+  
+  // * Get payment ID from either path parameter or query parameter
+  const paymentId = paymentIdParam || paymentIdFromQuery
+  
   const [payment, setPayment] = useState<Payment | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
     const fetchPayment = async () => {
       if (!paymentId) {
+        setLoading(false)
         return
       }
 

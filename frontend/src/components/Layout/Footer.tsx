@@ -114,7 +114,7 @@ const Footer: React.FC = () => {
               © {new Date().getFullYear()} Las Piñas City. All rights reserved.
             </p>
             <div className="flex items-center gap-4 text-sm text-gray-400">
-              <span>Powered by E-VioPay</span>
+              <span>Powered by The Heedful</span>
             </div>
           </div>
         </div>

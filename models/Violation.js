@@ -232,7 +232,8 @@ const Violation = sequelize.define('Violation', {
   
   enforcerBadgeNumber: {
     type: DataTypes.STRING(20),
-    allowNull: false
+    allowNull: true // Temporarily nullable until migration runs
+    // Note: underscored: true in database config automatically converts to enforcer_badge_number
   },
   
   // * Evidence and Documentation
@@ -320,6 +321,7 @@ const Violation = sequelize.define('Violation', {
   }
 }, {
   tableName: 'violations',
+  underscored: true, // Ensure underscored is explicitly set for this model
   
   // * Indexes for performance
   indexes: [
@@ -502,7 +504,62 @@ Violation.generateCitationNumber = function() {
 
 // * Add search methods directly to Violation model
 Violation.findByOVR = async function(ovrNumber) {
-	return await this.findOne({ where: { ovrNumber } });
+	if (!ovrNumber) return null;
+	
+	// * Normalize OVR number: trim whitespace, convert to uppercase for case-insensitive lookup
+	let normalizedOVR = String(ovrNumber || '').trim().toUpperCase();
+	
+	// * Try exact match first
+	let violation = await this.findOne({ where: { ovrNumber: normalizedOVR } });
+	
+	// * If not found, try case-insensitive search using Sequelize Op
+	if (!violation) {
+		const { Op } = require('sequelize');
+		const { sequelize } = require('../config/database');
+		violation = await this.findOne({ 
+			where: { 
+				ovrNumber: sequelize.where(
+					sequelize.fn('UPPER', sequelize.col('ovr_number')),
+					normalizedOVR
+				)
+			} 
+		});
+	}
+	
+	// * If still not found, try with LIKE pattern matching (handles partial matches)
+	if (!violation) {
+		const { Op } = require('sequelize');
+		violation = await this.findOne({ 
+			where: { 
+				ovrNumber: {
+					[Op.like]: `%${normalizedOVR.replace(/[^A-Z0-9-]/g, '')}%`
+				}
+			} 
+		});
+	}
+	
+	// * If still not found, try reverse lookup - if searching for "OVR-XXX", try "LPC-XXX" format
+	if (!violation && normalizedOVR.startsWith('OVR-')) {
+		const lpcFormat = normalizedOVR.replace(/^OVR-/, 'LPC-');
+		violation = await this.findOne({ where: { ovrNumber: lpcFormat } });
+	}
+	
+	// * If still not found, try without prefix - just the number part
+	if (!violation) {
+		const numberPart = normalizedOVR.replace(/^[A-Z]+-?/, '').replace(/[^0-9]/g, '');
+		if (numberPart.length >= 4) {
+			const { Op } = require('sequelize');
+			violation = await this.findOne({ 
+				where: { 
+					ovrNumber: {
+						[Op.like]: `%${numberPart}%`
+					}
+				} 
+			});
+		}
+	}
+	
+	return violation;
 };
 
 Violation.findByCitation = async function(citationNumber) {

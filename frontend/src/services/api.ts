@@ -62,13 +62,57 @@ const api: AxiosInstance = axios.create({
 });
 
 
-// Request interceptor to add auth token
+// * CSRF token storage (in-memory, refreshed on each response)
+let csrfToken: string | null = null;
+
+/**
+ * Fetch CSRF token from server
+ * Makes a GET request to get a fresh CSRF token
+ * Uses getCurrentUser as it's a simple authenticated endpoint
+ */
+export const fetchCSRFToken = async (): Promise<string | null> => {
+  // * If we already have a token, return it
+  if (csrfToken) {
+    return csrfToken;
+  }
+  
+  try {
+    // * Use getCurrentUser to get CSRF token from response header
+    const response = await api.get('/auth/me');
+    const token = response.headers['x-csrf-token'] || response.headers['X-CSRF-Token'];
+    if (token) {
+      csrfToken = token;
+      return token;
+    }
+  } catch (error) {
+    // * If /auth/me fails, try dashboard stats as fallback
+    try {
+      const response = await api.get('/dashboard/stats');
+      const token = response.headers['x-csrf-token'] || response.headers['X-CSRF-Token'];
+      if (token) {
+        csrfToken = token;
+        return token;
+      }
+    } catch (fallbackError) {
+      console.warn('Failed to fetch CSRF token from both endpoints:', error);
+    }
+  }
+  return csrfToken; // Return existing token if fetch fails
+};
+
+// Request interceptor to add auth token and CSRF token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // * Add CSRF token for state-changing requests (POST, PUT, DELETE, PATCH)
+    if (csrfToken && ['post', 'put', 'delete', 'patch'].includes(config.method?.toLowerCase() || '')) {
+      config.headers['X-CSRF-Token'] = csrfToken;
+    }
+    
     return config;
   },
   (error) => {
@@ -76,9 +120,14 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor to handle errors
+// Response interceptor to handle errors and extract CSRF token
 api.interceptors.response.use(
   (response: AxiosResponse) => {
+    // * Extract CSRF token from response header if present
+    const newCsrfToken = response.headers['x-csrf-token'] || response.headers['X-CSRF-Token'];
+    if (newCsrfToken) {
+      csrfToken = newCsrfToken;
+    }
     return response;
   },
   async (error: AxiosError<ApiError>) => {
@@ -163,6 +212,11 @@ class ApiService {
   // Auth endpoints
   async login(email: string, password: string) {
     const response = await api.post('/auth/login', { email, password });
+    // * Extract CSRF token from login response
+    const newCsrfToken = response.headers['x-csrf-token'];
+    if (newCsrfToken) {
+      csrfToken = newCsrfToken;
+    }
     return response.data;
   }
 

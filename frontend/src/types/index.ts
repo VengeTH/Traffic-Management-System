@@ -32,6 +32,8 @@ export interface Violation {
   vehicleType: 'motorcycle' | 'car' | 'truck' | 'bus' | 'tricycle' | 'other';
   driverName: string;
   driverLicenseNumber?: string;
+  driverPhone?: string; // Added for payment
+  driverEmail?: string; // Added for payment (may not exist in model)
   violationType: string;
   violationDescription: string;
   violationLocation: string;
@@ -96,11 +98,13 @@ export interface PaymentGateway {
 }
 
 export interface PaymentInitiationRequest {
-  violationId: string;
+  violationId?: string; // Primary identifier (more reliable)
+  ovrNumber?: string; // Fallback identifier
   paymentMethod: string;
-  amount: number;
+  amount?: number; // Optional, backend validates against violation amount
   payerEmail: string;
   payerName: string;
+  payerPhone?: string; // Optional
 }
 
 export interface PaymentConfirmationRequest {

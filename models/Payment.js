@@ -487,6 +487,72 @@ Payment.generatePaymentId = function() {
 	return `PAY${year}${month}${random}`;
 };
 
+// * Find by payment ID
+Payment.findByPaymentId = async function(paymentId) {
+	return await this.findOne({ where: { paymentId } });
+};
+
+// * Find by receipt number
+Payment.findByReceiptNumber = async function(receiptNumber) {
+	return await this.findOne({ where: { receiptNumber } });
+};
+
+// * Find by gateway transaction ID
+Payment.findByGatewayTransactionId = async function(gatewayTransactionId) {
+	return await this.findOne({ where: { gatewayTransactionId } });
+};
+
+// * Get payments by status
+Payment.getPaymentsByStatus = async function(status) {
+	const { Op } = require('sequelize');
+	return await this.findAll({
+		where: { status },
+		order: [['initiatedAt', 'DESC']]
+	});
+};
+
+// * Get payments by date range
+Payment.getPaymentsByDateRange = async function(startDate, endDate) {
+	const { Op } = require('sequelize');
+	return await this.findAll({
+		where: {
+			initiatedAt: {
+				[Op.between]: [startDate, endDate]
+			}
+		},
+		order: [['initiatedAt', 'DESC']]
+	});
+};
+
+// * Get payments by payment method
+Payment.getPaymentsByMethod = async function(paymentMethod) {
+	return await this.findAll({
+		where: { paymentMethod },
+		order: [['initiatedAt', 'DESC']]
+	});
+};
+
+// * Get payment statistics
+Payment.getPaymentStatistics = async function(startDate, endDate) {
+	const { Op, fn, col } = require('sequelize');
+	const stats = await this.findAll({
+		where: {
+			initiatedAt: {
+				[Op.between]: [startDate, endDate]
+			}
+		},
+		attributes: [
+			'status',
+			'paymentMethod',
+			[fn('COUNT', col('id')), 'count'],
+			[fn('SUM', col('totalAmount')), 'totalAmount']
+		],
+		group: ['status', 'paymentMethod']
+	});
+	
+	return stats;
+};
+
 // * Instance methods (attach to prototype)
 Payment.prototype.generateReceiptNumber = function() {
 	const date = new Date();
@@ -504,6 +570,67 @@ Payment.prototype.generateQRCodeData = function() {
 		date: this.completedAt,
 		ovrNumber: this.ovrNumber
 	});
+};
+
+// * Mark payment as processing
+Payment.prototype.markAsProcessing = async function() {
+	this.status = 'processing';
+	this.processedAt = new Date();
+	await this.save();
+};
+
+// * Mark payment as completed
+Payment.prototype.markAsCompleted = async function(gatewayTransactionId, gatewayReference, gatewayResponse) {
+	this.status = 'completed';
+	this.completedAt = new Date();
+	if (gatewayTransactionId) {
+		this.gatewayTransactionId = gatewayTransactionId;
+	}
+	if (gatewayReference) {
+		this.gatewayReference = gatewayReference;
+	}
+	if (gatewayResponse) {
+		this.gatewayResponse = gatewayResponse;
+	}
+	await this.save();
+};
+
+// * Mark payment as failed
+Payment.prototype.markAsFailed = async function(errorCode, errorMessage) {
+	this.status = 'failed';
+	this.failedAt = new Date();
+	this.errorCode = errorCode;
+	this.errorMessage = errorMessage;
+	await this.save();
+};
+
+// * Mark payment as cancelled
+Payment.prototype.markAsCancelled = async function() {
+	this.status = 'cancelled';
+	await this.save();
+};
+
+// * Process refund
+Payment.prototype.processRefund = async function(refundAmount, refundReason, refundedBy) {
+	this.status = 'refunded';
+	this.refundAmount = refundAmount;
+	this.refundReason = refundReason;
+	this.refundedAt = new Date();
+	this.refundedBy = refundedBy;
+	await this.save();
+};
+
+// * Check if payment can be refunded
+Payment.prototype.canBeRefunded = function() {
+	return this.status === 'completed' && this.refundAmount === 0;
+};
+
+// * Get payment duration
+Payment.prototype.getPaymentDuration = function() {
+	if (!this.initiatedAt || !this.completedAt) {
+		return null;
+	}
+	return this.completedAt - this.initiatedAt;
 };
 
 // * Hooks

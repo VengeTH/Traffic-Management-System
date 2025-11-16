@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { usePayment } from "../../contexts/PaymentContext"
-import { apiService } from "../../services/api"
+import { apiService, fetchCSRFToken } from "../../services/api"
 import { PaymentGateway, Violation } from "../../types"
 import {
   AlertTriangle,
@@ -45,7 +45,13 @@ const PaymentPage: React.FC = () => {
       try {
         setLoading(true)
         const response = await apiService.getViolation(violationId)
-        const violationData = response.data as Violation
+        // * API returns { success: true, data: { violation: {...} } }
+        const violationData = (response.data?.violation ?? response.data) as Violation
+
+        if (!violationData) {
+          setError("Violation data not found. Please try again.")
+          return
+        }
 
         if (violationData.status === "paid") {
           setError(
@@ -76,12 +82,69 @@ const PaymentPage: React.FC = () => {
       setProcessing(true)
       setError(null)
 
+      // * Ensure we have a CSRF token before making the payment request
+      await fetchCSRFToken()
+
+      // * Use violation ID from URL parameter (most reliable - this is what was used to fetch the violation)
+      // * Extract UUID from URL parameter if it's corrupted, then fallback to violation object
+      console.log('Payment initiation - violationId from URL:', violationId, 'length:', violationId?.length);
+      console.log('Payment initiation - violation.id from object:', violation.id, 'length:', violation.id?.length);
+      
+      // * Extract UUID from URL parameter first (even if corrupted)
+      const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+      let validViolationId = null;
+      
+      if (violationId) {
+        // * Try direct use if it's exactly 36 characters
+        if (violationId.length === 36 && uuidPattern.test(violationId)) {
+          validViolationId = violationId;
+        } else {
+          // * Extract UUID from corrupted string
+          const extracted = violationId.match(uuidPattern);
+          if (extracted && extracted[0] && extracted[0].length === 36) {
+            validViolationId = extracted[0];
+            console.log('Extracted UUID from corrupted URL parameter:', validViolationId);
+          }
+        }
+      }
+      
+      // * Fallback to violation object if URL param extraction failed
+      if (!validViolationId) {
+        if (violation.id && typeof violation.id === 'string' && violation.id.length === 36 && uuidPattern.test(violation.id)) {
+          validViolationId = violation.id;
+        } else if (violation.id) {
+          const extracted = String(violation.id).match(uuidPattern);
+          if (extracted && extracted[0] && extracted[0].length === 36) {
+            validViolationId = extracted[0];
+            console.log('Extracted UUID from corrupted violation object:', validViolationId);
+          } else {
+            validViolationId = violation.id; // * Last resort - use as-is
+          }
+        }
+      }
+      
+      console.log('Payment initiation - validViolationId to send:', validViolationId, 'length:', validViolationId?.length);
+      
+      // * Ensure we have a valid violation ID
+      if (!validViolationId) {
+        throw new Error('Unable to determine violation ID. Please refresh the page and try again.');
+      }
+      
+      // * Ensure OVR number is valid (should be 13 characters like "OVR2025114186")
+      const validOVRNumber = violation.ovrNumber && typeof violation.ovrNumber === 'string' && violation.ovrNumber.length <= 20
+        ? violation.ovrNumber
+        : undefined;
+      
+      console.log('Payment initiation - validOVRNumber to send:', validOVRNumber, 'length:', validOVRNumber?.length);
+      
       const payment = await initiatePayment({
-        violationId: violation.id,
+        violationId: validViolationId, // Use violation ID from URL parameter (most reliable)
+        ovrNumber: validOVRNumber, // Keep OVR as fallback (validate length)
         paymentMethod: selectedGateway.id,
         amount: violation.totalFine,
         payerName: violation.driverName,
-        payerEmail: "driver@example.com",
+        payerEmail: violation.driverEmail || (violation.driverPhone ? `${violation.driverPhone.replace(/\D/g, '')}@temp.email` : "driver@example.com"),
+        payerPhone: violation.driverPhone || undefined,
       })
 
       navigate(`/payment/success/${payment.id}`)
@@ -186,24 +249,24 @@ const PaymentPage: React.FC = () => {
           description="Ensure all details are accurate before proceeding with payment."
         >
           <div className="grid gap-4 md:grid-cols-2">
-            <SummaryRow label="Citation" value={violation.citationNumber} />
+            <SummaryRow label="Citation" value={violation?.citationNumber ?? "N/A"} />
             <SummaryRow
               label="Status"
-              value={renderStatusPill(violation.status)}
+              value={renderStatusPill(violation?.status ?? "pending")}
               isNode
             />
-            <SummaryRow label="Driver" value={violation.driverName} />
-            <SummaryRow label="Plate" value={violation.plateNumber} />
+            <SummaryRow label="Driver" value={violation?.driverName ?? "N/A"} />
+            <SummaryRow label="Plate" value={violation?.plateNumber ?? "N/A"} />
             <SummaryRow
               label="Violation"
               value={formatViolationLabel(violation?.violationType)}
             />
-            <SummaryRow label="Location" value={violation.violationLocation} />
+            <SummaryRow label="Location" value={violation?.violationLocation ?? "N/A"} />
             <SummaryRow
               label="Issued on"
-              value={new Date(violation.violationDate).toLocaleDateString()}
+              value={violation?.violationDate ? new Date(violation.violationDate).toLocaleDateString() : "N/A"}
             />
-            {violation.status === "pending" && violation.dueDate && (
+            {violation?.status === "pending" && violation?.dueDate && (
               <SummaryRow
                 label="Due date"
                 value={new Date(violation.dueDate).toLocaleDateString()}
@@ -215,17 +278,17 @@ const PaymentPage: React.FC = () => {
           <div className="mt-6 grid gap-4 rounded-3xl border border-gray-100 bg-white/95 p-6 shadow-xl md:grid-cols-3">
             <AmountTile
               label="Base fine"
-              value={Number(violation.baseFine)}
+              value={Number(violation?.baseFine ?? 0)}
               accent="bg-primary-50 text-primary-700"
             />
             <AmountTile
               label="Penalties"
-              value={Number(violation.additionalPenalties)}
+              value={Number(violation?.additionalPenalties ?? 0)}
               accent="bg-warning-50 text-warning-700"
             />
             <AmountTile
               label="Total"
-              value={Number(violation.totalFine)}
+              value={Number(violation?.totalFine ?? 0)}
               accent="bg-success-50 text-success-700"
               emphasized
             />
@@ -293,7 +356,7 @@ const PaymentPage: React.FC = () => {
             >
               <DollarSign className="h-5 w-5" />
               Pay ₱
-              {Number(violation.totalFine).toLocaleString("en-PH", {
+              {Number(violation?.totalFine ?? 0).toLocaleString("en-PH", {
                 minimumFractionDigits: 2,
               })}
             </Button>
