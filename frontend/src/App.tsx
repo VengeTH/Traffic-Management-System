@@ -8,6 +8,7 @@ import { getBasename } from './utils/router';
 // Layout Components
 import Navbar from './components/Layout/Navbar';
 import Sidebar from './components/Layout/Sidebar';
+import Footer from './components/Layout/Footer';
 
 // Public Pages
 import HomePage from './pages/HomePage';
@@ -15,6 +16,8 @@ import LoginPage from './pages/Auth/LoginPage';
 import RegisterPage from './pages/Auth/RegisterPage';
 import ForgotPasswordPage from './pages/Auth/ForgotPasswordPage';
 import ResetPasswordPage from './pages/Auth/ResetPasswordPage';
+import TermsOfServicePage from './pages/Legal/TermsOfServicePage';
+import PrivacyPolicyPage from './pages/Legal/PrivacyPolicyPage';
 
 // Protected Pages
 import DashboardPage from './pages/Dashboard/DashboardPage';
@@ -94,7 +97,7 @@ const AppLayout: React.FC = () => {
   const location = useLocation();
   
   // Public routes that should not show sidebar
-  const publicRoutes = ["/", "/login", "/register", "/forgot-password", "/reset-password"];
+  const publicRoutes = ["/", "/login", "/register", "/forgot-password", "/reset-password", "/terms", "/privacy"];
   const isPublicRoute = publicRoutes.includes(location.pathname);
 
   // Show sidebar only if user is authenticated and not on public routes
@@ -102,14 +105,14 @@ const AppLayout: React.FC = () => {
   const shouldShowSidebar = !loading && !!user && !isPublicRoute;
 
   return (
-    <div className="min-h-screen bg-green-50">
+    <div className="min-h-screen bg-green-50 flex flex-col">
       <Navbar />
       
-      <div className="flex overflow-visible" style={{ minHeight: '100vh', paddingTop: '80px' }}>
+      <div className="flex overflow-visible flex-1" style={{ minHeight: '100vh', paddingTop: '80px' }}>
         {shouldShowSidebar && <Sidebar />}
         
         <main 
-          className={`flex-1 ${isPublicRoute ? '' : 'mx-5'}`} 
+          className={`flex-1 flex flex-col ${isPublicRoute ? '' : 'mx-5'}`} 
           style={{ 
             minHeight: 'calc(100vh - 80px)', 
             overflow: 'visible',
@@ -118,7 +121,8 @@ const AppLayout: React.FC = () => {
             paddingTop: isPublicRoute ? '0' : '0'
           }}
         >
-          <Routes>
+          <div className="flex-1">
+            <Routes>
               {/* Public Routes */}
               <Route path="/" element={
                 <PublicRoute>
@@ -145,6 +149,10 @@ const AppLayout: React.FC = () => {
                   <ResetPasswordPage />
                 </PublicRoute>
               } />
+              
+              {/* Legal Pages - Public Access */}
+              <Route path="/terms" element={<TermsOfServicePage />} />
+              <Route path="/privacy" element={<PrivacyPolicyPage />} />
               
               {/* Protected Routes */}
               <Route path="/dashboard" element={
@@ -241,7 +249,9 @@ const AppLayout: React.FC = () => {
               
               {/* Catch all route */}
               <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+            </Routes>
+          </div>
+          <Footer />
         </main>
       </div>
     </div>

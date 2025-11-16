@@ -21,8 +21,8 @@ const SENSITIVE_PATTERNS = [
   /(api[_-]?key|secret[_-]?key|access[_-]?token)["\s:=]+([^"'\s,}]+)/gi,
   // * Database connection strings
   /(postgres|mysql|mongodb):\/\/[^@]+@[^\s"']+/gi,
-  // * OVR numbers (partial redaction)
-  /OVR\d{4,}/gi,
+    // * OVR numbers (Las Piñas City format: LPC-######)
+    /LPC-\d{6}/gi,
 ]
 
 /**
@@ -80,8 +80,8 @@ const redactSensitive = (text) => {
     "$1://[REDACTED]@[REDACTED]"
   )
 
-  // * Redact OVR numbers (keep prefix)
-  sanitized = sanitized.replace(/OVR(\d{4,})/gi, "OVR[REDACTED]")
+  // * Redact OVR numbers (Las Piñas City format: LPC-######)
+  sanitized = sanitized.replace(/LPC-(\d{6})/gi, "LPC-[REDACTED]")
 
   return sanitized
 }

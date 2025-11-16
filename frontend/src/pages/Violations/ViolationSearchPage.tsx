@@ -100,7 +100,7 @@ const ViolationSearchPage: React.FC = () => {
   const getSearchPlaceholder = () => {
     switch (searchType) {
       case "ovr":
-        return "Enter OVR number (e.g., OVR-2024-001)"
+        return "Enter OVR number (e.g., LPC-084269)"
       case "plate":
         return "Enter plate number (e.g., ABC-123)"
       case "license":

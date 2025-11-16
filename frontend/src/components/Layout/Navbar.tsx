@@ -160,7 +160,7 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className="bg-white/95 backdrop-blur-md shadow-xl border-b-2 border-primary-100/50 fixed top-0 left-0 right-0 z-50 premium-glow">
-      <div className="px-4  sm:px-6 lg:px-8 justify-center alig">
+      <div className="px-4  sm:px-6 lg:px-8 justify-center align-middle">
         <div className="flex justify-between h-20">
           {/* Logo and brand */}
           <div className="flex items-center">

@@ -468,13 +468,10 @@ const Violation = sequelize.define('Violation', {
       });
     },
     
-    // * Generate OVR number
+    // * Generate OVR number (Las Piñas City format: LPC-######)
     generateOVRNumber() {
-      const date = new Date();
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-      return `OVR${year}${month}${random}`;
+      const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+      return `LPC-${random}`;
     },
     
     // * Generate citation number
@@ -489,12 +486,10 @@ const Violation = sequelize.define('Violation', {
 });
 
 // * Static methods (Sequelize v6 does not support classMethods option)
+// * Generate OVR number (Las Piñas City format: LPC-######)
 Violation.generateOVRNumber = function() {
-	const date = new Date();
-	const year = date.getFullYear();
-	const month = String(date.getMonth() + 1).padStart(2, '0');
-	const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-	return `OVR${year}${month}${random}`;
+	const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+	return `LPC-${random}`;
 };
 
 Violation.generateCitationNumber = function() {

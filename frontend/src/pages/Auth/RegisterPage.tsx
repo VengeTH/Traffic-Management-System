@@ -1,5 +1,5 @@
-import React, { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import React, { useState, useEffect } from "react"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
@@ -44,6 +44,10 @@ const schema = yup
           return val.length >= 5 && val.length <= 20
         }
       ),
+    acceptTerms: yup
+      .boolean()
+      .oneOf([true], "You must accept the Terms of Service and Privacy Policy to continue")
+      .required("You must accept the Terms of Service and Privacy Policy"),
   })
   .required()
 
@@ -55,15 +59,67 @@ const RegisterPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [hasReadTerms, setHasReadTerms] = useState(false)
+  const [hasReadPrivacy, setHasReadPrivacy] = useState(false)
+
+  const location = useLocation()
+
+  // * Check if user has read both documents
+  useEffect(() => {
+    const checkReadStatus = () => {
+      const termsRead = localStorage.getItem("terms_read") === "true"
+      const privacyRead = localStorage.getItem("privacy_read") === "true"
+      setHasReadTerms(termsRead)
+      setHasReadPrivacy(privacyRead)
+    }
+
+    checkReadStatus()
+    // * Check when component mounts or when location changes (user returns from reading)
+    // * This ensures the checkbox state updates when user navigates back
+  }, [location])
+
+  // * Also check periodically to catch when user returns from reading
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const termsRead = localStorage.getItem("terms_read") === "true"
+      const privacyRead = localStorage.getItem("privacy_read") === "true"
+      setHasReadTerms(termsRead)
+      setHasReadPrivacy(privacyRead)
+    }, 500) // * Check every 500ms for faster response
+
+    return () => clearInterval(interval)
+  }, [])
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     setError,
+    setValue,
+    watch,
   } = useForm<RegisterFormData>({
     resolver: yupResolver(schema),
   })
+
+  const acceptTermsValue = watch("acceptTerms")
+
+  const handleOpenTerms = (e: React.MouseEvent) => {
+    e.preventDefault()
+    navigate("/terms", { state: { from: "register" } })
+  }
+
+  const handleOpenPrivacy = (e: React.MouseEvent) => {
+    e.preventDefault()
+    navigate("/privacy", { state: { from: "register" } })
+  }
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!hasReadTerms || !hasReadPrivacy) {
+      e.preventDefault()
+      return
+    }
+    setValue("acceptTerms", e.target.checked)
+  }
 
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true)
@@ -74,6 +130,9 @@ const RegisterPage: React.FC = () => {
         driverLicenseNumber: data.driverLicenseNumber?.trim() || undefined,
       }
       await registerUser(submitData)
+      // * Clear the read flags after successful registration
+      localStorage.removeItem("terms_read")
+      localStorage.removeItem("privacy_read")
       navigate("/dashboard")
     } catch (error: any) {
       if (error.response?.data?.message) {
@@ -238,6 +297,110 @@ const RegisterPage: React.FC = () => {
                 </div>
               </div>
             )}
+
+            {/* Terms and Conditions Acceptance */}
+            <div className="space-y-2">
+              <div className="flex items-start">
+                <div className="flex items-center h-5">
+                  <input
+                    {...register("acceptTerms")}
+                    id="acceptTerms"
+                    type="checkbox"
+                    disabled={!hasReadTerms || !hasReadPrivacy}
+                    onChange={handleCheckboxChange}
+                    checked={acceptTermsValue || false}
+                    className={`h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded ${
+                      !hasReadTerms || !hasReadPrivacy
+                        ? "opacity-50 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                  />
+                </div>
+                <div className="ml-3 text-sm flex-1">
+                  <label
+                    htmlFor="acceptTerms"
+                    className={`text-gray-700 ${
+                      !hasReadTerms || !hasReadPrivacy
+                        ? "cursor-not-allowed opacity-75"
+                        : "cursor-pointer"
+                    }`}
+                  >
+                    I agree to the{" "}
+                    <button
+                      type="button"
+                      onClick={handleOpenTerms}
+                      className="text-primary-600 hover:text-primary-700 font-semibold underline focus:outline-none focus:ring-2 focus:ring-primary-500 rounded"
+                    >
+                      Terms of Service
+                    </button>{" "}
+                    and{" "}
+                    <button
+                      type="button"
+                      onClick={handleOpenPrivacy}
+                      className="text-primary-600 hover:text-primary-700 font-semibold underline focus:outline-none focus:ring-2 focus:ring-primary-500 rounded"
+                    >
+                      Privacy Policy
+                    </button>
+                  </label>
+                  {errors.acceptTerms && (
+                    <p className="mt-1 text-sm text-danger-600">
+                      {errors.acceptTerms.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+              {(!hasReadTerms || !hasReadPrivacy) && (
+                <div className="ml-8">
+                  <p className="text-xs text-gray-600">
+                    {!hasReadTerms && !hasReadPrivacy ? (
+                      <span>
+                        Please read both the{" "}
+                        <button
+                          type="button"
+                          onClick={handleOpenTerms}
+                          className="text-primary-600 hover:text-primary-700 font-semibold underline"
+                        >
+                          Terms of Service
+                        </button>{" "}
+                        and{" "}
+                        <button
+                          type="button"
+                          onClick={handleOpenPrivacy}
+                          className="text-primary-600 hover:text-primary-700 font-semibold underline"
+                        >
+                          Privacy Policy
+                        </button>{" "}
+                        before accepting.
+                      </span>
+                    ) : !hasReadTerms ? (
+                      <span>
+                        Please read the{" "}
+                        <button
+                          type="button"
+                          onClick={handleOpenTerms}
+                          className="text-primary-600 hover:text-primary-700 font-semibold underline"
+                        >
+                          Terms of Service
+                        </button>{" "}
+                        before accepting.
+                      </span>
+                    ) : (
+                      <span>
+                        Please read the{" "}
+                        <button
+                          type="button"
+                          onClick={handleOpenPrivacy}
+                          className="text-primary-600 hover:text-primary-700 font-semibold underline"
+                        >
+                          Privacy Policy
+                        </button>{" "}
+                        before accepting.
+                      </span>
+                    )}
+                  </p>
+                </div>
+              )}
+            </div>
 
             <div>
               <Button
