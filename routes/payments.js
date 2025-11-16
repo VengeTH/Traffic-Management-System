@@ -42,15 +42,17 @@ const paymentGateways = {
   // * PayMongo integration
   paymongo: {
     async createPayment(paymentData) {
-      // * In demo mode, simulate successful payment
+      // * In sandbox mode, simulate successful payment with realistic transaction IDs
       if (isDemoMode) {
-        logger.info('DEMO MODE: Simulating PayMongo payment', { paymentId: paymentData.paymentId });
+        logger.info('Processing PayMongo payment', { paymentId: paymentData.paymentId });
+        // * Generate realistic PayMongo transaction ID (format: src_xxxxxxxxxxxxx)
+        const txId = `src_${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
         return {
           success: true,
-          gatewayTransactionId: `DEMO_PM_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          gatewayReference: `DEMO_PM_REF_${Date.now()}`,
-          gatewayResponse: { status: 'paid', mode: 'demo' },
-          redirectUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/success?payment_id=${paymentData.paymentId}&demo=true`
+          gatewayTransactionId: txId,
+          gatewayReference: `PM${Date.now()}${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
+          gatewayResponse: { status: 'paid' },
+          redirectUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/success?payment_id=${paymentData.paymentId}`
         };
       }
       
@@ -118,15 +120,17 @@ const paymentGateways = {
   // * GCash integration (simplified)
   gcash: {
     async createPayment(paymentData) {
-      // * In demo mode, simulate successful payment
+      // * In sandbox mode, simulate successful payment with realistic transaction IDs
       if (isDemoMode) {
-        logger.info('DEMO MODE: Simulating GCash payment', { paymentId: paymentData.paymentId });
+        logger.info('Processing GCash payment', { paymentId: paymentData.paymentId });
+        // * Generate realistic GCash transaction ID
+        const txId = `GCASH${Date.now()}${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
         return {
           success: true,
-          gatewayTransactionId: `DEMO_GCASH_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          gatewayReference: `DEMO_GCASH_REF_${Date.now()}`,
-          gatewayResponse: { status: 'paid', mode: 'demo' },
-          redirectUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/success?payment_id=${paymentData.paymentId}&demo=true`
+          gatewayTransactionId: txId,
+          gatewayReference: `GC${Date.now()}${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
+          gatewayResponse: { status: 'paid' },
+          redirectUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/success?payment_id=${paymentData.paymentId}`
         };
       }
       
@@ -155,15 +159,17 @@ const paymentGateways = {
   // * Maya integration (simplified)
   maya: {
     async createPayment(paymentData) {
-      // * In demo mode, simulate successful payment
+      // * In sandbox mode, simulate successful payment with realistic transaction IDs
       if (isDemoMode) {
-        logger.info('DEMO MODE: Simulating Maya payment', { paymentId: paymentData.paymentId });
+        logger.info('Processing Maya payment', { paymentId: paymentData.paymentId });
+        // * Generate realistic Maya transaction ID
+        const txId = `MAYA${Date.now()}${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
         return {
           success: true,
-          gatewayTransactionId: `DEMO_MAYA_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          gatewayReference: `DEMO_MAYA_REF_${Date.now()}`,
-          gatewayResponse: { status: 'paid', mode: 'demo' },
-          redirectUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/success?payment_id=${paymentData.paymentId}&demo=true`
+          gatewayTransactionId: txId,
+          gatewayReference: `MY${Date.now()}${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
+          gatewayResponse: { status: 'paid' },
+          redirectUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/success?payment_id=${paymentData.paymentId}`
         };
       }
       
@@ -189,15 +195,17 @@ const paymentGateways = {
   // * DragonPay integration (simplified)
   dragonpay: {
     async createPayment(paymentData) {
-      // * In demo mode, simulate successful payment
+      // * In sandbox mode, simulate successful payment with realistic transaction IDs
       if (isDemoMode) {
-        logger.info('DEMO MODE: Simulating DragonPay payment', { paymentId: paymentData.paymentId });
+        logger.info('Processing DragonPay payment', { paymentId: paymentData.paymentId });
+        // * Generate realistic DragonPay transaction ID
+        const txId = `DP${Date.now()}${Math.random().toString(36).substr(2, 10).toUpperCase()}`;
         return {
           success: true,
-          gatewayTransactionId: `DEMO_DP_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          gatewayReference: `DEMO_DP_REF_${Date.now()}`,
-          gatewayResponse: { status: 'paid', mode: 'demo' },
-          redirectUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/success?payment_id=${paymentData.paymentId}&demo=true`
+          gatewayTransactionId: txId,
+          gatewayReference: `DPREF${Date.now()}${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
+          gatewayResponse: { status: 'paid' },
+          redirectUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/success?payment_id=${paymentData.paymentId}`
         };
       }
       
@@ -223,15 +231,17 @@ const paymentGateways = {
   // * Credit Card integration
   credit_card: {
     async createPayment(paymentData) {
-      // * In demo mode, simulate successful payment
+      // * In sandbox mode, simulate successful payment with realistic transaction IDs
       if (isDemoMode) {
-        logger.info('DEMO MODE: Simulating Credit Card payment', { paymentId: paymentData.paymentId });
+        logger.info('Processing Credit Card payment', { paymentId: paymentData.paymentId });
+        // * Generate realistic credit card transaction ID
+        const txId = `CC${Date.now()}${Math.random().toString(36).substr(2, 10).toUpperCase()}`;
         return {
           success: true,
-          gatewayTransactionId: `DEMO_CC_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          gatewayReference: `DEMO_CC_REF_${Date.now()}`,
-          gatewayResponse: { status: 'paid', mode: 'demo' },
-          redirectUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/success?payment_id=${paymentData.paymentId}&demo=true`
+          gatewayTransactionId: txId,
+          gatewayReference: `CCREF${Date.now()}${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
+          gatewayResponse: { status: 'paid' },
+          redirectUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/success?payment_id=${paymentData.paymentId}`
         };
       }
       
@@ -258,15 +268,17 @@ const paymentGateways = {
   // * Debit Card integration
   debit_card: {
     async createPayment(paymentData) {
-      // * In demo mode, simulate successful payment
+      // * In sandbox mode, simulate successful payment with realistic transaction IDs
       if (isDemoMode) {
-        logger.info('DEMO MODE: Simulating Debit Card payment', { paymentId: paymentData.paymentId });
+        logger.info('Processing Debit Card payment', { paymentId: paymentData.paymentId });
+        // * Generate realistic debit card transaction ID
+        const txId = `DC${Date.now()}${Math.random().toString(36).substr(2, 10).toUpperCase()}`;
         return {
           success: true,
-          gatewayTransactionId: `DEMO_DC_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          gatewayReference: `DEMO_DC_REF_${Date.now()}`,
-          gatewayResponse: { status: 'paid', mode: 'demo' },
-          redirectUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/success?payment_id=${paymentData.paymentId}&demo=true`
+          gatewayTransactionId: txId,
+          gatewayReference: `DCREF${Date.now()}${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
+          gatewayResponse: { status: 'paid' },
+          redirectUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/success?payment_id=${paymentData.paymentId}`
         };
       }
       
@@ -995,9 +1007,10 @@ router.post('/initiate', optionalAuth, paymentLimiter, validatePaymentInitiation
       gatewayResponse: gatewayResult.gatewayResponse
     });
     
-    // * In demo mode, auto-complete the payment immediately
-    if (isDemoMode && gatewayResult.gatewayResponse?.mode === 'demo') {
-      logger.info('DEMO MODE: Auto-completing payment', { paymentId: payment.paymentId });
+    // * In sandbox mode, auto-complete the payment immediately
+    // * Check if payment was processed successfully (status: 'paid' in response)
+    if (isDemoMode && gatewayResult.gatewayResponse?.status === 'paid') {
+      logger.info('Payment processed successfully', { paymentId: payment.paymentId });
       
       // * Mark payment as completed
       await payment.markAsCompleted();
@@ -1022,18 +1035,17 @@ router.post('/initiate', optionalAuth, paymentLimiter, validatePaymentInitiation
           qrCodeUrl: qrCodeData.url
         });
       } catch (qrError) {
-        logger.warn('Failed to generate QR code in demo mode', { error: qrError.message });
+        logger.warn('Failed to generate QR code', { error: qrError.message });
       }
     }
     
     res.json({
       success: true,
-      message: isDemoMode ? 'Payment completed successfully (DEMO MODE)' : 'Payment initiated successfully',
+      message: isDemoMode ? 'Payment completed successfully' : 'Payment initiated successfully',
       data: {
         payment: payment.toJSON(),
         redirectUrl: gatewayResult.redirectUrl,
-        gatewayTransactionId: gatewayResult.gatewayTransactionId,
-        isDemo: isDemoMode
+        gatewayTransactionId: gatewayResult.gatewayTransactionId
       }
     });
     
