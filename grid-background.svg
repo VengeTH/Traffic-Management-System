@@ -1,0 +1,18 @@
+<svg width="28" height="28" xmlns="http://www.w3.org/2000/svg">
+  <!-- Grid pattern - light green lines on transparent background -->
+  <!-- Grid size: 28x28px, matching CSS grid-overlay -->
+  <!-- This pattern tiles seamlessly when used as background-image -->
+  <!-- Color: rgb(20, 83, 45) with 6% opacity = #14532d with 0.06 opacity -->
+  <defs>
+    <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
+      <!-- Vertical grid lines -->
+      <line x1="0" y1="0" x2="0" y2="28" stroke="#14532d" stroke-width="1" stroke-opacity="0.06"/>
+      <!-- Horizontal grid lines -->
+      <line x1="0" y1="0" x2="28" y2="0" stroke="#14532d" stroke-width="1" stroke-opacity="0.06"/>
+    </pattern>
+  </defs>
+  <!-- Transparent background with grid pattern -->
+  <rect width="28" height="28" fill="transparent"/>
+  <rect width="28" height="28" fill="url(#grid)"/>
+</svg>
+
