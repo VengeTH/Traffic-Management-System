@@ -27,7 +27,10 @@ import {
 import Button from "../../components/UI/Button"
 import LoadingSpinner from "../../components/UI/LoadingSpinner"
 
-const formatViolationLabel = (value: string) => value.replace(/_/g, " ")
+const formatViolationLabel = (value: string | undefined | null) => {
+  if (!value) return "Unknown violation";
+  return value.replace(/_/g, " ");
+}
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth()

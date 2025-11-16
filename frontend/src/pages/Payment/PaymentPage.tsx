@@ -18,7 +18,10 @@ import LoadingSpinner from "../../components/UI/LoadingSpinner"
 import PageHeader from "../../components/Layout/PageHeader"
 import PageSection from "../../components/Layout/PageSection"
 
-const formatViolationLabel = (value: string) => value.replace(/_/g, " ")
+const formatViolationLabel = (value: string | undefined | null) => {
+  if (!value) return "Unknown violation";
+  return value.replace(/_/g, " ");
+}
 
 const PaymentPage: React.FC = () => {
   const { violationId } = useParams<{ violationId: string }>()
@@ -155,7 +158,7 @@ const PaymentPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8 px-4 pb-12 pt-8">
+    <div className="space-y-6 sm:space-y-8 px-2 sm:px-4 pb-8 sm:pb-12 pt-6 sm:pt-8 w-full max-w-full overflow-x-hidden">
       <PageHeader
         title="Settle violation"
         subtitle="Review penalty details, choose a payment partner, and confirm within seconds."
@@ -177,7 +180,7 @@ const PaymentPage: React.FC = () => {
         </div>
       )}
 
-      <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 xl:grid-cols-[1.4fr_1fr]">
         <PageSection
           title="Violation summary"
           description="Ensure all details are accurate before proceeding with payment."
@@ -193,7 +196,7 @@ const PaymentPage: React.FC = () => {
             <SummaryRow label="Plate" value={violation.plateNumber} />
             <SummaryRow
               label="Violation"
-              value={formatViolationLabel(violation.violationType)}
+              value={formatViolationLabel(violation?.violationType)}
             />
             <SummaryRow label="Location" value={violation.violationLocation} />
             <SummaryRow
@@ -303,7 +306,7 @@ const PaymentPage: React.FC = () => {
         headerAlignment="left"
         className="bg-gradient-to-br from-secondary-600 via-primary-600 to-primary-700 text-white"
       >
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
           <TipCard
             title="Instant receipts"
             description="Digital receipt and QR verification delivered to email instantly."

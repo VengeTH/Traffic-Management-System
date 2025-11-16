@@ -18,7 +18,10 @@ import LoadingSpinner from "../../components/UI/LoadingSpinner"
 import PageHeader from "../../components/Layout/PageHeader"
 import PageSection from "../../components/Layout/PageSection"
 
-const formatViolationLabel = (value: string) => value.replace(/_/g, " ")
+const formatViolationLabel = (value: string | undefined | null) => {
+  if (!value) return "Unknown violation";
+  return value.replace(/_/g, " ");
+}
 
 const ViolationDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()

@@ -33,7 +33,10 @@ const violationTypes = [
 
 const vehicleTypes = ["motorcycle", "car", "truck", "bus", "tricycle", "other"];
 
-const formatViolationLabel = (value: string) => value.replace(/_/g, " ");
+const formatViolationLabel = (value: string | undefined | null) => {
+  if (!value) return "Unknown violation";
+  return value.replace(/_/g, " ");
+};
 
 const schema = yup.object({
   // Vehicle Information

@@ -25,7 +25,10 @@ type InputChangeEvent = React.ChangeEvent<HTMLInputElement>;
 type SelectChangeEvent = React.ChangeEvent<HTMLSelectElement>;
 type TextAreaChangeEvent = React.ChangeEvent<HTMLTextAreaElement>;
 
-const formatViolationLabel = (value: string) => value.replace(/_/g, ' ');
+const formatViolationLabel = (value: string | undefined | null) => {
+  if (!value) return "Unknown violation";
+  return value.replace(/_/g, " ");
+};
 
 const violationTypes = [
   'speeding',

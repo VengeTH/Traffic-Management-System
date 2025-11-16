@@ -25,7 +25,10 @@ import { useNavigate } from "react-router-dom";
 type InputChangeEvent = React.ChangeEvent<HTMLInputElement>;
 type SelectChangeEvent = React.ChangeEvent<HTMLSelectElement>;
 
-const formatViolationLabel = (value: string) => value.replace(/_/g, " ");
+const formatViolationLabel = (value: string | undefined | null) => {
+  if (!value) return "Unknown violation";
+  return value.replace(/_/g, " ");
+};
 
 const MyViolationsPage: React.FC = () => {
   const navigate = useNavigate();
