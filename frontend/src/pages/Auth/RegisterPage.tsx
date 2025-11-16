@@ -6,6 +6,7 @@ import * as yup from "yup"
 import { useAuth } from "../../contexts/AuthContext"
 import { Eye, EyeOff, User, Mail, Phone, Lock, Car } from "lucide-react"
 import Button from "../../components/UI/Button"
+import Input from "../../components/UI/Input"
 
 const schema = yup
   .object({
@@ -126,254 +127,104 @@ const RegisterPage: React.FC = () => {
           >
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="firstName"
-                    className="block text-sm font-medium text-gray-700"
+                <Input
+                  {...register("firstName")}
+                  label="First name"
+                  placeholder="First name"
+                  type="text"
+                  startIcon={<User className="h-5 w-5" />}
+                  error={errors.firstName?.message}
+                  required
+                />
+
+                <Input
+                  {...register("lastName")}
+                  label="Last name"
+                  placeholder="Last name"
+                  type="text"
+                  startIcon={<User className="h-5 w-5" />}
+                  error={errors.lastName?.message}
+                  required
+                />
+              </div>
+
+              <Input
+                {...register("email")}
+                label="Email address"
+                placeholder="Enter your email"
+                type="email"
+                autoComplete="email"
+                startIcon={<Mail className="h-5 w-5" />}
+                error={errors.email?.message}
+                required
+              />
+
+              <Input
+                {...register("phoneNumber")}
+                label="Phone number"
+                placeholder="Enter your phone number"
+                type="tel"
+                autoComplete="tel"
+                startIcon={<Phone className="h-5 w-5" />}
+                error={errors.phoneNumber?.message}
+                required
+              />
+
+              <Input
+                {...register("driverLicenseNumber")}
+                label="Driver's License Number (Optional)"
+                placeholder="Enter your driver's license number"
+                type="text"
+                startIcon={<Car className="h-5 w-5" />}
+              />
+
+              <Input
+                {...register("password")}
+                label="Password"
+                placeholder="Create a password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
+                startIcon={<Lock className="h-5 w-5" />}
+                endAdornment={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-gray-400 hover:text-gray-600"
                   >
-                    First name <span className="text-danger-500">*</span>
-                  </label>
-                  <div className="mt-1 relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none hidden sm:flex">
-                      <User className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      {...register("firstName")}
-                      id="firstName"
-                      type="text"
-                      style={{ textAlign: "left", direction: "ltr" }}
-                      className={`
-                      appearance-none relative block w-full pl-2 sm:pl-10 pr-3 py-2 border border-gray-300 
-                      placeholder-gray-500 text-gray-900 text-left rounded-md focus:outline-none 
-                      focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm
-                      ${errors.firstName ? "border-danger-300 focus:border-danger-500 focus:ring-danger-500" : ""}
-                    `}
-                      placeholder="First name"
-                    />
-                  </div>
-                  {errors.firstName && (
-                    <p className="mt-1 text-sm text-danger-600">
-                      {errors.firstName.message}
-                    </p>
-                  )}
-                </div>
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                }
+                error={errors.password?.message}
+                required
+              />
 
-                <div>
-                  <label
-                    htmlFor="lastName"
-                    className="block text-sm font-medium text-gray-700"
+              <Input
+                {...register("confirmPassword")}
+                label="Confirm Password"
+                placeholder="Confirm your password"
+                type={showConfirmPassword ? "text" : "password"}
+                autoComplete="new-password"
+                startIcon={<Lock className="h-5 w-5" />}
+                endAdornment={
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="text-gray-400 hover:text-gray-600"
                   >
-                    Last name <span className="text-danger-500">*</span>
-                  </label>
-                  <div className="mt-1 relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none hidden sm:flex">
-                      <User className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      {...register("lastName")}
-                      id="lastName"
-                      type="text"
-                      style={{ textAlign: "left", direction: "ltr" }}
-                      className={`
-                      appearance-none relative block w-full pl-2 sm:pl-10 pr-3 py-2 border border-gray-300 
-                      placeholder-gray-500 text-gray-900 text-left rounded-md focus:outline-none 
-                      focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm
-                      ${errors.lastName ? "border-danger-300 focus:border-danger-500 focus:ring-danger-500" : ""}
-                    `}
-                      placeholder="Last name"
-                    />
-                  </div>
-                  {errors.lastName && (
-                    <p className="mt-1 text-sm text-danger-600">
-                      {errors.lastName.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Email address <span className="text-danger-500">*</span>
-                </label>
-                <div className="mt-1 relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none hidden sm:flex">
-                    <Mail className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    {...register("email")}
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    style={{ textAlign: "left", direction: "ltr" }}
-                    className={`
-                    appearance-none relative block w-full pl-2 sm:pl-10 pr-3 py-2 border border-gray-300 
-                    placeholder-gray-500 text-gray-900 text-left rounded-md focus:outline-none 
-                    focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm
-                    ${errors.email ? "border-danger-300 focus:border-danger-500 focus:ring-danger-500" : ""}
-                  `}
-                    placeholder="Enter your email"
-                  />
-                </div>
-                {errors.email && (
-                  <p className="mt-1 text-sm text-danger-600">
-                    {errors.email.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="phoneNumber"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Phone number <span className="text-danger-500">*</span>
-                </label>
-                <div className="mt-1 relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none hidden sm:flex">
-                    <Phone className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    {...register("phoneNumber")}
-                    id="phoneNumber"
-                    type="tel"
-                    autoComplete="tel"
-                    style={{ textAlign: "left", direction: "ltr" }}
-                    className={`
-                    appearance-none relative block w-full pl-2 sm:pl-10 pr-3 py-2 border border-gray-300 
-                    placeholder-gray-500 text-gray-900 text-left rounded-md focus:outline-none 
-                    focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm
-                    ${errors.phoneNumber ? "border-danger-300 focus:border-danger-500 focus:ring-danger-500" : ""}
-                  `}
-                    placeholder="Enter your phone number"
-                  />
-                </div>
-                {errors.phoneNumber && (
-                  <p className="mt-1 text-sm text-danger-600">
-                    {errors.phoneNumber.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="driverLicenseNumber"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Driver's License Number (Optional)
-                </label>
-                <div className="mt-1 relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none hidden sm:flex">
-                    <Car className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    {...register("driverLicenseNumber")}
-                    id="driverLicenseNumber"
-                    type="text"
-                    style={{ textAlign: "left", direction: "ltr" }}
-                    className="appearance-none relative block w-full pl-2 sm:pl-10 pr-3 py-2 border border-gray-300 
-                    placeholder-gray-500 text-gray-900 text-left rounded-md focus:outline-none 
-                    focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                    placeholder="Enter your driver's license number"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Password <span className="text-danger-500">*</span>
-                </label>
-                <div className="mt-1 relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none hidden sm:flex">
-                    <Lock className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    {...register("password")}
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="new-password"
-                    style={{ textAlign: "left", direction: "ltr" }}
-                    className={`
-                    appearance-none relative block w-full pl-2 sm:pl-10 pr-10 py-2 border border-gray-300 
-                    placeholder-gray-500 text-gray-900 text-left rounded-md focus:outline-none 
-                    focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm
-                    ${errors.password ? "border-danger-300 focus:border-danger-500 focus:ring-danger-500" : ""}
-                  `}
-                    placeholder="Create a password"
-                  />
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-5 w-5" />
-                      ) : (
-                        <Eye className="h-5 w-5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-                {errors.password && (
-                  <p className="mt-1 text-sm text-danger-600">
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Confirm Password <span className="text-danger-500">*</span>
-                </label>
-                <div className="mt-1 relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none hidden sm:flex">
-                    <Lock className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    {...register("confirmPassword")}
-                    id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    autoComplete="new-password"
-                    style={{ textAlign: "left", direction: "ltr" }}
-                    className={`
-                    appearance-none relative block w-full pl-2 sm:pl-10 pr-10 py-2 border border-gray-300 
-                    placeholder-gray-500 text-gray-900 text-left rounded-md focus:outline-none 
-                    focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm
-                    ${errors.confirmPassword ? "border-danger-300 focus:border-danger-500 focus:ring-danger-500" : ""}
-                  `}
-                    placeholder="Confirm your password"
-                  />
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff className="h-5 w-5" />
-                      ) : (
-                        <Eye className="h-5 w-5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-                {errors.confirmPassword && (
-                  <p className="mt-1 text-sm text-danger-600">
-                    {errors.confirmPassword.message}
-                  </p>
-                )}
-              </div>
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                }
+                error={errors.confirmPassword?.message}
+                required
+              />
             </div>
 
             {errors.root && (
