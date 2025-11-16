@@ -57,8 +57,9 @@ const PaymentSuccessPage: React.FC = () => {
     }
 
     try {
+      // * API returns a Blob (PDF file) with responseType: 'blob'
       const receiptBlob = await apiService.getPaymentReceipt(payment.id)
-      const url = window.URL.createObjectURL(receiptBlob as Blob)
+      const url = window.URL.createObjectURL(receiptBlob)
       const link = document.createElement("a")
       link.href = url
       link.download = `receipt-${payment.receiptNumber}.pdf`

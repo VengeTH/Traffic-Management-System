@@ -351,9 +351,9 @@ const checkValidation = (req, res, next) => {
 /**
  * @route   POST /api/payments/initiate
  * @desc    Initiate payment for violation
- * @access  Public (with rate limiting)
+ * @access  Public (with rate limiting, optional auth for logged-in users)
  */
-router.post('/initiate', paymentLimiter, validatePaymentInitiation, checkValidation, asyncHandler(async (req, res) => {
+router.post('/initiate', optionalAuth, paymentLimiter, validatePaymentInitiation, checkValidation, asyncHandler(async (req, res) => {
   // * Sanitize input (but preserve violationId and ovrNumber - they should not be redacted)
   // * These fields are identifiers, not sensitive data, and redaction corrupts them
   const sanitizedBody = sanitizeObject(req.body, ['payerEmail', 'payerPhone', 'payerName']);
@@ -927,12 +927,16 @@ router.post('/initiate', paymentLimiter, validatePaymentInitiation, checkValidat
   const totalAmount = paymentAmount; // * No processing fee for now
   
   // * Create payment record
+  // * Use authenticated user's ID if available, otherwise use provided payerId or null
+  // * This ensures payments from logged-in users are linked to their account
+  const finalPayerId = req.user?.id || payerId || null;
+  
   let payment = await Payment.create({
     paymentId: generatedPaymentId, // * Set explicitly to avoid validation error
     violationId: violation.id,
     ovrNumber: violation.ovrNumber,
     citationNumber: violation.citationNumber,
-    payerId: payerId || null,
+    payerId: finalPayerId,
     payerName: sanitizedName,
     payerEmail: sanitizedEmail, // * Use original email (not redacted)
     payerPhone: sanitizedPhone, // * Use original phone (not redacted)

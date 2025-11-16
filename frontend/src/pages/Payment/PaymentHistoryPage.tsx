@@ -39,6 +39,7 @@ const PaymentHistoryPage: React.FC = () => {
 
   const handleDownloadReceipt = async (payment: Payment) => {
     try {
+      // * API returns a Blob (PDF file) with responseType: 'blob'
       const receiptBlob = await apiService.getPaymentReceipt(payment.id)
       const url = window.URL.createObjectURL(receiptBlob)
       const link = document.createElement("a")

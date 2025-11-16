@@ -320,9 +320,12 @@ class ApiService {
     return response.data;
   }
 
-  async getPaymentReceipt(id: string) {
-    const response = await api.get(`/payments/${id}/receipt`);
-    return response.data;
+  async getPaymentReceipt(id: string): Promise<Blob> {
+    // * Set responseType to 'blob' to handle PDF binary data
+    const response = await api.get(`/payments/${id}/receipt`, {
+      responseType: 'blob'
+    });
+    return response.data as Blob;
   }
 
   async getPaymentByReceipt(receiptNumber: string) {

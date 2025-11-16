@@ -223,8 +223,9 @@ export const PaymentProvider: React.FC<PaymentProviderProps> = ({ children }) =>
   // Get payment receipt
   const getPaymentReceipt = async (paymentId: string): Promise<Blob> => {
     try {
-      const response = await apiService.getPaymentReceipt(paymentId);
-      return response.data;
+      // * API service returns Blob directly (not wrapped in response object)
+      const receiptBlob = await apiService.getPaymentReceipt(paymentId);
+      return receiptBlob;
     } catch (error: any) {
       const message = error.response?.data?.message || 'Failed to get payment receipt';
       toast.error(message);
