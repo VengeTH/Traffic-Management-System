@@ -443,35 +443,38 @@ const AdminDashboardPage: React.FC = () => {
             title="Priority actions"
             description="AI assisted recommendations to keep the pipeline healthy."
             headerAlignment="left"
-            className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white"
           >
             <ul className="space-y-4 text-sm">
-              <li className="flex items-start gap-3 rounded-2xl bg-white/10 p-4">
-                <Calendar className="mt-0.5 h-5 w-5 text-accent-300" />
+              <li className="flex items-start gap-3 rounded-2xl border border-accent-100 bg-accent-50/50 p-4 shadow-lg shadow-accent-200/50">
+                <Calendar className="mt-0.5 h-5 w-5 text-accent-600" />
                 <div>
-                  <p className="font-semibold">
+                  <p className="font-semibold text-gray-900">
                     Schedule monthly clearance audit
                   </p>
-                  <p className="text-white/80">
+                  <p className="text-gray-600">
                     Review pending disputes from last 30 days.
                   </p>
                 </div>
               </li>
-              <li className="flex items-start gap-3 rounded-2xl bg-white/10 p-4">
-                <AlertTriangle className="mt-0.5 h-5 w-5 text-orange-200" />
+              <li className="flex items-start gap-3 rounded-2xl border border-orange-100 bg-orange-50/50 p-4 shadow-lg shadow-orange-200/50">
+                <AlertTriangle className="mt-0.5 h-5 w-5 text-orange-600" />
                 <div>
-                  <p className="font-semibold">Escalate overdue citations</p>
-                  <p className="text-white/80">
+                  <p className="font-semibold text-gray-900">
+                    Escalate overdue citations
+                  </p>
+                  <p className="text-gray-600">
                     Prepare legal packets for {totals.overdueViolations} cases
                     beyond 60 days.
                   </p>
                 </div>
               </li>
-              <li className="flex items-start gap-3 rounded-2xl bg-white/10 p-4">
-                <MapPin className="mt-0.5 h-5 w-5 text-secondary-200" />
+              <li className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50/50 p-4 shadow-lg shadow-red-300/60">
+                <MapPin className="mt-0.5 h-5 w-5 text-red-600" />
                 <div>
-                  <p className="font-semibold">Deploy checkpoint campaigns</p>
-                  <p className="text-white/80">
+                  <p className="font-semibold text-gray-900">
+                    Deploy checkpoint campaigns
+                  </p>
+                  <p className="text-gray-600">
                     Top violation type: {topViolationType?.type ?? "N/A"} (
                     {topViolationType?.count ?? 0}).
                   </p>
