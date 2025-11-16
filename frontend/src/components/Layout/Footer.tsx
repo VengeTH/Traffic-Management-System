@@ -10,8 +10,12 @@ const Footer: React.FC = () => {
           {/* Brand Section */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
-              <div className="h-10 w-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-xl flex items-center justify-center">
-                <span className="text-white font-black text-sm">EV</span>
+              <div className="h-12 w-12 flex items-center justify-center flex-shrink-0 bg-white rounded-lg p-1">
+                <img
+                  src={`${process.env.PUBLIC_URL || ""}/logo.jpg`}
+                  alt="Las Piñas City Logo"
+                  className="h-full w-full object-contain"
+                />
               </div>
               <div>
                 <h3 className="text-xl font-black text-white">E-VioPay</h3>

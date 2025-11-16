@@ -160,13 +160,32 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className="bg-white/95 backdrop-blur-md shadow-xl border-b-2 border-primary-100/50 fixed top-0 left-0 right-0 z-50 premium-glow">
-      <div className="px-4  sm:px-6 lg:px-8 justify-center align-middle">
+      <div className="px-4  sm:px-6 lg:px-8 justify-center">
         <div className="flex justify-between h-20">
           {/* Logo and brand */}
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center group">
-              <div className="h-12 w-12 bg-gradient-to-br from-primary-600 to-primary-700 rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-105 premium-glow-hover border-2 border-primary-500/30">
-                <span className="text-white font-black text-lg">EV</span>
+              <div className="h-14 w-14 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105 bg-white rounded-lg p-1">
+                <img
+                  src={`${process.env.PUBLIC_URL || ""}/logo.jpg`}
+                  alt="Las Piñas City Logo"
+                  className="h-full w-full object-contain"
+                  onError={(e) => {
+                    // * Fallback if image fails to load
+                    const target = e.target as HTMLImageElement;
+                    const attemptedPath = target.src;
+                    console.error("Logo failed to load. Attempted path:", attemptedPath);
+                    console.error("PUBLIC_URL:", process.env.PUBLIC_URL);
+                    console.error("Window location:", window.location.href);
+                    // * Try direct path as fallback
+                    if (attemptedPath !== window.location.origin + "/logo.jpg") {
+                      target.src = "/logo.jpg";
+                    }
+                  }}
+                  onLoad={() => {
+                    console.log("Logo loaded successfully");
+                  }}
+                />
               </div>
               <div className="ml-4">
                 <span className="text-2xl font-black text-gradient-premium">

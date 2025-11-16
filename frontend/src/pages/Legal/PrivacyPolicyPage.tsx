@@ -32,8 +32,12 @@ const PrivacyPolicyPage: React.FC = () => {
             {fromRegister ? "Back to Registration" : "Back to Home"}
           </Button>
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl shadow-lg">
-              <Shield className="h-6 w-6 text-white" />
+            <div className="h-12 w-12 flex items-center justify-center flex-shrink-0 bg-white rounded-lg p-1">
+              <img
+                src={`${process.env.PUBLIC_URL || ""}/logo.jpg`}
+                alt="Las Piñas City Logo"
+                className="h-full w-full object-contain"
+              />
             </div>
             <div>
               <h1 className="text-3xl font-extrabold text-gradient-premium">

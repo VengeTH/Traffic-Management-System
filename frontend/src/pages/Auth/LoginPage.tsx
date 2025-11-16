@@ -94,8 +94,12 @@ const LoginPage: React.FC = () => {
         <div className="relative overflow-hidden rounded-[32px] border border-primary-100/30 bg-white p-10 shadow-lg">
           <div className="relative space-y-8">
             <div>
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-600 text-white shadow-xl">
-                <span className="text-lg font-extrabold">EV</span>
+              <div className="flex h-14 w-14 items-center justify-center shadow-xl bg-white rounded-lg p-1">
+                <img
+                  src={`${process.env.PUBLIC_URL || ""}/logo.jpg`}
+                  alt="Las Piñas City Logo"
+                  className="h-full w-full object-contain"
+                />
               </div>
               <h1 className="mt-6 text-4xl font-black text-gray-900">
                 Welcome back to E-VioPay

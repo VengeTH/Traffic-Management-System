@@ -161,8 +161,12 @@ const RegisterPage: React.FC = () => {
         style={{ textAlign: "left" }}
       >
         <div>
-          <div className="mx-auto h-14 w-14 bg-gradient-to-br from-primary-600 to-primary-700 rounded-2xl flex items-center justify-center shadow-xl premium-glow">
-            <span className="text-white font-black text-xl">EV</span>
+          <div className="mx-auto h-16 w-16 flex items-center justify-center shadow-xl premium-glow bg-white rounded-lg p-1">
+            <img
+              src={`${process.env.PUBLIC_URL || ""}/logo.jpg`}
+              alt="Las Piñas City Logo"
+              className="h-full w-full object-contain"
+            />
           </div>
           <h2 className="mt-6 text-center text-3xl font-black text-gradient-premium">
             Create your account

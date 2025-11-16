@@ -43,3 +43,41 @@ export const getFullPath = (path: string): string => {
   return `${basename}${normalizedPath}`;
 };
 
+/**
+ * * Gets the full path for a public asset (images, etc.)
+ * * Handles basename for GitHub Pages deployment
+ * @param assetPath - The asset path (e.g., '/logo.jpg', '/favicon.svg')
+ * @returns The full path with basename if applicable
+ */
+export const getAssetPath = (assetPath: string): string => {
+  try {
+    // * Ensure path starts with /
+    const normalizedPath = assetPath.startsWith('/') ? assetPath : `/${assetPath}`;
+    
+    // * Use process.env.PUBLIC_URL if available (set by Create React App)
+    // * In development, this is usually empty string
+    // * In production/build, this is set to the homepage value
+    const publicUrl = process.env.PUBLIC_URL || '';
+    
+    if (publicUrl) {
+      // * If PUBLIC_URL is set, use it (for production builds)
+      return `${publicUrl}${normalizedPath}`;
+    }
+    
+    // * For development, check if we need basename
+    const basename = getBasename();
+    
+    // * For localhost development, just return the path
+    if (!basename) {
+      return normalizedPath;
+    }
+    
+    // * For GitHub Pages or other deployments with basename
+    return `${basename}${normalizedPath}`;
+  } catch (error) {
+    console.error('Error getting asset path:', error);
+    // * Fallback to just the asset path
+    return assetPath.startsWith('/') ? assetPath : `/${assetPath}`;
+  }
+};
+
