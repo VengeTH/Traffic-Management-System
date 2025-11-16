@@ -18,7 +18,7 @@ const PageSection: React.FC<PageSectionProps> = ({
   headerAlignment = 'between'
 }) => {
   return (
-    <section className={`lux-card animated-gradient-border premium-glow p-6 sm:p-8 ${className}`}>
+    <section className={`lux-card animated-gradient-border premium-glow p-4 sm:p-6 md:p-8 w-full max-w-full overflow-x-hidden ${className}`}>
       {(title || description || action) && (
         <div
           className={`flex flex-col gap-4 border-b border-gray-100 pb-6 ${headerAlignment === 'between' ? 'sm:flex-row sm:items-center sm:justify-between' : ''}`}

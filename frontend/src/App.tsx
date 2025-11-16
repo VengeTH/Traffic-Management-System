@@ -105,20 +105,22 @@ const AppLayout: React.FC = () => {
   const shouldShowSidebar = !loading && !!user && !isPublicRoute;
 
   return (
-    <div className="min-h-screen bg-green-50 flex flex-col">
+    <div className="min-h-screen bg-green-50 flex flex-col overflow-x-hidden w-full max-w-full">
       <Navbar />
       
-      <div className="flex overflow-visible flex-1" style={{ minHeight: '100vh', paddingTop: '80px' }}>
+      <div className="flex overflow-x-hidden flex-1 w-full max-w-full" style={{ minHeight: '100vh', paddingTop: '80px' }}>
         {shouldShowSidebar && <Sidebar />}
         
         <main 
-          className={`flex-1 flex flex-col ${isPublicRoute ? '' : 'mx-5'}`} 
+          className={`flex-1 flex flex-col overflow-x-hidden w-full max-w-full ${isPublicRoute ? '' : 'px-2 sm:px-4 md:px-5'} ${shouldShowSidebar ? 'md:ml-[256px]' : ''}`} 
           style={{ 
             minHeight: 'calc(100vh - 80px)', 
-            overflow: 'visible',
-            marginLeft: shouldShowSidebar ? '256px' : '0',
+            overflowX: 'hidden',
+            overflowY: 'auto',
             transition: 'margin-left 0.3s ease',
-            paddingTop: isPublicRoute ? '0' : '0'
+            paddingTop: isPublicRoute ? '0' : '0',
+            width: '100%',
+            maxWidth: '100%'
           }}
         >
           <div className="flex-1">

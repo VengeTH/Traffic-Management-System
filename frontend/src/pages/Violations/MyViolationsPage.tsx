@@ -152,7 +152,7 @@ const MyViolationsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 px-4 pb-12 pt-8">
+    <div className="space-y-6 sm:space-y-8 px-2 sm:px-4 pb-8 sm:pb-12 pt-6 sm:pt-8 w-full max-w-full overflow-x-hidden">
       <PageHeader
         title="My Violations"
         subtitle="View and manage all your traffic violations."
@@ -213,59 +213,114 @@ const MyViolationsPage: React.FC = () => {
           </Card>
         ) : (
           <div className="space-y-4">
-            <div className="overflow-hidden rounded-3xl border border-gray-100">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gradient-to-r from-primary-50 to-white">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-600">OVR details</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-600">Violation</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-600">Location</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-600">Fine</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-600">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-600">Date</th>
-                    <th className="px-6 py-3 text-right text-xs font-bold uppercase tracking-wider text-gray-600">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 bg-white">
-                  {violations.map((violation) => (
-                    <tr key={violation.id} className="transition-colors duration-150 hover:bg-primary-50/50">
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        <p className="font-semibold">{violation.ovrNumber}</p>
-                        <p className="text-xs text-gray-500">Citation: {violation.citationNumber}</p>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
-                        <p className="font-semibold text-gray-900">{formatViolationLabel(violation.violationType)}</p>
-                        <p className="text-xs text-gray-500">{violation.plateNumber}</p>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
-                        <p className="text-sm text-gray-900">{violation.violationLocation}</p>
-                      </td>
-                      <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                        {formatCurrency(Number.parseFloat(violation.totalFine.toString()))}
-                      </td>
-                      <td className="px-6 py-4 text-sm">{renderStatus(violation.status, violation.isDisputed)}</td>
-                      <td className="px-6 py-4 text-xs font-semibold text-gray-600">{formatDate(violation.violationDate)}</td>
-                      <td className="px-6 py-4 text-right text-sm">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="sm" onClick={() => handleViewDetails(violation)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View
-                          </Button>
-                          {violation.status !== "paid" && (
-                            <Button variant="primary" size="sm" onClick={() => handlePay(violation)}>
-                              <CreditCard className="mr-2 h-4 w-4" />
-                              Pay
-                            </Button>
-                          )}
-                        </div>
-                      </td>
+            {/* Desktop Table View */}
+            <div className="hidden lg:block overflow-x-auto rounded-3xl border border-gray-100 w-full">
+              <div className="overflow-x-auto w-full">
+                <table className="min-w-full divide-y divide-gray-200 w-full">
+                  <thead className="bg-gradient-to-r from-primary-50 to-white">
+                    <tr>
+                      <th className="px-4 xl:px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-600">OVR details</th>
+                      <th className="px-4 xl:px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-600">Violation</th>
+                      <th className="px-4 xl:px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-600">Location</th>
+                      <th className="px-4 xl:px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-600">Fine</th>
+                      <th className="px-4 xl:px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-600">Status</th>
+                      <th className="px-4 xl:px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-600">Date</th>
+                      <th className="px-4 xl:px-6 py-3 text-right text-xs font-bold uppercase tracking-wider text-gray-600">Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 bg-white">
+                    {violations.map((violation) => (
+                      <tr key={violation.id} className="transition-colors duration-150 hover:bg-primary-50/50">
+                        <td className="px-4 xl:px-6 py-4 text-sm text-gray-900">
+                          <p className="font-semibold">{violation.ovrNumber}</p>
+                          <p className="text-xs text-gray-500">Citation: {violation.citationNumber}</p>
+                        </td>
+                        <td className="px-4 xl:px-6 py-4 text-sm text-gray-700">
+                          <p className="font-semibold text-gray-900">{formatViolationLabel(violation.violationType)}</p>
+                          <p className="text-xs text-gray-500">{violation.plateNumber}</p>
+                        </td>
+                        <td className="px-4 xl:px-6 py-4 text-sm text-gray-700">
+                          <p className="text-sm text-gray-900 truncate max-w-xs">{violation.violationLocation}</p>
+                        </td>
+                        <td className="px-4 xl:px-6 py-4 text-sm font-semibold text-gray-900">
+                          {formatCurrency(Number.parseFloat(violation.totalFine.toString()))}
+                        </td>
+                        <td className="px-4 xl:px-6 py-4 text-sm">{renderStatus(violation.status, violation.isDisputed)}</td>
+                        <td className="px-4 xl:px-6 py-4 text-xs font-semibold text-gray-600">{formatDate(violation.violationDate)}</td>
+                        <td className="px-4 xl:px-6 py-4 text-right text-sm">
+                          <div className="flex justify-end gap-2">
+                            <Button variant="outline" size="sm" onClick={() => handleViewDetails(violation)}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              View
+                            </Button>
+                            {violation.status !== "paid" && (
+                              <Button variant="primary" size="sm" onClick={() => handlePay(violation)}>
+                                <CreditCard className="mr-2 h-4 w-4" />
+                                Pay
+                              </Button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            {/* Mobile/Tablet Card View */}
+            <div className="lg:hidden space-y-3">
+              {violations.map((violation) => (
+                <Card key={violation.id} className="border border-gray-100">
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-900 truncate">{violation.ovrNumber}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">Citation: {violation.citationNumber}</p>
+                        </div>
+                        {renderStatus(violation.status, violation.isDisputed)}
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-100">
+                        <div>
+                          <p className="text-xs text-gray-500">Violation</p>
+                          <p className="text-sm font-semibold text-gray-900 mt-0.5 truncate">{formatViolationLabel(violation.violationType)}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{violation.plateNumber}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Location</p>
+                          <p className="text-sm font-semibold text-gray-900 mt-0.5 truncate">{violation.violationLocation}</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-100">
+                        <div>
+                          <p className="text-xs text-gray-500">Fine</p>
+                          <p className="text-sm font-semibold text-primary-700 mt-0.5">{formatCurrency(Number.parseFloat(violation.totalFine.toString()))}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Date</p>
+                          <p className="text-sm font-semibold text-gray-900 mt-0.5">{formatDate(violation.violationDate)}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 pt-3 border-t border-gray-100">
+                        <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewDetails(violation)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View
+                        </Button>
+                        {violation.status !== "paid" && (
+                          <Button variant="primary" size="sm" className="flex-1" onClick={() => handlePay(violation)}>
+                            <CreditCard className="mr-2 h-4 w-4" />
+                            Pay
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
 
-            <div className="flex flex-col gap-4 rounded-3xl border border-gray-100 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 sm:gap-4 rounded-2xl sm:rounded-3xl border border-gray-100 bg-white px-3 sm:px-4 py-3 sm:py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-gray-600">
                 Showing <span className="font-semibold text-gray-900">{(page - 1) * limit + 1}</span> to{" "}
                 <span className="font-semibold text-gray-900">{Math.min(page * limit, total)}</span> of{" "}

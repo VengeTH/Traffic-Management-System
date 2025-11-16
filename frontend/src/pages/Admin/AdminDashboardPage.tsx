@@ -128,7 +128,7 @@ const AdminDashboardPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8 px-4 pb-12 pt-8">
+    <div className="space-y-6 sm:space-y-8 px-2 sm:px-4 pb-8 sm:pb-12 pt-6 sm:pt-8 w-full max-w-full overflow-x-hidden">
       <PageHeader
         title="Command Center"
         subtitle="Monitor Las Piñas traffic enforcement, revenue, and citizen engagement in real time."
@@ -149,7 +149,7 @@ const AdminDashboardPage: React.FC = () => {
       />
 
       {/* Executive Insights */}
-      <div className="grid gap-5 lg:grid-cols-4 md:grid-cols-2">
+      <div className="grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {insightCards.map((insight) => (
           <div
             key={insight.label}
@@ -199,7 +199,7 @@ const AdminDashboardPage: React.FC = () => {
         title="Operational snapshot"
         description="Live metrics across users, violations, and payments to guide daily decisions."
       >
-        <div className="grid gap-6 lg:grid-cols-4 md:grid-cols-2">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           <Card className="border border-blue-100 bg-white/95 shadow-xl">
             <CardContent className="flex items-center justify-between p-6">
               <div>
@@ -286,7 +286,7 @@ const AdminDashboardPage: React.FC = () => {
         title="Violation health"
         description="Track how many violations are resolved, pending action, or require escalation."
       >
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-3">
           <Card className="border border-green-100 bg-white">
             <CardHeader className="border-b border-green-100 bg-green-50/60">
               <CardTitle className="flex items-center gap-3 text-lg text-green-700">
@@ -353,14 +353,14 @@ const AdminDashboardPage: React.FC = () => {
         </div>
       </PageSection>
 
-      <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-[1.6fr_1fr]">
         {/* Recent activity table */}
         <PageSection
           title="Recent activity"
           description="Latest violations and payments captured within the system."
           className="h-full"
         >
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
             <div className="rounded-2xl border border-gray-100 bg-gray-50/70 p-5">
               <h3 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-gray-500">
                 <FileText className="h-4 w-4 text-primary-600" />

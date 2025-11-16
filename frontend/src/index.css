@@ -105,6 +105,15 @@
     background-attachment: fixed;
     overflow-x: hidden;
     width: 100%;
+    max-width: 100vw;
+    position: relative;
+  }
+  
+  /* * Prevent horizontal overflow globally */
+  #root {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   /* Performance optimizations - merged with default cursor rule above */

@@ -127,7 +127,7 @@ const DashboardPage: React.FC = () => {
   }
 
   return (
-    <div className="relative space-y-8 px-4 pb-12 pt-10">
+    <div className="relative space-y-6 sm:space-y-8 px-2 sm:px-4 pb-8 sm:pb-12 pt-6 sm:pt-10 w-full max-w-full overflow-x-hidden">
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-white via-green-50 to-white" />
 
       {/* Driver License Onboarding */}
@@ -159,7 +159,7 @@ const DashboardPage: React.FC = () => {
       <div className="relative overflow-hidden rounded-[32px] border border-primary-100 bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white shadow-2xl">
         <div className="absolute inset-y-0 -left-10 hidden w-64 rotate-12 bg-white/10 blur-3xl sm:block" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(34,197,94,0.3)_0%,_rgba(22,163,74,0)_55%)]" />
-        <div className="relative grid gap-10 px-10 py-10 lg:grid-cols-[1.6fr_1fr]">
+        <div className="relative grid gap-6 sm:gap-10 px-4 sm:px-6 md:px-10 py-6 sm:py-8 md:py-10 lg:grid-cols-[1.6fr_1fr]">
           <div className="space-y-7">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 shadow-lg">
@@ -169,12 +169,12 @@ const DashboardPage: React.FC = () => {
                 <p className="text-sm uppercase tracking-[0.2em] text-white/70">
                   Las Piñas Traffic Insights
                 </p>
-                <h1 className="text-3xl font-extrabold sm:text-4xl">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold">
                   Good day, {user?.firstName}! Track and settle with confidence.
                 </h1>
               </div>
             </div>
-            <p className="max-w-2xl text-base text-white/80">
+            <p className="max-w-2xl text-sm sm:text-base text-white/80">
               The control center visualizes everything about your violations,
               payments, and reminders. Use the shortcuts to act quickly or
               review the analytic insights below.
@@ -266,7 +266,7 @@ const DashboardPage: React.FC = () => {
       </div>
 
       {/* Shortcut Grid */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         <Card className="relative overflow-hidden lux-card animated-gradient-border hover-lift premium-glow-hover shine-effect">
           <CardContent className="relative p-6">
             <div className="flex items-center justify-between">
@@ -356,7 +356,7 @@ const DashboardPage: React.FC = () => {
       </div>
 
       {/* Recent Violations & Timeline */}
-      <div className="grid gap-6 lg:grid-cols-[1.7fr_1fr]">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-[1.7fr_1fr]">
         <Card className="border border-slate-200 shadow-xl">
           <CardHeader className="flex flex-row items-center justify-between border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
             <CardTitle className="flex items-center gap-3 text-xl font-bold text-gray-900">
@@ -390,77 +390,132 @@ const DashboardPage: React.FC = () => {
                 </p>
               </div>
             ) : (
-              <div className="overflow-hidden rounded-2xl border border-gray-100">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gradient-to-r from-slate-50 to-gray-50">
-                    <tr>
-                      <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700">
-                        Violation
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700">
-                        Date
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700">
-                        Amount
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700">
-                        Status
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {recentViolations.map((violation) => (
-                      <tr
-                        key={violation.id}
-                        className="cursor-pointer transition-all duration-150 hover:bg-gradient-to-r hover:from-primary-50/40 hover:to-blue-50/20"
-                      >
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-4">
-                            <div className="h-10 w-10">
-                              <Car className="h-10 w-10 text-gray-400" />
+              <>
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto rounded-2xl border border-gray-100 w-full">
+                  <table className="min-w-full divide-y divide-gray-200 w-full">
+                    <thead className="bg-gradient-to-r from-slate-50 to-gray-50">
+                      <tr>
+                        <th className="px-4 lg:px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700">
+                          Violation
+                        </th>
+                        <th className="px-4 lg:px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700">
+                          Date
+                        </th>
+                        <th className="px-4 lg:px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700">
+                          Amount
+                        </th>
+                        <th className="px-4 lg:px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700">
+                          Status
+                        </th>
+                        <th className="px-4 lg:px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700">
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {recentViolations.map((violation) => (
+                        <tr
+                          key={violation.id}
+                          className="cursor-pointer transition-all duration-150 hover:bg-gradient-to-r hover:from-primary-50/40 hover:to-blue-50/20"
+                        >
+                          <td className="px-4 lg:px-6 py-4">
+                            <div className="flex items-center gap-3 lg:gap-4">
+                              <div className="h-8 w-8 lg:h-10 lg:w-10 flex-shrink-0">
+                                <Car className="h-8 w-8 lg:h-10 lg:w-10 text-gray-400" />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="text-sm font-semibold text-gray-900 truncate">
+                                  {formatViolationLabel(violation.violationType)}
+                                </div>
+                                <div className="text-xs uppercase tracking-wide text-gray-500 truncate">
+                                  {violation.plateNumber}
+                                </div>
+                              </div>
                             </div>
-                            <div>
-                              <div className="text-sm font-semibold text-gray-900">
-                                {formatViolationLabel(violation.violationType)}
-                              </div>
-                              <div className="text-xs uppercase tracking-wide text-gray-500">
-                                {violation.plateNumber}
-                              </div>
+                          </td>
+                          <td className="px-4 lg:px-6 py-4 text-sm text-gray-900">
+                            {new Date(
+                              violation.violationDate
+                            ).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 lg:px-6 py-4 text-sm font-semibold text-gray-900">
+                            ₱{Number(violation.totalFine).toFixed(2)}
+                          </td>
+                          <td className="px-4 lg:px-6 py-4">
+                            <span
+                              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${getStatusColor(violation.status)}`}
+                            >
+                              {getStatusIcon(violation.status)}
+                              {violation.status.toUpperCase()}
+                            </span>
+                          </td>
+                          <td className="px-4 lg:px-6 py-4 text-sm font-semibold">
+                            <Link
+                              to={`/violations/${violation.id}`}
+                              className="inline-flex items-center rounded-lg bg-primary-50 px-3 py-1.5 text-primary-700 transition-colors duration-150 hover:bg-primary-100 hover:text-primary-800"
+                            >
+                              View details
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-3">
+                  {recentViolations.map((violation) => (
+                    <div
+                      key={violation.id}
+                      className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="h-10 w-10 flex-shrink-0">
+                            <Car className="h-10 w-10 text-gray-400" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-sm font-semibold text-gray-900 truncate">
+                              {formatViolationLabel(violation.violationType)}
+                            </div>
+                            <div className="text-xs uppercase tracking-wide text-gray-500 truncate mt-1">
+                              {violation.plateNumber}
                             </div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900">
-                          {new Date(
-                            violation.violationDate
-                          ).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                          ₱{Number(violation.totalFine).toFixed(2)}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${getStatusColor(violation.status)}`}
-                          >
-                            {getStatusIcon(violation.status)}
-                            {violation.status.toUpperCase()}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm font-semibold">
-                          <Link
-                            to={`/violations/${violation.id}`}
-                            className="inline-flex items-center rounded-lg bg-primary-50 px-3 py-1.5 text-primary-700 transition-colors duration-150 hover:bg-primary-100 hover:text-primary-800"
-                          >
-                            View details
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        </div>
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold flex-shrink-0 ${getStatusColor(violation.status)}`}
+                        >
+                          {getStatusIcon(violation.status)}
+                          {violation.status.toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="mt-3 flex items-center justify-between pt-3 border-t border-gray-100">
+                        <div>
+                          <p className="text-xs text-gray-500">Date</p>
+                          <p className="text-sm font-medium text-gray-900 mt-0.5">
+                            {new Date(violation.violationDate).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-gray-500">Amount</p>
+                          <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                            ₱{Number(violation.totalFine).toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                      <Link
+                        to={`/violations/${violation.id}`}
+                        className="mt-3 block w-full text-center rounded-lg bg-primary-50 px-3 py-2 text-sm font-semibold text-primary-700 transition-colors duration-150 hover:bg-primary-100 hover:text-primary-800"
+                      >
+                        View details
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </CardContent>
         </Card>

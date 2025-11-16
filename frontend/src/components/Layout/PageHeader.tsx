@@ -18,7 +18,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 }) => {
   return (
     <header
-      className={`relative overflow-hidden lux-card animated-gradient-border premium-glow px-8 py-7 ${className}`}
+      className={`relative overflow-hidden lux-card animated-gradient-border premium-glow px-4 sm:px-6 md:px-8 py-5 sm:py-6 md:py-7 w-full max-w-full ${className}`}
     >
       <div className="absolute inset-y-0 right-0 hidden w-1/3 bg-gradient-to-br from-primary-100/50 to-transparent blur-3xl sm:block" />
       <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
@@ -29,7 +29,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             </div>
           )}
           <div>
-            <h1 className="text-3xl font-extrabold text-gradient-premium">{title}</h1>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-gradient-premium">{title}</h1>
             {subtitle && (
               <p className="mt-2 max-w-2xl text-sm text-gray-600 font-medium">
                 {subtitle}
