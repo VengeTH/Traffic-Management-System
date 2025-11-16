@@ -16,7 +16,7 @@ const Violation = sequelize.define('Violation', {
   // * Violation Reference Numbers
   ovrNumber: {
     type: DataTypes.STRING(20),
-    allowNull: false,
+    allowNull: true, // Auto-generated in beforeCreate hook
     unique: true,
     validate: {
       len: [10, 20]
@@ -25,7 +25,7 @@ const Violation = sequelize.define('Violation', {
   
   citationNumber: {
     type: DataTypes.STRING(20),
-    allowNull: false,
+    allowNull: true, // Auto-generated in beforeCreate hook
     unique: true,
     validate: {
       len: [10, 20]

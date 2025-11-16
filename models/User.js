@@ -140,6 +140,15 @@ const User = sequelize.define('User', {
     }
   },
   
+  // * Enforcer Information
+  enforcerBadgeNumber: {
+    type: DataTypes.STRING(20),
+    allowNull: true,
+    validate: {
+      len: [1, 20]
+    }
+  },
+  
   // * Security and Tracking
   lastLoginAt: {
     type: DataTypes.DATE,
