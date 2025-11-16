@@ -16,7 +16,7 @@ const Violation = sequelize.define('Violation', {
   // * Violation Reference Numbers
   ovrNumber: {
     type: DataTypes.STRING(20),
-    allowNull: false,
+    allowNull: true, // Auto-generated in beforeCreate hook
     unique: true,
     validate: {
       len: [10, 20]
@@ -25,7 +25,7 @@ const Violation = sequelize.define('Violation', {
   
   citationNumber: {
     type: DataTypes.STRING(20),
-    allowNull: false,
+    allowNull: true, // Auto-generated in beforeCreate hook
     unique: true,
     validate: {
       len: [10, 20]
@@ -169,7 +169,7 @@ const Violation = sequelize.define('Violation', {
   
   totalFine: {
     type: DataTypes.DECIMAL(10, 2),
-    allowNull: false,
+    allowNull: true, // Auto-calculated in beforeCreate hook
     validate: {
       min: 0
     }
@@ -201,7 +201,7 @@ const Violation = sequelize.define('Violation', {
   
   dueDate: {
     type: DataTypes.DATEONLY,
-    allowNull: false,
+    allowNull: true, // Auto-calculated in beforeCreate hook
     validate: {
       isDate: true
     }
@@ -209,7 +209,7 @@ const Violation = sequelize.define('Violation', {
   
   paymentDeadline: {
     type: DataTypes.DATE,
-    allowNull: false,
+    allowNull: true, // Auto-calculated in beforeCreate hook
     validate: {
       isDate: true
     }
