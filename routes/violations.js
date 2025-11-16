@@ -279,7 +279,7 @@ router.get('/enforcer', enforcerAuth, asyncHandler(async (req, res) => {
       {
         model: User,
         as: 'enforcer',
-        attributes: ['id', 'firstName', 'lastName', 'enforcerBadgeNumber']
+        attributes: ['id', 'firstName', 'lastName']
       }
     ],
     order: [['createdAt', 'DESC']],
@@ -314,7 +314,7 @@ router.get('/:id', auth, asyncHandler(async (req, res) => {
       {
         model: User,
         as: 'enforcer',
-        attributes: ['id', 'firstName', 'lastName', 'enforcerBadgeNumber']
+        attributes: ['id', 'firstName', 'lastName']
       }
     ]
   });
@@ -401,7 +401,7 @@ router.post('/', enforcerAuth, validateViolationCreation, checkValidation, async
     notes,
     enforcerId: req.user.id,
     enforcerName: req.user.getFullName(),
-    enforcerBadgeNumber: req.user.enforcerBadgeNumber || 'N/A'
+    enforcerBadgeNumber: `ENF-${req.user.id.substring(0, 8).toUpperCase()}` // * Generate badge number from user ID
   });
   
   // * Send notification if phone number is provided
