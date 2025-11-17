@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthContext"
-import { apiService } from "../../services/api"
+import { apiService, unwrapApiResponse } from "../../services/api"
 import { Notification } from "../../types"
 import {
   Menu,
@@ -68,7 +68,11 @@ const Navbar: React.FC = () => {
     try {
       setLoadingNotifications(true)
       const response = await apiService.getNotifications({ limit: 10 })
-      setNotifications(response.data.notifications || [])
+      const payload = unwrapApiResponse<Notification[] | { notifications?: Notification[] }>(response)
+      const notificationList: Notification[] = Array.isArray(payload)
+        ? payload
+        : payload?.notifications ?? []
+      setNotifications(notificationList)
     } catch (error) {
       console.error("Failed to fetch notifications:", error)
     } finally {
@@ -79,7 +83,8 @@ const Navbar: React.FC = () => {
   const fetchUnreadCount = async () => {
     try {
       const response = await apiService.getUnreadNotificationCount()
-      setUnreadCount(response.data.count || 0)
+      const payload = unwrapApiResponse<{ count?: number }>(response)
+      setUnreadCount(payload?.count ?? 0)
     } catch (error) {
       console.error("Failed to fetch unread count:", error)
     }

@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from "axios";
-import { ApiError } from "../types";
+import { ApiError, ApiResponse } from "../types";
 import { getFullPath } from "../utils/router";
 
 export const API_VERSION = process.env.REACT_APP_API_VERSION || "v1";
@@ -190,6 +190,28 @@ export const clearApiBaseUrlOverride = (): void => {
   apiBaseUrl = getApiBaseUrl();
   csrfToken = null;
   applyBaseUrlToClient(apiBaseUrl);
+};
+
+/**
+ * * Normalizes API responses so components can depend on a consistent shape
+ */
+export const unwrapApiResponse = <T>(
+  payload: ApiResponse<T> | { data?: T } | T | null | undefined
+): T | null => {
+  if (!payload) {
+    return null;
+  }
+
+  if (typeof payload === "object" && "data" in payload && (payload as { data?: T }).data !== undefined) {
+    return (payload as { data?: T }).data as T;
+  }
+
+  if (typeof payload === "object" && "success" in payload) {
+    const response = payload as ApiResponse<T>;
+    return response.data ?? null;
+  }
+
+  return payload as T;
 };
 
 declare global {

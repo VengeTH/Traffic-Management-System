@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthContext"
-import { apiService } from "../../services/api"
+import { apiService, unwrapApiResponse } from "../../services/api"
 import { DashboardStats, Violation } from "../../types"
 import {
   Search,
@@ -62,8 +62,16 @@ const DashboardPage: React.FC = () => {
           apiService.getUserViolations(),
         ])
 
-        setStats(statsResponse.data)
-        setRecentViolations(violationsResponse.data.violations || [])
+        const statsPayload = unwrapApiResponse<DashboardStats>(statsResponse)
+        const violationsPayload = unwrapApiResponse<
+          { violations?: Violation[] } | Violation[]
+        >(violationsResponse)
+
+        setStats(statsPayload ?? null)
+        const violationList: Violation[] = Array.isArray(violationsPayload)
+          ? violationsPayload
+          : violationsPayload?.violations ?? []
+        setRecentViolations(violationList)
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error)
       } finally {

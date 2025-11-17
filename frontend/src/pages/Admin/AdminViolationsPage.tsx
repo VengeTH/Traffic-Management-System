@@ -17,7 +17,7 @@ import Input from '../../components/UI/Input';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
 import PageHeader from '../../components/Layout/PageHeader';
 import PageSection from '../../components/Layout/PageSection';
-import { apiService } from '../../services/api';
+import { apiService, unwrapApiResponse } from '../../services/api';
 import { Violation } from '../../types';
 import toast from 'react-hot-toast';
 
@@ -86,9 +86,17 @@ const AdminViolationsPage: React.FC = () => {
       }
 
       const response = await apiService.getAdminViolations(params);
-      setViolations(response.data.violations ?? []);
-      setTotalPages(response.data.pagination?.pages ?? 1);
-      setTotal(response.data.pagination?.total ?? 0);
+      const payload = unwrapApiResponse<
+        { violations?: Violation[]; pagination?: { pages?: number; total?: number } } | Violation[]
+      >(response);
+
+      const violationList = Array.isArray(payload) ? payload : payload?.violations ?? [];
+      const paginationData = !Array.isArray(payload) ? payload?.pagination : undefined;
+      const pagination = paginationData ?? { pages: 1, total: violationList.length };
+
+      setViolations(violationList);
+      setTotalPages(pagination.pages ?? 1);
+      setTotal(pagination.total ?? violationList.length);
     } catch (error) {
       console.error('Failed to fetch violations:', error);
       toast.error('Failed to load violations');

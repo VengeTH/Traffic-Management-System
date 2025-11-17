@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../../components/UI/Ca
 import Button from '../../components/UI/Button';
 import Input from '../../components/UI/Input';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
-import { apiService } from '../../services/api';
+import { apiService, unwrapApiResponse } from '../../services/api';
 import { User } from '../../types';
 import toast from 'react-hot-toast';
 
@@ -48,9 +48,17 @@ const AdminUsersPage: React.FC = () => {
       }
 
       const response = await apiService.getAdminUsers(params);
-      setUsers(response.data.users || []);
-      setTotalPages(response.data.pagination?.pages || 1);
-      setTotal(response.data.pagination?.total || 0);
+      const payload = unwrapApiResponse<
+        { users?: User[]; pagination?: { pages?: number; total?: number } } | User[]
+      >(response);
+
+      const userList = Array.isArray(payload) ? payload : payload?.users ?? [];
+      const paginationData = !Array.isArray(payload) ? payload?.pagination : undefined;
+      const pagination = paginationData ?? { pages: 1, total: userList.length };
+
+      setUsers(userList);
+      setTotalPages(pagination.pages ?? 1);
+      setTotal(pagination.total ?? userList.length);
     } catch (error: any) {
       console.error('Failed to fetch users:', error);
       toast.error(error.response?.data?.message || 'Failed to load users');
