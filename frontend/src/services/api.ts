@@ -1,6 +1,100 @@
-import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
-import { ApiError } from '../types';
-import { getFullPath } from '../utils/router';
+import axios, { AxiosInstance, AxiosResponse, AxiosError } from "axios";
+import { ApiError } from "../types";
+import { getFullPath } from "../utils/router";
+
+export const API_VERSION = process.env.REACT_APP_API_VERSION || "v1";
+const API_OVERRIDE_STORAGE_KEY = "trafficApiBaseUrlOverride";
+const API_OVERRIDE_QUERY_KEYS = ["apiBaseUrl", "apiBase", "api"];
+
+const normalizeBaseUrl = (value: string): string => value.replace(/\/+$/, "");
+
+const isValidApiBaseUrl = (value: string): boolean => {
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:" && !["localhost", "127.0.0.1"].includes(url.hostname)) {
+      return false;
+    }
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
+};
+
+const persistOverride = (value: string): void => {
+  if (typeof window === "undefined") {
+    return;
+  }
+  try {
+    window.localStorage?.setItem(API_OVERRIDE_STORAGE_KEY, value);
+  } catch (error) {
+    console.warn("Failed to persist API override:", error);
+  }
+};
+
+const removeOverride = (): void => {
+  if (typeof window === "undefined") {
+    return;
+  }
+  try {
+    window.localStorage?.removeItem(API_OVERRIDE_STORAGE_KEY);
+  } catch (error) {
+    console.warn("Failed to clear API override:", error);
+  }
+};
+
+const getStoredOverride = (): string | null => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  try {
+    const stored = window.localStorage?.getItem(API_OVERRIDE_STORAGE_KEY);
+    if (stored && isValidApiBaseUrl(stored)) {
+      return stored;
+    }
+    if (stored) {
+      window.localStorage?.removeItem(API_OVERRIDE_STORAGE_KEY);
+    }
+  } catch (error) {
+    console.warn("Failed to read API override:", error);
+  }
+  return null;
+};
+
+const getQueryOverride = (): string | null => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  try {
+    const params = new URLSearchParams(window.location.search);
+    for (const key of API_OVERRIDE_QUERY_KEYS) {
+      const candidate = params.get(key);
+      if (candidate && isValidApiBaseUrl(candidate)) {
+        const normalized = normalizeBaseUrl(candidate);
+        persistOverride(normalized);
+        const url = new URL(window.location.href);
+        params.delete(key);
+        url.search = params.toString();
+        window.history.replaceState({}, document.title, url.toString());
+        return normalized;
+      }
+    }
+  } catch (error) {
+    console.warn("Failed to parse query override:", error);
+  }
+  return null;
+};
+
+const resolveRuntimeOverride = (): string | null => {
+  const queryOverride = getQueryOverride();
+  if (queryOverride) {
+    return queryOverride;
+  }
+  const storedOverride = getStoredOverride();
+  if (storedOverride) {
+    return storedOverride;
+  }
+  return null;
+};
 
 /**
  * * Determines the API base URL based on environment
@@ -9,57 +103,112 @@ import { getFullPath } from '../utils/router';
  * * 2. Auto-detect based on current hostname
  * * 3. Default to localhost for development
  */
-const getApiBaseUrl = (): string => {
+const getApiBaseUrl = (): string | null => {
+  const runtimeOverride = resolveRuntimeOverride();
+  if (runtimeOverride) {
+    return normalizeBaseUrl(runtimeOverride);
+  }
+
+  if (process.env.REACT_APP_API_URL) {
+    const envUrl = normalizeBaseUrl(process.env.REACT_APP_API_URL);
+    if (isValidApiBaseUrl(envUrl)) {
+      return envUrl;
+    }
+    console.warn("Invalid REACT_APP_API_URL detected. Falling back to auto-detection.");
+  }
+
   // * Auto-detect based on current location (client-side only)
   // * This takes priority over environment variable for localhost development
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
-    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
-    const isGitHubPages = hostname.includes('github.io');
+    const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
+    const isGitHubPages = hostname.includes("github.io");
 
     // * Development: localhost or 127.0.0.1 - ALWAYS use localhost:5000
     if (isLocalhost) {
-      return `http://localhost:5000`;
+      return "http://localhost:5000";
     }
 
     // * Production: GitHub Pages or other production domains
     if (isGitHubPages) {
-      // * Use environment variable if set (from build time)
-      const envApiUrl = process.env.REACT_APP_API_URL;
-      if (envApiUrl) {
-        return envApiUrl;
-      }
-      
-      // * GitHub Pages: API must be on separate server
-      // * If REACT_APP_API_URL is not set, default to backend server
-      // * Change this to your actual backend URL if not using environment variable
-      return 'https://112.207.191.27';
+      console.error(
+        "No API base URL configured for GitHub Pages deployment. Set REACT_APP_API_URL during build or use ?apiBaseUrl=YOUR_URL to override at runtime."
+      );
+      return null;
     }
 
     // * Other production domains: use environment variable or same origin
-    const envApiUrl = process.env.REACT_APP_API_URL;
-    if (envApiUrl) {
-      return envApiUrl;
-    }
-    return '';
+    return window.location.origin;
   }
 
   // * Server-side rendering fallback
-  return 'http://localhost:5000';
+  return "http://localhost:5000";
 };
 
 // Create axios instance
 // * API versioning: Currently using v1 endpoints
 // * Backward compatibility: Non-versioned endpoints still work but are deprecated
-const API_VERSION = process.env.REACT_APP_API_VERSION || 'v1';
-const API_BASE_URL = getApiBaseUrl();
+let apiBaseUrl = getApiBaseUrl();
+
+const getVersionedBaseUrl = (baseUrl: string | null): string => {
+  if (!baseUrl) {
+    return `/api/${API_VERSION}`;
+  }
+  return `${normalizeBaseUrl(baseUrl)}/api/${API_VERSION}`;
+};
+
 const api: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL ? `${API_BASE_URL}/api/${API_VERSION}` : `/api/${API_VERSION}`,
+  baseURL: getVersionedBaseUrl(apiBaseUrl),
   timeout: 30000, // * Increased timeout to 30 seconds
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
+
+const applyBaseUrlToClient = (baseUrl: string | null): void => {
+  api.defaults.baseURL = getVersionedBaseUrl(baseUrl);
+};
+
+export const getResolvedApiBaseUrl = (): string | null => apiBaseUrl;
+
+export const getApiBaseUrlOverride = (): string | null => getStoredOverride();
+
+export const setApiBaseUrlOverride = (value: string): boolean => {
+  if (!isValidApiBaseUrl(value)) {
+    return false;
+  }
+  const normalized = normalizeBaseUrl(value);
+  persistOverride(normalized);
+  apiBaseUrl = normalized;
+  csrfToken = null;
+  applyBaseUrlToClient(apiBaseUrl);
+  return true;
+};
+
+export const clearApiBaseUrlOverride = (): void => {
+  removeOverride();
+  apiBaseUrl = getApiBaseUrl();
+  csrfToken = null;
+  applyBaseUrlToClient(apiBaseUrl);
+};
+
+declare global {
+  interface Window {
+    trafficApiConfig?: {
+      setApiBaseUrlOverride: (value: string) => boolean;
+      clearApiBaseUrlOverride: () => void;
+      getApiBaseUrlOverride: () => string | null;
+    };
+  }
+}
+
+if (typeof window !== "undefined") {
+  window.trafficApiConfig = {
+    setApiBaseUrlOverride,
+    clearApiBaseUrlOverride,
+    getApiBaseUrlOverride,
+  };
+}
 
 
 // * CSRF token storage (in-memory, refreshed on each response)
@@ -160,9 +309,7 @@ api.interceptors.response.use(
         if (refreshToken) {
           try {
             // * Use versioned endpoint for token refresh
-            const refreshUrl = API_BASE_URL 
-              ? `${API_BASE_URL}/api/${API_VERSION}/auth/refresh`
-              : `/api/${API_VERSION}/auth/refresh`;
+            const refreshUrl = `${getVersionedBaseUrl(apiBaseUrl)}/auth/refresh`;
             const response = await axios.post(refreshUrl, {
               refreshToken,
             });

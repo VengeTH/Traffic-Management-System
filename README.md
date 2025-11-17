@@ -302,6 +302,23 @@ npm run migrate
 npm start
 ```
 
+### Runtime API URL Override (GitHub Pages Hotfix)
+
+If you already deployed the frontend to GitHub Pages and forgot to rebuild with the correct `REACT_APP_API_URL`, you can temporarily point the app to a different backend without rebuilding:
+
+1. Open your deployed site with the desired API URL appended as a query parameter:
+   ```
+   https://vengeth.github.io/Traffic-Management-System/?apiBaseUrl=https://your-api-domain.com
+   ```
+2. The app validates the URL (HTTPS is required unless you are targeting `localhost`) and stores it securely in `localStorage` using the `trafficApiBaseUrlOverride` key.
+3. Subsequent visits automatically use the stored override. To clear it, run the following in the browser console:
+   ```js
+   localStorage.removeItem("trafficApiBaseUrlOverride");
+   window.location.reload();
+   ```
+
+> **Note:** This override is intended as an emergency fix. Always rebuild with the correct `REACT_APP_API_URL` for long-term deployments.
+
 ## 🔧 Configuration
 
 ### Payment Gateway Setup

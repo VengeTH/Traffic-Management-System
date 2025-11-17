@@ -43,8 +43,28 @@ The application uses the following priority:
 1. **Environment Variable** (`REACT_APP_API_URL`) - Highest priority
 2. **Auto-detection**:
    - `localhost` or `127.0.0.1` → `http://localhost:5000`
-   - `github.io` domain → Uses relative URL (requires API on same domain or proxy)
+   - `github.io` domain → Requires explicit API URL
    - Other domains → Uses relative URL (same origin)
+
+### Runtime Override (Hotfix Option)
+
+If you already deployed to GitHub Pages and forgot to rebuild with the correct API host, you can temporarily override it at runtime:
+
+1. Visit your site with `?apiBaseUrl=https://your-api-domain.com` appended.
+2. The app validates and stores the override in `localStorage` under the `trafficApiBaseUrlOverride` key.
+3. The override persists for future visits until cleared. Remove it via the browser console:
+   ```js
+   localStorage.removeItem("trafficApiBaseUrlOverride");
+   window.location.reload();
+   ```
+
+You can also clear or set the override from the console using the helper object:
+
+```js
+window.trafficApiConfig.setApiBaseUrlOverride("https://your-api-domain.com")
+window.trafficApiConfig.getApiBaseUrlOverride()
+window.trafficApiConfig.clearApiBaseUrlOverride()
+```
 
 ### Important Notes
 

@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../../components/UI/Ca
 import Button from '../../components/UI/Button';
 import Input from '../../components/UI/Input';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
-import { apiService } from '../../services/api';
+import { apiService, API_VERSION, getResolvedApiBaseUrl } from '../../services/api';
 import toast from 'react-hot-toast';
 
 const AdminReportsPage: React.FC = () => {
@@ -63,6 +63,12 @@ const AdminReportsPage: React.FC = () => {
     }
   };
 
+  const getReportDownloadUrl = (): string => {
+    const baseUrl = getResolvedApiBaseUrl();
+    const versionedBase = baseUrl ? `${baseUrl}/api/${API_VERSION}` : `/api/${API_VERSION}`;
+    return `${versionedBase}/admin/reports/${reportType}?startDate=${startDate}&endDate=${endDate}&format=csv`;
+  };
+
   const downloadCSV = async () => {
     if (!startDate || !endDate) {
       toast.error('Please select both start and end dates');
@@ -70,14 +76,11 @@ const AdminReportsPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/admin/reports/${reportType}?startDate=${startDate}&endDate=${endDate}&format=csv`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
-      );
+      const response = await fetch(getReportDownloadUrl(), {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
 
       if (!response.ok) {
         throw new Error('Failed to download CSV');
