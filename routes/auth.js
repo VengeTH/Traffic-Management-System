@@ -25,10 +25,24 @@ const {
 } = require("../middleware/tokenBlacklist")
 const { sendEmail } = require("../utils/email")
 const { sendSMS } = require("../utils/sms")
+const { generateCSRFToken } = require("../middleware/csrf")
 const jwt = require("jsonwebtoken")
 const logger = require("../utils/logger")
 
 const router = express.Router()
+
+const attachCsrfToken = (res, userId, contextLabel) => {
+  if (!res || !userId) {
+    return
+  }
+
+  try {
+    const token = generateCSRFToken(userId)
+    res.setHeader("X-CSRF-Token", token)
+  } catch (error) {
+    logger.error(`Failed to issue CSRF token after ${contextLabel}:`, error)
+  }
+}
 
 // * Rate limiting for authentication endpoints
 const isDevelopment = process.env.NODE_ENV === "development"
@@ -256,6 +270,8 @@ router.post(
       requestId: req.id,
     })
 
+    attachCsrfToken(res, user.id, "registration")
+
     res.status(201).json({
       success: true,
       message:
@@ -324,6 +340,8 @@ router.post(
       requestId: req.id,
     })
 
+    attachCsrfToken(res, user.id, "login")
+
     res.json({
       success: true,
       message: "Login successful",
@@ -373,6 +391,8 @@ router.post(
     // * Generate new tokens
     const newToken = generateToken(user.id)
     const newRefreshToken = generateRefreshToken(user.id)
+
+    attachCsrfToken(res, user.id, "token refresh")
 
     res.json({
       success: true,
