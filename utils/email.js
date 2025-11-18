@@ -423,6 +423,17 @@ const sendEmail = async ({ to, subject, template, data, attachments = [] }) => {
   }
 };
 
+const formatCurrency = (value) => {
+  if (value === undefined || value === null) {
+    return '0.00';
+  }
+  const numericValue = typeof value === 'number' ? value : parseFloat(value);
+  if (!Number.isFinite(numericValue)) {
+    return '0.00';
+  }
+  return numericValue.toFixed(2);
+};
+
 // * Send verification email
 const sendVerificationEmail = async (user, verificationUrl) => {
   return await sendEmail({
@@ -462,7 +473,7 @@ const sendPaymentReceipt = async (payment, violation) => {
       violationType: violation.violationType.replace('_', ' ').toUpperCase(),
       violationLocation: violation.violationLocation,
       violationDate: violation.violationDate.toLocaleDateString('en-PH'),
-      totalAmount: payment.totalAmount.toFixed(2)
+      totalAmount: formatCurrency(payment.totalAmount)
     }
   });
 };
@@ -481,7 +492,7 @@ const sendViolationNotification = async (violation, paymentUrl) => {
       violationLocation: violation.violationLocation,
       violationDate: violation.violationDate.toLocaleDateString('en-PH'),
       dueDate: violation.dueDate,
-      totalFine: violation.totalFine.toFixed(2),
+      totalFine: formatCurrency(violation.totalFine),
       paymentUrl
     }
   });
@@ -501,7 +512,7 @@ const sendOverduePaymentEmail = async (violation, paymentUrl) => {
       violationLocation: violation.violationLocation,
       violationDate: violation.violationDate.toLocaleDateString('en-PH'),
       dueDate: violation.dueDate,
-      totalFine: violation.totalFine.toFixed(2),
+      totalFine: formatCurrency(violation.totalFine),
       paymentUrl
     }
   });
