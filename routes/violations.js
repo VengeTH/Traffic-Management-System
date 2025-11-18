@@ -92,7 +92,7 @@ const validateViolationCreation = [
     }),
   
   body('driverPhone')
-    .optional()
+    .optional({ checkFalsy: true, nullable: true })
     .matches(/^\+?[1-9]\d{1,14}$/)
     .withMessage('Please provide a valid phone number'),
   
