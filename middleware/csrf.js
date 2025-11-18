@@ -175,16 +175,35 @@ const csrfProtection = (req, res, next) => {
  * Adds CSRF token to response header for client to use
  */
 const addCSRFToken = (req, res, next) => {
-  try {
-    // * Generate token for authenticated users
-    if (req.user && req.user.id) {
-      const token = generateCSRFToken(req.user.id)
-      res.setHeader("X-CSRF-Token", token)
+  const issueTokenIfNeeded = () => {
+    if (res.locals.csrfTokenIssued) {
+      return
     }
-  } catch (error) {
-    // * Don't block requests if CSRF token generation fails
-    logger.error("Failed to generate CSRF token:", error)
+
+    try {
+      // * Generate token for authenticated users
+      if (req.user && req.user.id) {
+        const token = generateCSRFToken(req.user.id)
+        res.setHeader("X-CSRF-Token", token)
+        res.locals.csrfTokenIssued = true
+      }
+    } catch (error) {
+      // * Don't block requests if CSRF token generation fails
+      logger.error("Failed to generate CSRF token:", error)
+    }
   }
+
+  const wrapResponseMethod = (methodName) => {
+    const originalMethod = res[methodName].bind(res)
+    res[methodName] = (...args) => {
+      issueTokenIfNeeded()
+      return originalMethod(...args)
+    }
+  }
+
+  wrapResponseMethod("json")
+  wrapResponseMethod("send")
+  wrapResponseMethod("end")
 
   next()
 }
