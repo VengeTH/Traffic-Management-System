@@ -315,7 +315,7 @@ const TermsOfServicePage: React.FC = () => {
                   <br />
                   Email: traffic@laspinascity.gov.ph
                   <br />
-                  Phone: (02) 8XXX-XXXX
+                  Phone: (02) 8398-5765
                   <br />
                   Address: Las Piñas City Hall, Las Piñas City, Metro Manila, Philippines
                 </p>

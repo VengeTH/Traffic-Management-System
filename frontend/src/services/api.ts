@@ -11,9 +11,19 @@ const normalizeBaseUrl = (value: string): string => value.replace(/\/+$/, "");
 const isValidApiBaseUrl = (value: string): boolean => {
   try {
     const url = new URL(value);
-    if (url.protocol !== "https:" && !["localhost", "127.0.0.1"].includes(url.hostname)) {
+    // * In production (not localhost), only allow HTTPS
+    const isLocalhost = typeof window !== "undefined" && 
+      (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+    
+    if (!isLocalhost && url.protocol !== "https:") {
       return false;
     }
+    
+    // * Don't allow localhost URLs in production
+    if (!isLocalhost && ["localhost", "127.0.0.1"].includes(url.hostname)) {
+      return false;
+    }
+    
     return url.protocol === "https:" || url.protocol === "http:";
   } catch {
     return false;
@@ -48,11 +58,15 @@ const getStoredOverride = (): string | null => {
   }
   try {
     const stored = window.localStorage?.getItem(API_OVERRIDE_STORAGE_KEY);
-    if (stored && isValidApiBaseUrl(stored)) {
-      return stored;
-    }
     if (stored) {
-      window.localStorage?.removeItem(API_OVERRIDE_STORAGE_KEY);
+      // * Validate the stored override - clear if invalid for current environment
+      if (isValidApiBaseUrl(stored)) {
+        return stored;
+      } else {
+        // * Invalid override (e.g., localhost in production) - clear it
+        console.warn("Clearing invalid API override from localStorage:", stored);
+        window.localStorage?.removeItem(API_OVERRIDE_STORAGE_KEY);
+      }
     }
   } catch (error) {
     console.warn("Failed to read API override:", error);
@@ -84,6 +98,36 @@ const getQueryOverride = (): string | null => {
   return null;
 };
 
+// * Clean up invalid localStorage overrides BEFORE resolving API URL
+// * This must run before getApiBaseUrl() to prevent localhost in production
+const cleanupInvalidOverrides = (): void => {
+  if (typeof window === "undefined") {
+    return;
+  }
+  
+  const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  if (!isLocalhost) {
+    // * In production, check and clear any localhost overrides
+    try {
+      const stored = window.localStorage?.getItem(API_OVERRIDE_STORAGE_KEY);
+      if (stored) {
+        try {
+          const url = new URL(stored);
+          if (["localhost", "127.0.0.1"].includes(url.hostname)) {
+            console.warn("⚠️ Clearing invalid localhost API override from localStorage for production environment");
+            window.localStorage.removeItem(API_OVERRIDE_STORAGE_KEY);
+          }
+        } catch {
+          // Invalid URL format, clear it
+          window.localStorage.removeItem(API_OVERRIDE_STORAGE_KEY);
+        }
+      }
+    } catch (error) {
+      // Ignore localStorage errors
+    }
+  }
+};
+
 const resolveRuntimeOverride = (): string | null => {
   const queryOverride = getQueryOverride();
   if (queryOverride) {
@@ -104,6 +148,9 @@ const resolveRuntimeOverride = (): string | null => {
  * * 3. Default to localhost for development
  */
 const getApiBaseUrl = (): string | null => {
+  // * Clean up invalid overrides first
+  cleanupInvalidOverrides();
+  
   const runtimeOverride = resolveRuntimeOverride();
   if (runtimeOverride) {
     return normalizeBaseUrl(runtimeOverride);
@@ -131,13 +178,29 @@ const getApiBaseUrl = (): string | null => {
 
     // * Production: GitHub Pages or other production domains
     if (isGitHubPages) {
+      // * For GitHub Pages, check if REACT_APP_API_URL was set during build
+      if (process.env.REACT_APP_API_URL) {
+        const envUrl = normalizeBaseUrl(process.env.REACT_APP_API_URL);
+        if (isValidApiBaseUrl(envUrl)) {
+          return envUrl;
+        }
+      }
+      
+      // * If no environment variable, show error and allow runtime override
       console.error(
-        "No API base URL configured for GitHub Pages deployment. Set REACT_APP_API_URL during build or use ?apiBaseUrl=YOUR_URL to override at runtime."
+        "⚠️ No API base URL configured for GitHub Pages deployment.\n" +
+        "Options:\n" +
+        "1. Set REACT_APP_API_URL during build: REACT_APP_API_URL=https://your-backend.com npm run build\n" +
+        "2. Use runtime override: Add ?apiBaseUrl=https://your-backend.com to the URL\n" +
+        "3. Clear localStorage and refresh if you see localhost errors"
       );
+      
+      // * Return null to force runtime override or show error
       return null;
     }
 
     // * Other production domains: use environment variable or same origin
+    // * If backend is on same domain, use same origin
     return window.location.origin;
   }
 
@@ -149,6 +212,37 @@ const getApiBaseUrl = (): string | null => {
 // * API versioning: Currently using v1 endpoints
 // * Backward compatibility: Non-versioned endpoints still work but are deprecated
 let apiBaseUrl = getApiBaseUrl();
+
+// * Final safety check: Never use localhost in production
+if (typeof window !== "undefined" && apiBaseUrl) {
+  const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  try {
+    const url = new URL(apiBaseUrl);
+    if (!isLocalhost && ["localhost", "127.0.0.1"].includes(url.hostname)) {
+      console.error("❌ Blocked attempt to use localhost API in production. Clearing override and using null.");
+      if (window.localStorage) {
+        window.localStorage.removeItem(API_OVERRIDE_STORAGE_KEY);
+      }
+      apiBaseUrl = null; // Will use relative paths or show error
+    }
+  } catch {
+    // Invalid URL, set to null
+    apiBaseUrl = null;
+  }
+}
+
+// * Log the resolved API base URL for debugging
+if (typeof window !== "undefined") {
+  const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  if (isLocalhost || process.env.NODE_ENV === "development") {
+    console.log("🔗 API Base URL resolved to:", apiBaseUrl || "null (will use relative paths)");
+  } else if (!apiBaseUrl) {
+    console.error(
+      "⚠️ API Base URL is not configured for production.\n" +
+      "Please set REACT_APP_API_URL during build or use ?apiBaseUrl=YOUR_URL in the URL"
+    );
+  }
+}
 
 const getVersionedBaseUrl = (baseUrl: string | null): string => {
   if (!baseUrl) {
