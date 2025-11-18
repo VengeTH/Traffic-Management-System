@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PaymentProvider } from './contexts/PaymentContext';
 import { getBasename } from './utils/router';
+import { User } from './types';
 
 // Layout Components
 import Navbar from './components/Layout/Navbar';
@@ -45,51 +46,79 @@ import LoadingSpinner from './components/UI/LoadingSpinner';
 import ErrorBoundary from './components/UI/ErrorBoundary';
 
 // Protected Route Component - redirects to login if not authenticated
-const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean }> = ({ 
-  children, 
-  adminOnly = false 
+const getStoredUser = (): User | null => {
+  try {
+    if (typeof window === "undefined" || !window.localStorage) {
+      return null
+    }
+    const raw = window.localStorage.getItem("user")
+    if (!raw) {
+      return null
+    }
+    const parsed = JSON.parse(raw)
+    return parsed && typeof parsed === "object" ? (parsed as User) : null
+  } catch {
+    return null
+  }
+}
+
+const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean }> = ({
+  children,
+  adminOnly = false,
 }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth()
+  const location = useLocation()
+  const effectiveUser = user ?? getStoredUser()
+
+  console.debug("ProtectedRoute check", {
+    path: location.pathname,
+    loading,
+    isAuthenticated,
+    hasUser: Boolean(effectiveUser),
+    role: effectiveUser?.role,
+    adminOnly,
+  })
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace state={{ from: location }} />
   }
 
-  if (adminOnly && user.role !== 'admin') {
-    return <Navigate to="/dashboard" replace />;
+  if (adminOnly && effectiveUser?.role !== "admin") {
+    return <Navigate to="/dashboard" replace />
   }
 
-  return <>{children}</>;
-};
+  return <>{children}</>
+}
 
 // Public Route Component - redirects to dashboard if already authenticated
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { loading, isAuthenticated } = useAuth()
+  const location = useLocation()
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    )
   }
 
-  // If user is logged in, redirect to dashboard
-  // This prevents logged-in users from accessing login/register/homepage
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
+  if (isAuthenticated) {
+    const target =
+      (location.state as { from?: { pathname: string } } | undefined)?.from?.pathname || "/dashboard"
+    return <Navigate to={target} replace />
   }
 
-  return <>{children}</>;
-};
+  return <>{children}</>
+}
 
 // Inner component that uses useLocation (must be inside Router)
 const AppLayout: React.FC = () => {
@@ -116,7 +145,7 @@ const AppLayout: React.FC = () => {
           style={{ 
             minHeight: 'calc(100vh - 80px)', 
             overflowX: 'hidden',
-            overflowY: 'auto',
+            overflowY: shouldShowSidebar ? 'auto' : 'visible',
             transition: 'margin-left 0.3s ease',
             paddingTop: isPublicRoute ? '0' : '0',
             width: '100%',

@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
@@ -29,13 +29,20 @@ const schema = yup
 type LoginFormData = yup.InferType<typeof schema>
 
 const LoginPage: React.FC = () => {
-  const { login } = useAuth()
+  const { login, isAuthenticated, loading } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
   const from = location.state?.from?.pathname || "/dashboard"
+
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      console.debug("LoginPage: authenticated user detected, redirecting to dashboard")
+      navigate("/dashboard", { replace: true })
+    }
+  }, [isAuthenticated, navigate, loading])
 
   const {
     register,

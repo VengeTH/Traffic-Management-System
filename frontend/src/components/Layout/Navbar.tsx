@@ -134,7 +134,13 @@ const Navbar: React.FC = () => {
   }
 
   const toggleUserMenu = () => {
-    setIsUserMenuOpen(!isUserMenuOpen)
+    const nextState = !isUserMenuOpen
+    console.debug("Navbar: toggling user menu", {
+      open: nextState,
+      timestamp: new Date().toISOString(),
+      hasUser: Boolean(user),
+    })
+    setIsUserMenuOpen(nextState)
   }
 
   // Close user menu when clicking outside
@@ -164,12 +170,18 @@ const Navbar: React.FC = () => {
   }, [isAuthenticated])
 
   return (
-    <nav className="bg-white/95 backdrop-blur-md shadow-xl border-b-2 border-primary-100/50 fixed top-0 left-0 right-0 z-50 premium-glow w-full max-w-full overflow-x-hidden">
+    <nav
+      className="bg-white/95 backdrop-blur-md shadow-xl border-b-2 border-primary-100/50 fixed top-0 left-0 right-0 z-50 premium-glow w-full max-w-full"
+      style={{ overflow: "visible" }}
+    >
       <div className="px-3 sm:px-4 md:px-6 lg:px-8 justify-center w-full max-w-full">
         <div className="flex justify-between h-20 w-full">
           {/* Logo and brand */}
           <div className="flex items-center">
-            <Link to="/" className="flex-shrink-0 flex items-center group">
+            <Link
+              to={isAuthenticated ? "/dashboard" : "/"}
+              className="flex-shrink-0 flex items-center group"
+            >
               <div className="h-14 w-14 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105 bg-white rounded-lg p-1">
                 <img
                   src={`${process.env.PUBLIC_URL || ""}/logo.jpg`}

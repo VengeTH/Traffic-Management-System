@@ -1,5 +1,5 @@
-import React from "react"
-import { Link } from "react-router-dom"
+import React, { useEffect } from "react"
+import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
 import {
   Shield,
@@ -81,6 +81,14 @@ const communityStats = [
 
 const HomePage: React.FC = () => {
   const { isAuthenticated } = useAuth()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      console.debug("HomePage: authenticated user detected, redirecting to dashboard")
+      navigate("/dashboard", { replace: true })
+    }
+  }, [isAuthenticated, navigate])
 
   return (
     <div

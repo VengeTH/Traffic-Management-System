@@ -9,7 +9,7 @@ import Input from "../../components/UI/Input";
 import LoadingSpinner from "../../components/UI/LoadingSpinner";
 import PageHeader from "../../components/Layout/PageHeader";
 import PageSection from "../../components/Layout/PageSection";
-import { apiService } from "../../services/api";
+import { apiService, unwrapApiResponse } from "../../services/api";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -104,9 +104,13 @@ const IssueViolationsPage: React.FC = () => {
         plateNumber: data.plateNumber.toUpperCase(),
         totalFine: totalFine
       });
+      const payload = unwrapApiResponse<{ violation?: { id: string } }>(response);
+      const violationId = payload?.violation?.id;
 
       toast.success("Violation issued successfully!");
-      navigate(`/violations/${response.data.violation.id}`);
+      if (violationId) {
+        navigate(`/violations/${violationId}`);
+      }
     } catch (error: any) {
       console.error("Failed to create violation:", error);
       toast.error(error.response?.data?.message || "Failed to issue violation. Please try again.");

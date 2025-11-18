@@ -273,17 +273,27 @@ export const fetchCSRFToken = async (): Promise<string | null> => {
 
 // Request interceptor to add auth token and CSRF token
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
+  async (config) => {
+    const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
-    // * Add CSRF token for state-changing requests (POST, PUT, DELETE, PATCH)
-    if (csrfToken && ['post', 'put', 'delete', 'patch'].includes(config.method?.toLowerCase() || '')) {
-      config.headers['X-CSRF-Token'] = csrfToken;
+
+    const method = config.method?.toLowerCase();
+    const requiresCsrf = method ? ["post", "put", "delete", "patch"].includes(method) : false;
+
+    if (requiresCsrf && !csrfToken) {
+      try {
+        await fetchCSRFToken();
+      } catch (error) {
+        console.warn("Failed to auto-fetch CSRF token:", error);
+      }
     }
-    
+
+    if (requiresCsrf && csrfToken) {
+      config.headers["X-CSRF-Token"] = csrfToken;
+    }
+
     return config;
   },
   (error) => {

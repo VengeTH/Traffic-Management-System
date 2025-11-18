@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { User, AuthResponse } from '../types';
-import { apiService } from '../services/api';
+import { apiService, fetchCSRFToken, unwrapApiResponse } from '../services/api';
 import toast from 'react-hot-toast';
 
 // Auth state interface
@@ -165,6 +165,27 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+const normalizeAuthResponse = (payload: any): AuthResponse => {
+  const unwrapped = unwrapApiResponse<AuthResponse>(payload) ?? (payload as AuthResponse | null);
+  if (unwrapped && unwrapped.user && unwrapped.token) {
+    return {
+      user: unwrapped.user,
+      token: unwrapped.token,
+      refreshToken: unwrapped.refreshToken || '',
+    };
+  }
+
+  if (payload && payload.user && payload.token) {
+    return {
+      user: payload.user,
+      token: payload.token,
+      refreshToken: payload.refreshToken || '',
+    };
+  }
+
+  throw new Error('Invalid authentication response structure');
+};
+
 // Auth provider component
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
@@ -180,15 +201,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           try {
             dispatch({ type: 'AUTH_START' });
             const response = await apiService.getCurrentUser();
+            const currentUser = unwrapApiResponse<User>(response) ?? (response as User | null);
+            if (!currentUser) {
+              throw new Error('Failed to load user profile');
+            }
+
             if (mounted) {
               dispatch({
                 type: 'AUTH_SUCCESS',
                 payload: {
-                  user: response.data,
+                  user: currentUser,
                   token,
                   refreshToken: safeLocalStorageGet('refreshToken') || '',
                 },
               });
+              try {
+                await fetchCSRFToken();
+              } catch (csrfError) {
+                console.warn('Failed to prefetch CSRF token during auth init:', csrfError);
+              }
             }
           } catch (error) {
             console.error('Failed to initialize auth:', error);
@@ -226,8 +257,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       dispatch({ type: 'AUTH_START' });
       const response = await apiService.login(email, password);
-      
-      const { user, token, refreshToken } = response.data;
+      const { user, token, refreshToken } = normalizeAuthResponse(response);
       
       // Store tokens in localStorage (safe)
       safeLocalStorageSet('token', token);
@@ -238,6 +268,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         type: 'AUTH_SUCCESS',
         payload: { user, token, refreshToken },
       });
+      try {
+        await fetchCSRFToken();
+      } catch (csrfError) {
+        console.warn('Failed to prefetch CSRF token after registration:', csrfError);
+      }
+      try {
+        await fetchCSRFToken();
+      } catch (csrfError) {
+        console.warn('Failed to prefetch CSRF token after login:', csrfError);
+      }
       
       toast.success('Login successful!');
     } catch (error: any) {
@@ -262,8 +302,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       dispatch({ type: 'AUTH_START' });
       const response = await apiService.register(userData);
-      
-      const { user, token, refreshToken } = response.data;
+      const { user, token, refreshToken } = normalizeAuthResponse(response);
       
       // Store tokens in localStorage (safe)
       safeLocalStorageSet('token', token);
@@ -311,7 +350,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const refreshAuth = async () => {
     try {
       const response = await apiService.getCurrentUser();
-      const updatedUser = response.data;
+      const updatedUser = unwrapApiResponse<User>(response) ?? (response as User | null);
+      if (!updatedUser) {
+        throw new Error('Failed to refresh user profile');
+      }
       
       // Update user in state and localStorage
       dispatch({
