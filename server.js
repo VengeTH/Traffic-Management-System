@@ -396,6 +396,73 @@ const validateEnvironment = () => {
   logger.info("✅ Environment variables validated successfully")
 }
 
+const ensureColumnExists = async (table, column, dialect, createColumnFn, populateFn) => {
+  if (!createColumnFn) {
+    return
+  }
+
+  let columnExisted = false
+
+  if (dialect === "sqlite") {
+    const [results] = await sequelize.query(`PRAGMA table_info(${table});`)
+    const hasColumn = results.some((col) => col.name === column)
+    if (hasColumn) {
+      columnExisted = true
+    } else {
+      await createColumnFn()
+    }
+  } else {
+    await createColumnFn()
+    columnExisted = true
+  }
+
+  if (populateFn) {
+    await populateFn()
+  }
+
+  return columnExisted
+}
+
+const ensureSchemaCompatibility = async () => {
+  const dialect = sequelize.getDialect()
+
+  await ensureColumnExists(
+    "users",
+    "enforcer_badge_number",
+    dialect,
+    async () => {
+      logger.info("Ensuring users.enforcer_badge_number column exists")
+      if (dialect === "sqlite") {
+        await sequelize.query(`
+          ALTER TABLE users 
+          ADD COLUMN enforcer_badge_number VARCHAR(20);
+        `)
+      } else {
+        await sequelize.query(`
+          ALTER TABLE users 
+          ADD COLUMN IF NOT EXISTS enforcer_badge_number VARCHAR(20);
+        `)
+      }
+    },
+    async () => {
+      logger.info("Backfilling enforcer badge numbers for users")
+      if (dialect === "sqlite") {
+        await sequelize.query(`
+          UPDATE users 
+          SET enforcer_badge_number = 'ENF-' || SUBSTR(id, 1, 8)
+          WHERE role = 'enforcer' AND enforcer_badge_number IS NULL;
+        `)
+      } else {
+        await sequelize.query(`
+          UPDATE users 
+          SET enforcer_badge_number = 'ENF-' || SUBSTRING(id::text, 1, 8)
+          WHERE role = 'enforcer' AND enforcer_badge_number IS NULL;
+        `)
+      }
+    }
+  )
+}
+
 // * Database connection and server startup
 const startServer = async () => {
   try {
@@ -405,6 +472,8 @@ const startServer = async () => {
     // * Test database connection
     await sequelize.authenticate()
     logger.info("Database connection established successfully.")
+
+    await ensureSchemaCompatibility()
 
     // * Sync database models (in development) - disabled for now
     // if (process.env.NODE_ENV === 'development') {
