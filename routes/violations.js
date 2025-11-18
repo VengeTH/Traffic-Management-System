@@ -7,6 +7,7 @@ const express = require('express');
 const { body, query, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
 const { Violation, User } = require('../models');
+const { Op } = require('sequelize');
 const { auth, enforcerAuth } = require('../middleware/auth');
 const { asyncHandler, ValidationError, NotFoundError, AuthorizationError } = require('../middleware/errorHandler');
 const { sendViolationNotificationSMS } = require('../utils/sms');
@@ -236,43 +237,54 @@ router.get('/search', auth, violationSearchLimiter, validateViolationSearch, che
  * @access  Private (Enforcers)
  */
 router.get('/enforcer', enforcerAuth, asyncHandler(async (req, res) => {
-  const { 
-    page = 1, 
-    limit = 10, 
-    search, 
-    status, 
-    violationType 
+  const {
+    page = 1,
+    limit = 10,
+    search,
+    status,
+    violationType
   } = req.query;
-  
-  const offset = (page - 1) * limit;
-  
-  let whereClause = {
-    enforcerId: req.user.id
-  };
-  
-  if (search) {
-    // * Sanitize search input to prevent SQL injection
-    // * Escape special characters used in LIKE patterns
-    const sanitizedSearch = search
-      .replace(/[%_\\]/g, '\\$&') // Escape %, _, and backslash
-      .substring(0, 100); // Limit length to prevent DoS
-    
-    whereClause[require('sequelize').Op.or] = [
-      { ovrNumber: { [require('sequelize').Op.iLike]: `%${sanitizedSearch}%` } },
-      { citationNumber: { [require('sequelize').Op.iLike]: `%${sanitizedSearch}%` } },
-      { plateNumber: { [require('sequelize').Op.iLike]: `%${sanitizedSearch}%` } },
-      { driverName: { [require('sequelize').Op.iLike]: `%${sanitizedSearch}%` } }
-    ];
+
+  const parsedPage = Math.max(parseInt(page, 10) || 1, 1);
+  const parsedLimit = Math.min(Math.max(parseInt(limit, 10) || 10, 1), 100);
+  const offset = (parsedPage - 1) * parsedLimit;
+  const likeOperator = Op.iLike || Op.like;
+
+  const filters = [
+    {
+      [Op.or]: [
+        { enforcerId: req.user.id },
+        { enforcerBadgeNumber: `ENF-${req.user.id.substring(0, 8).toUpperCase()}` }
+      ]
+    }
+  ];
+
+  if (status && status !== 'all') {
+    filters.push({ status });
   }
-  
-  if (status) {
-    whereClause.status = status;
+
+  if (violationType && violationType !== 'all') {
+    filters.push({ violationType });
   }
-  
-  if (violationType) {
-    whereClause.violationType = violationType;
+
+  if (search && search.toString().trim().length > 0) {
+    const normalizedSearch = search.toString().trim();
+    const sanitizedSearch = normalizedSearch
+      .replace(/[%_\\]/g, '\\$&')
+      .substring(0, 100);
+
+    filters.push({
+      [Op.or]: [
+        { ovrNumber: { [likeOperator]: `%${sanitizedSearch}%` } },
+        { citationNumber: { [likeOperator]: `%${sanitizedSearch}%` } },
+        { plateNumber: { [likeOperator]: `%${sanitizedSearch}%` } },
+        { driverName: { [likeOperator]: `%${sanitizedSearch}%` } }
+      ]
+    });
   }
-  
+
+  const whereClause = filters.length === 1 ? filters[0] : { [Op.and]: filters };
+
   const { count, rows: violations } = await Violation.findAndCountAll({
     where: whereClause,
     include: [
@@ -283,19 +295,19 @@ router.get('/enforcer', enforcerAuth, asyncHandler(async (req, res) => {
       }
     ],
     order: [['createdAt', 'DESC']],
-    limit: parseInt(limit),
-    offset: parseInt(offset)
+    limit: parsedLimit,
+    offset
   });
-  
+
   res.json({
     success: true,
     data: {
       violations: violations.map(v => v.toJSON()),
       pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
+        page: parsedPage,
+        limit: parsedLimit,
         total: count,
-        pages: Math.ceil(count / limit)
+        pages: Math.ceil(count / parsedLimit)
       }
     }
   });

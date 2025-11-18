@@ -8,12 +8,23 @@ const path = require('path');
 const fs = require('fs').promises;
 const logger = require('./logger');
 
+let cachedTransporter = null;
+
 // * Create transporter
 const createTransporter = () => {
-  return nodemailer.createTransporter({
+  if (cachedTransporter) {
+    return cachedTransporter;
+  }
+
+  if (!process.env.SMTP_HOST || !process.env.SMTP_PORT || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    logger.warn('SMTP credentials not provided. Email sending is disabled.');
+    return null;
+  }
+
+  cachedTransporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
+    port: Number(process.env.SMTP_PORT) || 587,
+    secure: process.env.SMTP_PORT === '465',
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS
@@ -22,6 +33,8 @@ const createTransporter = () => {
       rejectUnauthorized: false
     }
   });
+
+  return cachedTransporter;
 };
 
 // * Email templates
@@ -387,6 +400,15 @@ const replaceTemplateVariables = (template, data) => {
 const sendEmail = async ({ to, subject, template, data, attachments = [] }) => {
   try {
     const transporter = createTransporter();
+    
+    if (!transporter) {
+      logger.warn('Email skipped because SMTP transport is not configured', {
+        to,
+        subject,
+        template
+      });
+      return null;
+    }
     
     // * Get template
     const emailTemplate = emailTemplates[template];
