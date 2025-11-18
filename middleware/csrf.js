@@ -116,6 +116,12 @@ const csrfProtection = (req, res, next) => {
       return next()
     }
 
+    // * Skip CSRF check for Bearer token-based API clients
+    const authHeader = req.get("Authorization") || ""
+    if (authHeader.startsWith("Bearer ")) {
+      return next()
+    }
+
     // * Get CSRF token from header
     const csrfToken = req.get("X-CSRF-Token") || req.body._csrf
 
