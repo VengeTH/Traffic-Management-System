@@ -378,37 +378,64 @@ router.post('/', enforcerAuth, validateViolationCreation, checkValidation, async
     notes
   } = req.body;
   
-  // * Create violation
-  const normalizedDriverLicenseNumber = driverLicenseNumber && driverLicenseNumber.trim().length > 0
-    ? driverLicenseNumber.trim()
-    : null;
-  const normalizedDriverPhone = driverPhone && driverPhone.trim().length > 0
-    ? driverPhone.trim()
-    : null;
-
+  const normalizeString = (value) => {
+    if (value === undefined || value === null) {
+      return null;
+    }
+    const stringValue = value.toString().trim();
+    return stringValue.length > 0 ? stringValue : null;
+  };
+  
+  const normalizeInteger = (value) => {
+    const normalized = normalizeString(value);
+    if (!normalized) {
+      return null;
+    }
+    const parsed = parseInt(normalized, 10);
+    return Number.isNaN(parsed) ? null : parsed;
+  };
+  
+  const normalizeDecimal = (value, fallback = 0) => {
+    const normalized = normalizeString(value);
+    if (!normalized) {
+      return fallback;
+    }
+    const parsed = parseFloat(normalized);
+    return Number.isNaN(parsed) ? fallback : parsed;
+  };
+  
+  const normalizedDriverLicenseNumber = normalizeString(driverLicenseNumber);
+  const normalizedDriverPhone = normalizeString(driverPhone);
+  const normalizedVehicleYear = normalizeInteger(vehicleYear);
+  const normalizedBaseFine = normalizeDecimal(baseFine, 0);
+  const normalizedAdditionalPenalties = normalizeDecimal(additionalPenalties, 0);
+  const normalizedDemeritPoints = normalizeInteger(demeritPoints) ?? 0;
+  const computedTotalFine = normalizedBaseFine + normalizedAdditionalPenalties;
+  
   const violation = await Violation.create({
     plateNumber: plateNumber.toUpperCase(),
     vehicleType,
-    vehicleMake,
-    vehicleModel,
-    vehicleColor,
-    vehicleYear,
+    vehicleMake: normalizeString(vehicleMake),
+    vehicleModel: normalizeString(vehicleModel),
+    vehicleColor: normalizeString(vehicleColor),
+    vehicleYear: normalizedVehicleYear,
     driverName,
     driverLicenseNumber: normalizedDriverLicenseNumber,
-    driverAddress,
+    driverAddress: normalizeString(driverAddress),
     driverPhone: normalizedDriverPhone,
     violationType,
     violationDescription,
     violationLocation,
     violationDate,
     violationTime,
-    baseFine,
-    additionalPenalties: additionalPenalties || 0,
-    demeritPoints: demeritPoints || 0,
-    notes,
+    baseFine: normalizedBaseFine,
+    additionalPenalties: normalizedAdditionalPenalties,
+    totalFine: computedTotalFine,
+    demeritPoints: normalizedDemeritPoints,
+    notes: normalizeString(notes),
     enforcerId: req.user.id,
     enforcerName: req.user.getFullName(),
-    enforcerBadgeNumber: `ENF-${req.user.id.substring(0, 8).toUpperCase()}` // * Generate badge number from user ID
+    enforcerBadgeNumber: `ENF-${req.user.id.substring(0, 8).toUpperCase()}`
   });
   
   // * Send notification if phone number is provided
