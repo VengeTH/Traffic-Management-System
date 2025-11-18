@@ -35,6 +35,7 @@ const violationRoutes = require("./routes/violations")
 const paymentRoutes = require("./routes/payments")
 const adminRoutes = require("./routes/admin")
 const userRoutes = require("./routes/users")
+const dashboardRoutes = require("./routes/dashboard")
 
 // * Import middleware
 const { errorHandler } = require("./middleware/errorHandler")
@@ -298,6 +299,7 @@ app.use("/api/v1/violations", violationRoutes)
 app.use("/api/v1/payments", paymentRoutes)
 app.use("/api/v1/admin", auth, adminRoutes)
 app.use("/api/v1/users", auth, userRoutes)
+app.use("/api/v1/dashboard", dashboardRoutes)
 
 // * Backward compatibility: Support non-versioned routes (deprecated)
 // * TODO: Remove in future version after migration period
@@ -306,6 +308,7 @@ app.use("/api/violations", violationRoutes)
 app.use("/api/payments", paymentRoutes)
 app.use("/api/admin", auth, adminRoutes)
 app.use("/api/users", auth, userRoutes)
+app.use("/api/dashboard", dashboardRoutes)
 
 // * Serve frontend build (available in both development and production)
 app.use(express.static(path.join(__dirname, "frontend/build")))

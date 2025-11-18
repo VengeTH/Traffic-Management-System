@@ -247,6 +247,12 @@ export const fetchCSRFToken = async (): Promise<string | null> => {
     return csrfToken;
   }
   
+  // * CSRF tokens are only available for authenticated users
+  const authToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  if (!authToken) {
+    return null;
+  }
+  
   try {
     // * Use getCurrentUser to get CSRF token from response header
     const response = await api.get('/auth/me');
@@ -281,8 +287,15 @@ api.interceptors.request.use(
 
     const method = config.method?.toLowerCase();
     const requiresCsrf = method ? ["post", "put", "delete", "patch"].includes(method) : false;
+    const requestUrl = config.url || "";
+    const isAuthRequest =
+      requestUrl.includes("/auth/login") ||
+      requestUrl.includes("/auth/register") ||
+      requestUrl.includes("/auth/forgot-password") ||
+      requestUrl.includes("/auth/reset-password") ||
+      requestUrl.includes("/auth/verify-email");
 
-    if (requiresCsrf && !csrfToken) {
+    if (requiresCsrf && !isAuthRequest && !csrfToken) {
       try {
         await fetchCSRFToken();
       } catch (error) {
@@ -290,7 +303,7 @@ api.interceptors.request.use(
       }
     }
 
-    if (requiresCsrf && csrfToken) {
+    if (requiresCsrf && !isAuthRequest && csrfToken) {
       config.headers["X-CSRF-Token"] = csrfToken;
     }
 
