@@ -51,7 +51,12 @@ const app = express()
 const PORT = process.env.PORT || 5000
 
 // * Trust proxy - required when behind reverse proxy (NGINX, Cloudflare, ngrok, etc.)
-app.set('trust proxy', true)
+const trustProxySetting = (() => {
+  const rawValue = process.env.TRUST_PROXY_COUNT || '1'
+  const parsedValue = parseInt(rawValue, 10)
+  return Number.isNaN(parsedValue) ? 1 : parsedValue
+})()
+app.set('trust proxy', trustProxySetting)
 
 // * HTTPS enforcement (must be before other middleware)
 app.use(enforceHTTPS)
@@ -157,6 +162,7 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => isDevelopment, // Skip rate limiting entirely in development
+  trustProxy: trustProxySetting,
 })
 
 // * Slow down requests - disabled in development
@@ -165,6 +171,7 @@ const speedLimiter = slowDown({
   delayAfter: 50,
   delayMs: () => 500,
   skip: (req) => isDevelopment, // Skip slow down entirely in development
+  trustProxy: trustProxySetting,
 })
 
 app.use("/api/", limiter)
@@ -182,6 +189,7 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
   skipSuccessfulRequests: true, // Don't count successful requests
   skip: (req) => isDevelopment, // Skip auth rate limiting in development
+  trustProxy: trustProxySetting,
 })
 
 // * Rate limiting for password reset endpoints
@@ -195,6 +203,7 @@ const passwordResetLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => isDevelopment, // Skip password reset rate limiting in development
+  trustProxy: trustProxySetting,
 })
 
 // * Body parsing middleware

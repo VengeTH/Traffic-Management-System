@@ -7,6 +7,29 @@ const jwt = require('jsonwebtoken');
 const { User } = require('../models');
 const logger = require('../utils/logger');
 const { isTokenBlacklisted } = require('./tokenBlacklist');
+const { generateCSRFToken } = require('./csrf');
+
+const issueCsrfToken = (req, res) => {
+  if (!req || !res || !req.user || !req.user.id) {
+    return;
+  }
+
+  if (!res.locals) {
+    res.locals = {};
+  }
+
+  if (res.locals.csrfTokenIssued) {
+    return;
+  }
+
+  try {
+    const token = generateCSRFToken(req.user.id);
+    res.setHeader('X-CSRF-Token', token);
+    res.locals.csrfTokenIssued = true;
+  } catch (error) {
+    logger.error('Failed to issue CSRF token:', error);
+  }
+};
 
 // * Authentication middleware
 const auth = async (req, res, next) => {
@@ -76,6 +99,7 @@ const auth = async (req, res, next) => {
     req.user = user;
     req.token = token;
     
+    issueCsrfToken(req, res);
     next();
     
   } catch (error) {
@@ -202,6 +226,7 @@ const adminAuth = async (req, res, next) => {
       });
     }
     
+    issueCsrfToken(req, res);
     next();
     
   } catch (error) {
@@ -314,6 +339,7 @@ const enforcerAuth = async (req, res, next) => {
       });
     }
     
+    issueCsrfToken(req, res);
     next();
     
   } catch (error) {
