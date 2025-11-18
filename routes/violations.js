@@ -379,6 +379,13 @@ router.post('/', enforcerAuth, validateViolationCreation, checkValidation, async
   } = req.body;
   
   // * Create violation
+  const normalizedDriverLicenseNumber = driverLicenseNumber && driverLicenseNumber.trim().length > 0
+    ? driverLicenseNumber.trim()
+    : null;
+  const normalizedDriverPhone = driverPhone && driverPhone.trim().length > 0
+    ? driverPhone.trim()
+    : null;
+
   const violation = await Violation.create({
     plateNumber: plateNumber.toUpperCase(),
     vehicleType,
@@ -387,9 +394,9 @@ router.post('/', enforcerAuth, validateViolationCreation, checkValidation, async
     vehicleColor,
     vehicleYear,
     driverName,
-    driverLicenseNumber,
+    driverLicenseNumber: normalizedDriverLicenseNumber,
     driverAddress,
-    driverPhone,
+    driverPhone: normalizedDriverPhone,
     violationType,
     violationDescription,
     violationLocation,
