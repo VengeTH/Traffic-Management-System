@@ -23,10 +23,10 @@ const PaymentSuccessPage: React.FC = () => {
   const { paymentId: paymentIdParam } = useParams<{ paymentId: string }>()
   const [searchParams] = useSearchParams()
   const paymentIdFromQuery = searchParams.get("payment_id")
-  
+
   // * Get payment ID from either path parameter or query parameter
   const paymentId = paymentIdParam || paymentIdFromQuery
-  
+
   const [payment, setPayment] = useState<Payment | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
 
@@ -40,7 +40,9 @@ const PaymentSuccessPage: React.FC = () => {
       try {
         setLoading(true)
         const response = await apiService.getPayment(paymentId)
-        setPayment(response.data as Payment)
+        // * API returns { success: true, data: { payment: {...} } }
+        const paymentData = (response.data?.payment ?? response.data) as Payment
+        setPayment(paymentData)
       } catch (error) {
         console.error("Failed to load payment:", error)
       } finally {
