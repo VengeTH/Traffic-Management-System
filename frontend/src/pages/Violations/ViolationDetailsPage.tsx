@@ -19,8 +19,8 @@ import PageHeader from "../../components/Layout/PageHeader"
 import PageSection from "../../components/Layout/PageSection"
 
 const formatViolationLabel = (value: string | undefined | null) => {
-  if (!value) return "Unknown violation";
-  return value.replace(/_/g, " ");
+  if (!value) return "Unknown violation"
+  return value.replace(/_/g, " ")
 }
 
 const ViolationDetailsPage: React.FC = () => {
@@ -37,7 +37,7 @@ const ViolationDetailsPage: React.FC = () => {
       try {
         setLoading(true)
         const response = await apiService.getViolation(id)
-        setViolation(response.data as Violation)
+        setViolation(response.data.violation as Violation)
       } catch (error) {
         console.error("Failed to fetch violation:", error)
       } finally {
@@ -121,33 +121,42 @@ const ViolationDetailsPage: React.FC = () => {
           description="Time, location, and contextual information"
         >
           <div className="grid gap-4 md:grid-cols-2">
-            <DetailTile label="OVR" value={violation.ovrNumber} />
-            <DetailTile label="Citation" value={violation.citationNumber} />
+            <DetailTile label="OVR" value={violation.ovrNumber || "N/A"} />
+            <DetailTile
+              label="Citation"
+              value={violation.citationNumber || "N/A"}
+            />
             <DetailTile
               label="Violation"
               value={formatViolationLabel(violation.violationType)}
             />
             <DetailTile
               label="Vehicle"
-              value={`${violation.vehicleType.toUpperCase()} · ${violation.plateNumber}`}
+              value={`${violation.vehicleType?.toUpperCase() || "N/A"} · ${violation.plateNumber || "N/A"}`}
               icon={<Car className="h-4 w-4 text-primary-500" />}
             />
             <DetailTile
               label="Date"
-              value={new Date(violation.violationDate).toLocaleDateString()}
+              value={
+                violation.violationDate
+                  ? new Date(violation.violationDate).toLocaleDateString()
+                  : "N/A"
+              }
               icon={<Calendar className="h-4 w-4 text-primary-500" />}
             />
-            <DetailTile label="Time" value={violation.violationTime} />
+            <DetailTile label="Time" value={violation.violationTime || "N/A"} />
           </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <LocationTile
-              location={violation.violationLocation}
-              description={violation.violationDescription}
+              location={violation.violationLocation || "N/A"}
+              description={
+                violation.violationDescription || "No description provided"
+              }
             />
             <OfficerTile
-              enforcer={violation.enforcerName}
-              status={violation.status}
+              enforcer={violation.enforcerName || "Unknown"}
+              status={violation.status || "pending"}
             />
           </div>
         </PageSection>
@@ -284,7 +293,7 @@ const OfficerTile: React.FC<OfficerTileProps> = ({ enforcer, status }) => (
     </div>
     <p className="mt-3 text-sm text-gray-700">Issued by {enforcer}</p>
     <p className="mt-2 text-xs text-gray-600">
-      Current status: {status.toUpperCase()}
+      Current status: {status?.toUpperCase() || "PENDING"}
     </p>
   </div>
 )

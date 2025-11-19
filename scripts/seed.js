@@ -101,7 +101,7 @@ const seedData = async () => {
           lastName: "Martinez",
           email: "ana.martinez@email.com",
           phoneNumber: "+639567890123",
-          password: "citizen123",
+          password: "Citizen123!",
           role: "citizen",
           isActive: true,
           isEmailVerified: true,
