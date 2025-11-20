@@ -19,8 +19,8 @@ import PageHeader from "../../components/Layout/PageHeader"
 import PageSection from "../../components/Layout/PageSection"
 
 const formatViolationLabel = (value: string | undefined | null) => {
-  if (!value) return "Unknown violation";
-  return value.replace(/_/g, " ");
+  if (!value) return "Unknown violation"
+  return value.replace(/_/g, " ")
 }
 
 const PaymentPage: React.FC = () => {
@@ -46,7 +46,8 @@ const PaymentPage: React.FC = () => {
         setLoading(true)
         const response = await apiService.getViolation(violationId)
         // * API returns { success: true, data: { violation: {...} } }
-        const violationData = (response.data?.violation ?? response.data) as Violation
+        const violationData = (response.data?.violation ??
+          response.data) as Violation
 
         if (!violationData) {
           setError("Violation data not found. Please try again.")
@@ -85,69 +86,41 @@ const PaymentPage: React.FC = () => {
       // * Ensure we have a CSRF token before making the payment request
       await fetchCSRFToken()
 
-      // * Use violation ID from URL parameter (most reliable - this is what was used to fetch the violation)
-      // * Extract UUID from URL parameter if it's corrupted, then fallback to violation object
-      console.log('Payment initiation - violationId from URL:', violationId, 'length:', violationId?.length);
-      console.log('Payment initiation - violation.id from object:', violation.id, 'length:', violation.id?.length);
-      
-      // * Extract UUID from URL parameter first (even if corrupted)
-      const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
-      let validViolationId = null;
-      
-      if (violationId) {
-        // * Try direct use if it's exactly 36 characters
-        if (violationId.length === 36 && uuidPattern.test(violationId)) {
-          validViolationId = violationId;
-        } else {
-          // * Extract UUID from corrupted string
-          const extracted = violationId.match(uuidPattern);
-          if (extracted && extracted[0] && extracted[0].length === 36) {
-            validViolationId = extracted[0];
-            console.log('Extracted UUID from corrupted URL parameter:', validViolationId);
-          }
+      // * Extract valid violation ID
+      const uuidPattern =
+        /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
+      let validViolationId = violationId
+
+      if (violationId && violationId.length !== 36) {
+        const extracted = violationId.match(uuidPattern)
+        if (extracted && extracted[0]) {
+          validViolationId = extracted[0]
         }
       }
-      
-      // * Fallback to violation object if URL param extraction failed
+
       if (!validViolationId) {
-        if (violation.id && typeof violation.id === 'string' && violation.id.length === 36 && uuidPattern.test(violation.id)) {
-          validViolationId = violation.id;
-        } else if (violation.id) {
-          const extracted = String(violation.id).match(uuidPattern);
-          if (extracted && extracted[0] && extracted[0].length === 36) {
-            validViolationId = extracted[0];
-            console.log('Extracted UUID from corrupted violation object:', validViolationId);
-          } else {
-            validViolationId = violation.id; // * Last resort - use as-is
-          }
-        }
+        validViolationId = violation.id
       }
-      
-      console.log('Payment initiation - validViolationId to send:', validViolationId, 'length:', validViolationId?.length);
-      
-      // * Ensure we have a valid violation ID
-      if (!validViolationId) {
-        throw new Error('Unable to determine violation ID. Please refresh the page and try again.');
-      }
-      
-      // * Ensure OVR number is valid (should be 13 characters like "OVR2025114186")
-      const validOVRNumber = violation.ovrNumber && typeof violation.ovrNumber === 'string' && violation.ovrNumber.length <= 20
-        ? violation.ovrNumber
-        : undefined;
-      
-      console.log('Payment initiation - validOVRNumber to send:', validOVRNumber, 'length:', validOVRNumber?.length);
-      
+
+      console.log("Payment initiation - violationId:", validViolationId)
+
       const payment = await initiatePayment({
-        violationId: validViolationId, // Use violation ID from URL parameter (most reliable)
-        ovrNumber: validOVRNumber, // Keep OVR as fallback (validate length)
+        violationId: validViolationId,
+        ovrNumber: violation.ovrNumber,
         paymentMethod: selectedGateway.id,
         amount: violation.totalFine,
         payerName: violation.driverName,
-        payerEmail: violation.driverEmail || (violation.driverPhone ? `${violation.driverPhone.replace(/\D/g, '')}@temp.email` : "driver@example.com"),
+        payerEmail:
+          violation.driverEmail ||
+          `${violation.driverPhone?.replace(/\D/g, "") || "driver"}@temp.email`,
         payerPhone: violation.driverPhone || undefined,
       })
 
-      navigate(`/payment/success/${payment.id}`)
+      // * In demo mode, simulate payment gateway redirect
+      // * Show a fake "processing" screen then redirect to success
+      setTimeout(() => {
+        navigate(`/payment/success/${payment.id}`)
+      }, 1500) // Simulate gateway processing time
     } catch (paymentError) {
       console.error("Payment initiation failed:", paymentError)
       setError(
@@ -249,7 +222,10 @@ const PaymentPage: React.FC = () => {
           description="Ensure all details are accurate before proceeding with payment."
         >
           <div className="grid gap-4 md:grid-cols-2">
-            <SummaryRow label="Citation" value={violation?.citationNumber ?? "N/A"} />
+            <SummaryRow
+              label="Citation"
+              value={violation?.citationNumber ?? "N/A"}
+            />
             <SummaryRow
               label="Status"
               value={renderStatusPill(violation?.status ?? "pending")}
@@ -261,10 +237,17 @@ const PaymentPage: React.FC = () => {
               label="Violation"
               value={formatViolationLabel(violation?.violationType)}
             />
-            <SummaryRow label="Location" value={violation?.violationLocation ?? "N/A"} />
+            <SummaryRow
+              label="Location"
+              value={violation?.violationLocation ?? "N/A"}
+            />
             <SummaryRow
               label="Issued on"
-              value={violation?.violationDate ? new Date(violation.violationDate).toLocaleDateString() : "N/A"}
+              value={
+                violation?.violationDate
+                  ? new Date(violation.violationDate).toLocaleDateString()
+                  : "N/A"
+              }
             />
             {violation?.status === "pending" && violation?.dueDate && (
               <SummaryRow
@@ -354,11 +337,18 @@ const PaymentPage: React.FC = () => {
               onClick={handlePayment}
               className="flex w-full items-center justify-center gap-2"
             >
-              <DollarSign className="h-5 w-5" />
-              Pay ₱
-              {Number(violation?.totalFine ?? 0).toLocaleString("en-PH", {
-                minimumFractionDigits: 2,
-              })}
+              {processing ? (
+                <>Processing payment...</>
+              ) : (
+                <>
+                  <DollarSign className="h-5 w-5" />
+                  Pay ₱
+                  {Number(violation?.totalFine ?? 0).toLocaleString("en-PH", {
+                    minimumFractionDigits: 2,
+                  })}
+                  {" (Demo)"}
+                </>
+              )}
             </Button>
           </div>
         </PageSection>
