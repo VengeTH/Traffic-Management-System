@@ -9,7 +9,7 @@ A comprehensive web-based traffic violation payment system for the City of Las P
 - **Online Payment**: Integrated payment gateways (GCash, Maya, PayMongo, DragonPay, Debit/Credit Cards)
 - **Digital Receipts**: QR code-enabled receipts sent via email/SMS
 - **Admin Dashboard**: Complete management interface for LGU administrators
-- **User Authentication**: Secure JWT-based authentication with 2FA support
+- **User Authentication**: Secure JWT-based authentication
 
 ### Phase 2 Features
 - **Notification System**: SMS/email reminders for pending fines
@@ -255,7 +255,6 @@ Authorization: Bearer <admin_token>
 ### Users Table
 - User authentication and profile information
 - Role-based access control (citizen, enforcer, admin)
-- Two-factor authentication support
 
 ### Violations Table
 - Traffic violation records

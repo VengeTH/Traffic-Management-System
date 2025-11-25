@@ -12,7 +12,6 @@ import {
   Shield,
   Zap,
 } from "lucide-react"
-import { Card, CardContent } from "../../components/UI/Card"
 import Button from "../../components/UI/Button"
 import LoadingSpinner from "../../components/UI/LoadingSpinner"
 import PageHeader from "../../components/Layout/PageHeader"
@@ -45,11 +44,38 @@ const PaymentPage: React.FC = () => {
       try {
         setLoading(true)
         const response = await apiService.getViolation(violationId)
-        // * API returns { success: true, data: { violation: {...} } }
-        const violationData = (response.data?.violation ??
-          response.data) as Violation
+        
+        // * Safely unwrap the response - API returns { success: true, data: { violation: {...} } }
+        if (!response) {
+          setError("No response received from API. Please try again.")
+          return
+        }
+        
+        // * Handle the response structure: { success: true, data: { violation: {...} } }
+        // * or direct { violation: {...} } or just the violation object
+        let violationData: Violation | null = null
+        
+        if (response && typeof response === 'object') {
+          // * Check for nested structure: response.data.violation
+          if ('data' in response && response.data && typeof response.data === 'object' && 'violation' in response.data) {
+            violationData = (response.data as { violation?: Violation }).violation || null
+          }
+          // * Check for direct violation property: response.violation
+          else if ('violation' in response) {
+            violationData = (response as { violation?: Violation }).violation || null
+          }
+          // * Check if response.data is the violation itself
+          else if ('data' in response) {
+            violationData = response.data as Violation | null
+          }
+          // * Check if response itself is the violation
+          else if ('id' in response || 'ovrNumber' in response) {
+            violationData = response as Violation
+          }
+        }
 
         if (!violationData) {
+          console.error("Violation data not found in response:", response)
           setError("Violation data not found. Please try again.")
           return
         }
@@ -74,8 +100,17 @@ const PaymentPage: React.FC = () => {
     fetchViolation()
   }, [violationId])
 
-  const handlePayment = async () => {
+  const handlePayment = async (e?: React.MouseEvent<HTMLButtonElement>) => {
+    // * Prevent default form submission behavior
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+
     if (!violation || !selectedGateway) {
+      if (!selectedGateway) {
+        setError("Please select a payment gateway first")
+      }
       return
     }
 
@@ -121,12 +156,12 @@ const PaymentPage: React.FC = () => {
       setTimeout(() => {
         navigate(`/payment/success/${payment.id}`)
       }, 1500) // Simulate gateway processing time
-    } catch (paymentError) {
+    } catch (paymentError: any) {
       console.error("Payment initiation failed:", paymentError)
-      setError(
-        "Payment initiation failed. Please try again or select another gateway."
-      )
-    } finally {
+      const errorMessage = paymentError?.response?.data?.message || 
+                          paymentError?.message || 
+                          "Payment initiation failed. Please try again or select another gateway."
+      setError(errorMessage)
       setProcessing(false)
     }
   }
@@ -330,11 +365,18 @@ const PaymentPage: React.FC = () => {
             <Button
               variant="primary"
               size="lg"
+              type="button"
               loading={processing}
               disabled={
                 !selectedGateway || processing || violation.status === "paid"
               }
-              onClick={handlePayment}
+              onClick={(e) => {
+                if (e) {
+                  e.preventDefault()
+                  e.stopPropagation()
+                }
+                handlePayment(e)
+              }}
               className="flex w-full items-center justify-center gap-2"
             >
               {processing ? (

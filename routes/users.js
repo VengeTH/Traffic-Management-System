@@ -205,19 +205,79 @@ router.get('/violations', auth, asyncHandler(async (req, res) => {
   
   const offset = (page - 1) * limit;
   
-  let whereClause = {};
+  // * Normalize phone numbers for matching (remove spaces, dashes, ensure consistent format)
+  const normalizePhone = (phone) => {
+    if (!phone) return null;
+    // Remove all non-digit characters except +
+    const cleaned = phone.replace(/[^\d+]/g, '');
+    // Ensure it starts with + if it has country code, otherwise return as is
+    return cleaned.startsWith('+') ? cleaned : cleaned;
+  };
   
-  // * If user has driver license, search by it
+  const userPhoneNormalized = normalizePhone(req.user.phoneNumber);
+  
+  // * Build where clause with OR conditions for better matching
+  const { Op } = require('sequelize');
+  
+  // * Build the matching conditions (driver license or phone number)
+  const matchingConditions = [];
+  
+  // * Try to match by driver license first (exact match)
   if (req.user.driverLicenseNumber) {
-    whereClause.driverLicenseNumber = req.user.driverLicenseNumber;
-  } else {
-    // * If no driver license, search by phone number
-    whereClause.driverPhone = req.user.phoneNumber;
+    matchingConditions.push({ driverLicenseNumber: req.user.driverLicenseNumber });
   }
   
-  if (status) {
-    whereClause.status = status;
+  // * Also try to match by phone number (normalized) - multiple formats for better matching
+  if (userPhoneNormalized) {
+    matchingConditions.push(
+      { driverPhone: req.user.phoneNumber }, // Original format
+      { driverPhone: userPhoneNormalized }, // Normalized format
+      { driverPhone: { [Op.like]: `%${userPhoneNormalized.replace('+', '')}%` } } // Partial match without +
+    );
   }
+  
+  // * If no matching conditions, return empty
+  if (matchingConditions.length === 0) {
+    return res.json({
+      success: true,
+      data: {
+        violations: [],
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total: 0,
+          pages: 0
+        }
+      }
+    });
+  }
+  
+  // * Build the final where clause
+  // * Combine matching conditions with OR, and status filter with AND
+  const finalConditions = [
+    { [Op.or]: matchingConditions }
+  ];
+  
+  // * Add status filter if provided
+  if (status) {
+    finalConditions.push({ status });
+  }
+  
+  // * If only one condition, use it directly; otherwise combine with AND
+  const whereClause = finalConditions.length === 1 
+    ? finalConditions[0]
+    : { [Op.and]: finalConditions };
+  
+  // * Log for debugging
+  logger.info('Fetching user violations', {
+    userId: req.user.id,
+    userPhone: req.user.phoneNumber,
+    userPhoneNormalized: userPhoneNormalized,
+    driverLicense: req.user.driverLicenseNumber || 'none',
+    statusFilter: status || 'none',
+    matchingConditionsCount: matchingConditions.length,
+    whereClause: JSON.stringify(whereClause, null, 2)
+  });
   
   const { count, rows: violations } = await Violation.findAndCountAll({
     where: whereClause,
@@ -225,12 +285,19 @@ router.get('/violations', auth, asyncHandler(async (req, res) => {
       {
         model: User,
         as: 'enforcer',
-        attributes: ['firstName', 'lastName']
+        attributes: ['firstName', 'lastName'],
+        required: false
       }
     ],
     order: [['violationDate', 'DESC']],
     limit: parseInt(limit),
     offset: parseInt(offset)
+  });
+  
+  logger.info('User violations query result', {
+    userId: req.user.id,
+    count: count,
+    violationsFound: violations.length
   });
   
   res.json({
@@ -364,56 +431,6 @@ router.get('/statistics', auth, asyncHandler(async (req, res) => {
       recentViolations: recentViolations.map(v => v.toJSON()),
       recentPayments: recentPayments.map(p => p.toJSON())
     }
-  });
-}));
-
-/**
- * @route   POST /api/users/enable-2fa
- * @desc    Enable two-factor authentication
- * @access  Private
- */
-router.post('/enable-2fa', auth, asyncHandler(async (req, res) => {
-  if (req.user.twoFactorEnabled) {
-    throw new ValidationError('Two-factor authentication is already enabled');
-  }
-  
-  // * Generate 2FA secret
-  const crypto = require('crypto');
-  const secret = crypto.randomBytes(32).toString('base32');
-  
-  // * Update user with 2FA secret
-  req.user.twoFactorSecret = secret;
-  req.user.twoFactorEnabled = true;
-  await req.user.save();
-  
-  res.json({
-    success: true,
-    message: 'Two-factor authentication enabled successfully',
-    data: {
-      secret,
-      qrCodeUrl: `otpauth://totp/LasPinasTraffic:${req.user.email}?secret=${secret}&issuer=LasPinasTraffic`
-    }
-  });
-}));
-
-/**
- * @route   POST /api/users/disable-2fa
- * @desc    Disable two-factor authentication
- * @access  Private
- */
-router.post('/disable-2fa', auth, asyncHandler(async (req, res) => {
-  if (!req.user.twoFactorEnabled) {
-    throw new ValidationError('Two-factor authentication is not enabled');
-  }
-  
-  // * Disable 2FA
-  req.user.twoFactorEnabled = false;
-  req.user.twoFactorSecret = null;
-  await req.user.save();
-  
-  res.json({
-    success: true,
-    message: 'Two-factor authentication disabled successfully'
   });
 }));
 

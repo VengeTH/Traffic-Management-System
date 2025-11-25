@@ -125,7 +125,7 @@ const LoginPage: React.FC = () => {
                   Government grade security
                 </p>
                 <p className="mt-1 text-xs text-gray-700 leading-relaxed">
-                  Two-factor ready with audit trails.
+                  Encrypted audit trails and secure transactions.
                 </p>
               </div>
               <div className="rounded-2xl border border-secondary-100/30 bg-secondary-50/50 p-5 shadow-sm">

@@ -350,7 +350,7 @@ const DashboardPage: React.FC = () => {
               Profile & notification rules
             </h3>
             <p className="mt-2 text-sm text-gray-600 font-medium">
-              Manage contact details, two-factor security, and notification
+              Manage contact details and notification
               channels to stay informed.
             </p>
             <Link to="/profile" className="mt-6 block">

@@ -147,20 +147,6 @@ const sendVerificationCodeSMS = async (phoneNumber, code) => {
   });
 };
 
-// * Send two-factor authentication SMS
-const sendTwoFactorSMS = async (phoneNumber, code) => {
-  const message = `Las Piñas Traffic Payment System\n\n` +
-    `Your 2FA code is: ${code}\n\n` +
-    `This code will expire in 5 minutes.\n` +
-    `Do not share this code with anyone.\n\n` +
-    `Reply STOP to unsubscribe`;
-  
-  return await sendSMS({
-    to: phoneNumber,
-    message
-  });
-};
-
 // * Generate verification code
 const generateVerificationCode = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -189,7 +175,6 @@ module.exports = {
   sendPaymentReminderSMS,
   sendOverduePaymentSMS,
   sendVerificationCodeSMS,
-  sendTwoFactorSMS,
   generateVerificationCode,
   validatePhoneNumber,
   formatPhoneNumber

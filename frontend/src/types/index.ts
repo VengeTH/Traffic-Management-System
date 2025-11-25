@@ -10,7 +10,6 @@ export interface User {
   role: 'citizen' | 'admin' | 'enforcer';
   isActive: boolean;
   isEmailVerified: boolean;
-  twoFactorEnabled: boolean;
   driverLicenseNumber?: string;
   lastLoginAt?: string;
   createdAt: string;
@@ -264,7 +263,7 @@ export interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   children: React.ReactNode;
-  onClick?: () => void;
+  onClick?: (e?: React.MouseEvent<HTMLButtonElement>) => void;
   type?: 'button' | 'submit' | 'reset';
   className?: string;
 }
@@ -321,6 +320,5 @@ export interface UserSettings {
     sms: boolean;
     push: boolean;
   };
-  twoFactorEnabled: boolean;
 }
 

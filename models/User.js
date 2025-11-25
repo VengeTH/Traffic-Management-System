@@ -82,17 +82,6 @@ const User = sequelize.define('User', {
     defaultValue: false
   },
   
-  // * Two-Factor Authentication
-  twoFactorEnabled: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
-  
-  twoFactorSecret: {
-    type: DataTypes.STRING(255),
-    allowNull: true
-  },
-  
   // * Profile Information
   dateOfBirth: {
     type: DataTypes.DATEONLY,
@@ -379,7 +368,6 @@ User.prototype.canPerformEnforcerAction = function() {
 User.prototype.toJSON = function() {
   const values = Object.assign({}, this.get());
   delete values.password;
-  delete values.twoFactorSecret;
   delete values.passwordResetToken;
   delete values.passwordResetExpires;
   delete values.emailVerificationToken;

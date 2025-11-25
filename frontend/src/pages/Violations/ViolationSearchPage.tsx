@@ -1,8 +1,9 @@
 import React, { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
-import { apiService } from "../../services/api"
+import { apiService, unwrapApiResponse } from "../../services/api"
 import { Violation } from "../../types"
 import {
   Search,
@@ -34,6 +35,7 @@ const schema = yup
 type SearchFormData = yup.InferType<typeof schema>
 
 const ViolationSearchPage: React.FC = () => {
+  const navigate = useNavigate()
   const [violations, setViolations] = useState<Violation[]>([])
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
@@ -62,7 +64,8 @@ const ViolationSearchPage: React.FC = () => {
         data.searchValue
       )
 
-      setViolations(response.data.violations || [])
+      const payload = unwrapApiResponse<{ violations?: Violation[] }>(response)
+      setViolations(payload?.violations || [])
     } catch (error: any) {
       console.error("Search failed:", error)
       setViolations([])
@@ -319,12 +322,7 @@ const ViolationSearchPage: React.FC = () => {
                               <Button
                                 variant="primary"
                                 size="sm"
-                                onClick={() =>
-                                  window.open(
-                                    `/payment/${violation.id}`,
-                                    "_blank"
-                                  )
-                                }
+                                onClick={() => navigate(`/payment/${violation.id}`)}
                                 className="shadow-md hover:shadow-lg transition-all"
                               >
                                 Pay Now

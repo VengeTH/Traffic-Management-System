@@ -655,16 +655,6 @@ class ApiService {
     return response.data;
   }
 
-  async enable2FA() {
-    const response = await api.post('/users/enable-2fa');
-    return response.data;
-  }
-
-  async disable2FA() {
-    const response = await api.post('/users/disable-2fa');
-    return response.data;
-  }
-
   async deactivateAccount() {
     const response = await api.delete('/users/account');
     return response.data;

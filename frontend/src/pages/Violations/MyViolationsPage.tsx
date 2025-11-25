@@ -17,7 +17,7 @@ import Input from "../../components/UI/Input";
 import LoadingSpinner from "../../components/UI/LoadingSpinner";
 import PageHeader from "../../components/Layout/PageHeader";
 import PageSection from "../../components/Layout/PageSection";
-import { apiService } from "../../services/api";
+import { apiService, unwrapApiResponse } from "../../services/api";
 import { Violation } from "../../types";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -57,7 +57,22 @@ const MyViolationsPage: React.FC = () => {
       }
 
       const response = await apiService.getUserViolations(params);
-      const allViolations = response.data.violations ?? [];
+      
+      // * Safely unwrap the response
+      if (!response) {
+        throw new Error("No response received from API");
+      }
+      
+      const payload = unwrapApiResponse<
+        { violations?: Violation[]; pagination?: { pages?: number; total?: number } } | Violation[]
+      >(response);
+      
+      // * Handle both array and object response formats
+      const allViolations: Violation[] = Array.isArray(payload)
+        ? payload
+        : (payload && typeof payload === 'object' && 'violations' in payload)
+          ? (payload.violations ?? [])
+          : [];
       
       // * Filter by search term on client side (since API doesn't support search)
       const filteredViolations = searchTerm
@@ -71,11 +86,22 @@ const MyViolationsPage: React.FC = () => {
         : allViolations;
 
       setViolations(filteredViolations);
-      setTotalPages(response.data.pagination?.pages ?? 1);
-      setTotal(response.data.pagination?.total ?? 0);
-    } catch (error) {
+      
+      // * Extract pagination data (only available if payload is an object)
+      const paginationData = !Array.isArray(payload) ? payload?.pagination : undefined;
+      setTotalPages(paginationData?.pages ?? 1);
+      setTotal(paginationData?.total ?? allViolations.length);
+    } catch (error: any) {
       console.error("Failed to fetch violations:", error);
+      // * Log the error response for debugging
+      if (error?.response) {
+        console.error("Error response:", error.response.data);
+      }
       toast.error("Failed to load violations");
+      // * Set empty state on error
+      setViolations([]);
+      setTotalPages(1);
+      setTotal(0);
     } finally {
       setLoading(false);
     }

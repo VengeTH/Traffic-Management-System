@@ -8,6 +8,7 @@ const { body, query, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
 const { Violation, User } = require('../models');
 const { Op } = require('sequelize');
+const { sequelize } = require('../config/database');
 const { auth, enforcerAuth } = require('../middleware/auth');
 const { asyncHandler, ValidationError, NotFoundError, AuthorizationError } = require('../middleware/errorHandler');
 const { sendViolationNotificationSMS } = require('../utils/sms');
@@ -248,7 +249,20 @@ router.get('/enforcer', enforcerAuth, asyncHandler(async (req, res) => {
   const parsedPage = Math.max(parseInt(page, 10) || 1, 1);
   const parsedLimit = Math.min(Math.max(parseInt(limit, 10) || 10, 1), 100);
   const offset = (parsedPage - 1) * parsedLimit;
-  const likeOperator = Op.iLike || Op.like;
+  
+  // * Use ILIKE for PostgreSQL (case-insensitive), LIKE for SQLite
+  const likeOperator = sequelize.getDialect() === 'postgres' ? Op.iLike : Op.like;
+
+  // * Log for debugging in production
+  logger.info('Enforcer violations query', {
+    userId: req.user.id,
+    userRole: req.user.role,
+    page: parsedPage,
+    limit: parsedLimit,
+    search: search || null,
+    status: status || null,
+    violationType: violationType || null
+  });
 
   const filters = [
     {
@@ -285,32 +299,49 @@ router.get('/enforcer', enforcerAuth, asyncHandler(async (req, res) => {
 
   const whereClause = filters.length === 1 ? filters[0] : { [Op.and]: filters };
 
-  const { count, rows: violations } = await Violation.findAndCountAll({
-    where: whereClause,
-    include: [
-      {
-        model: User,
-        as: 'enforcer',
-        attributes: ['id', 'firstName', 'lastName']
-      }
-    ],
-    order: [['createdAt', 'DESC']],
-    limit: parsedLimit,
-    offset
-  });
+  try {
+    const { count, rows: violations } = await Violation.findAndCountAll({
+      where: whereClause,
+      include: [
+        {
+          model: User,
+          as: 'enforcer',
+          attributes: ['id', 'firstName', 'lastName'],
+          required: false // * LEFT JOIN to avoid filtering out violations if enforcer is missing
+        }
+      ],
+      order: [['createdAt', 'DESC']],
+      limit: parsedLimit,
+      offset
+    });
 
-  res.json({
-    success: true,
-    data: {
-      violations: violations.map(v => v.toJSON()),
-      pagination: {
-        page: parsedPage,
-        limit: parsedLimit,
-        total: count,
-        pages: Math.ceil(count / parsedLimit)
+    logger.info('Enforcer violations query result', {
+      userId: req.user.id,
+      count: count,
+      violationsFound: violations.length
+    });
+
+    res.json({
+      success: true,
+      data: {
+        violations: violations.map(v => v.toJSON()),
+        pagination: {
+          page: parsedPage,
+          limit: parsedLimit,
+          total: count,
+          pages: Math.ceil(count / parsedLimit)
+        }
       }
-    }
-  });
+    });
+  } catch (error) {
+    logger.error('Error fetching enforcer violations:', {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user.id,
+      whereClause
+    });
+    throw error;
+  }
 }));
 
 /**
@@ -337,11 +368,13 @@ router.get('/:id', auth, asyncHandler(async (req, res) => {
   
   // * Check if user has permission to view this violation
   // * Users can view violations they own, enforcers can view their own violations, admins can view all
+  // * Additionally, allow viewing pending violations for payment purposes (any authenticated user can view pending violations to pay)
   const canView = 
     req.user.canPerformAdminAction() || // Admin can view all
     violation.enforcerId === req.user.id || // Enforcer can view their own
     (req.user.driverLicenseNumber && violation.driverLicenseNumber === req.user.driverLicenseNumber) || // User can view their own
-    (req.user.phoneNumber && violation.driverPhone === req.user.phoneNumber); // User can view by phone match
+    (req.user.phoneNumber && violation.driverPhone === req.user.phoneNumber) || // User can view by phone match
+    (violation.status === 'pending'); // Allow viewing pending violations for payment purposes (any authenticated user)
   
   if (!canView) {
     throw new AuthorizationError('You do not have permission to view this violation');

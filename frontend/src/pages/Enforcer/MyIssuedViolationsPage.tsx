@@ -100,9 +100,22 @@ const MyIssuedViolationsPage: React.FC = () => {
       setViolations(violationList);
       setTotalPages(pagination.pages ?? 1);
       setTotal(pagination.total ?? violationList.length);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to fetch violations:", error);
-      toast.error("Failed to load violations");
+      const errorMessage = error?.response?.data?.message || 
+                          error?.message || 
+                          "Failed to load violations";
+      toast.error(errorMessage);
+      
+      // * Log detailed error for debugging
+      if (error?.response) {
+        console.error("API Error Response:", {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          data: error.response.data,
+          url: error.config?.url
+        });
+      }
     } finally {
       setLoading(false);
     }

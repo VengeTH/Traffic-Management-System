@@ -22,7 +22,7 @@ const heroHighlights = [
   {
     icon: <Shield className="h-5 w-5" />,
     title: "Government grade security",
-    description: "Two-factor ready with encrypted audit trails.",
+    description: "Encrypted audit trails and secure transactions.",
   },
   {
     icon: <CreditCard className="h-5 w-5" />,

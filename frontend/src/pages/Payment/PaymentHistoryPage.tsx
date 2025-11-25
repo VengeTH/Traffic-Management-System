@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { apiService } from "../../services/api"
+import { apiService, unwrapApiResponse } from "../../services/api"
 import { Payment } from "../../types"
 import {
   CreditCard,
@@ -26,7 +26,11 @@ const PaymentHistoryPage: React.FC = () => {
       try {
         setLoading(true)
         const response = await apiService.getUserPayments()
-        setPayments(response.data.payments || [])
+        const payload = unwrapApiResponse<{ payments?: Payment[] } | Payment[]>(response)
+        const paymentList: Payment[] = Array.isArray(payload)
+          ? payload
+          : payload?.payments ?? []
+        setPayments(paymentList)
       } catch (error) {
         console.error("Failed to fetch payment history:", error)
       } finally {

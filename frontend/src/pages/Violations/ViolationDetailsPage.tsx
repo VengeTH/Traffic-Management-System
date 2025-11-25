@@ -12,7 +12,6 @@ import {
   FileText,
   MapPin,
 } from "lucide-react"
-import { Card, CardContent } from "../../components/UI/Card"
 import Button from "../../components/UI/Button"
 import LoadingSpinner from "../../components/UI/LoadingSpinner"
 import PageHeader from "../../components/Layout/PageHeader"
@@ -37,9 +36,53 @@ const ViolationDetailsPage: React.FC = () => {
       try {
         setLoading(true)
         const response = await apiService.getViolation(id)
-        setViolation(response.data.violation as Violation)
-      } catch (error) {
+        
+        // * Safely unwrap the response - API returns { success: true, data: { violation: {...} } }
+        if (!response) {
+          console.error("No response received from API")
+          return
+        }
+        
+        // * Handle the response structure: { success: true, data: { violation: {...} } }
+        // * or direct { violation: {...} } or just the violation object
+        let violationData: Violation | null = null
+        
+        if (response && typeof response === 'object') {
+          // * Check for nested structure: response.data.violation
+          if ('data' in response && response.data && typeof response.data === 'object' && 'violation' in response.data) {
+            violationData = (response.data as { violation?: Violation }).violation || null
+          }
+          // * Check for direct violation property: response.violation
+          else if ('violation' in response) {
+            violationData = (response as { violation?: Violation }).violation || null
+          }
+          // * Check if response.data is the violation itself
+          else if ('data' in response) {
+            violationData = response.data as Violation | null
+          }
+          // * Check if response itself is the violation
+          else if ('id' in response || 'ovrNumber' in response) {
+            violationData = response as Violation
+          }
+        }
+
+        if (!violationData) {
+          console.error("Violation data not found in response:", response)
+          return
+        }
+
+        setViolation(violationData)
+      } catch (error: any) {
         console.error("Failed to fetch violation:", error)
+        // * Log detailed error for debugging
+        if (error?.response) {
+          console.error("API Error Response:", {
+            status: error.response.status,
+            statusText: error.response.statusText,
+            data: error.response.data,
+            url: error.config?.url
+          })
+        }
       } finally {
         setLoading(false)
       }
